@@ -163,7 +163,7 @@ code { font: 13px var(--mono); background: var(--surface-2); padding: 1px 5px; b
     <div class="fix">
       <h3>4. Uma réplica só (correção de infraestrutura, recomendada)</h3>
       <dl>
-        <dt>Evidência</dt><dd>Com 2 réplicas atrás de um balanceador, o estresse de 400 alunos passou de p95 de 3,6 s para 614 ms no total.</dd>
+        <dt>Evidência</dt><dd>Com 2 réplicas atrás de um balanceador, o estresse de 400 alunos ficou em p95 de 614 ms no total, contra 3,6 s com uma réplica. Foi medido antes das correções 1 e 3, então o número é conservador.</dd>
         <dt>Quando</dt><dd>Não é necessário para o piloto de 40 alunos. Ativar a segunda réplica no Coolify antes de passar de cerca de 150 alunos ativos ao mesmo tempo (dois terços do teto medido). O pool do banco é de 10 conexões por réplica, e o Postgres aceita 100.</dd>
       </dl>
     </div>

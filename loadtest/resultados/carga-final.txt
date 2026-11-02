@@ -1,1 +1,63 @@
 time="2026-11-02T16:59:34Z" level=warning msg="Request Failed" error="Post \"http://localhost:3300/api/v1/questions/attempts\": EOF"
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.99' rate=100.00%
+
+    http_req_duration
+    ✓ 'p(95)<1000' p(95)=101.81ms
+
+      {name:painel}
+      ✓ 'p(95)<1000' p(95)=196.19ms
+
+      {name:proxima_questao}
+      ✓ 'p(95)<1000' p(95)=89.45ms
+
+      {name:tentativa}
+      ✓ 'p(95)<1000' p(95)=100.68ms
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.01%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 9131    27.338485/s
+    checks_succeeded...: 100.00% 9131 out of 9131
+    checks_failed......: 0.00%   0 out of 9131
+
+    ✓ navegacao ok
+    ✓ exportacao ok
+    ✓ criar_sessao ok
+    ✓ proxima_questao ok
+    ✓ painel ok
+    ✓ tentativa ok
+    ✓ publico ok
+    ✓ pagina_revisoes ok
+    ✓ fila_revisoes ok
+    ✓ resumo_sessao ok
+    ✓ criar_cartao ok
+
+    HTTP
+    http_req_duration..............: avg=43.54ms min=276.87µs med=33.58ms p(90)=76.96ms  p(95)=101.81ms p(99)=192.93ms max=486.49ms
+      { expected_response:true }...: avg=43.55ms min=2.44ms   med=33.58ms p(90)=76.96ms  p(95)=101.81ms p(99)=192.94ms max=486.49ms
+      { name:painel }..............: avg=86.44ms min=30.06ms  med=69.17ms p(90)=145.97ms p(95)=196.19ms p(99)=331.5ms  max=486.49ms
+      { name:proxima_questao }.....: avg=39.9ms  min=14.56ms  med=31.91ms p(90)=66.32ms  p(95)=89.45ms  p(99)=157.09ms max=282.93ms
+      { name:tentativa }...........: avg=45.69ms min=276.87µs med=36ms    p(90)=77.15ms  p(95)=100.68ms p(99)=179.03ms max=316.41ms
+    http_req_failed................: 0.01% 1 out of 9231
+    http_reqs......................: 9231  27.637888/s
+
+    EXECUTION
+    iteration_duration.............: avg=11.9s   min=1.04s    med=3.87s   p(90)=33.21s   p(95)=34.86s   p(99)=37.25s   max=40.55s  
+    iterations.....................: 2018  6.041952/s
+    vus............................: 1     min=0         max=100
+    vus_max........................: 100   min=100       max=100
+
+    NETWORK
+    data_received..................: 63 MB 189 kB/s
+    data_sent......................: 12 MB 35 kB/s
+
+
+
