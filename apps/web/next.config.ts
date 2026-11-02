@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.join(import.meta.dirname, '../../'),
   transpilePackages: ['@gutta/core', '@gutta/db'],
+  serverExternalPackages: ['@node-rs/argon2', 'pg'],
   poweredByHeader: false,
   async headers() {
     return [

@@ -1,4 +1,4 @@
-import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 // Tabelas do Better Auth. Os nomes das propriedades seguem o que a biblioteca espera;
 // as colunas ficam em snake_case. Sem RLS: só o módulo de autenticação acessa (ADR 0003).
@@ -76,6 +76,9 @@ export const authTwoFactors = pgTable(
     userId: text('user_id')
       .notNull()
       .references(() => authUsers.id, { onDelete: 'cascade' }),
+    verified: boolean('verified').notNull().default(true),
+    failedVerificationCount: integer('failed_verification_count').notNull().default(0),
+    lockedUntil: ts('locked_until'),
   },
   (t) => [index('auth_two_factors_user_idx').on(t.userId)],
 );
