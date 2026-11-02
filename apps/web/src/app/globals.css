@@ -50,8 +50,11 @@
     outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
+  /* Link em texto não depende só da cor (WCAG 1.4.1): sublinhado por padrão.
+     Botões e itens de navegação tiram o sublinhado com no-underline. */
   a {
     color: var(--accent);
+    text-decoration-line: underline;
     text-underline-offset: 3px;
   }
   @media (prefers-reduced-motion: reduce) {

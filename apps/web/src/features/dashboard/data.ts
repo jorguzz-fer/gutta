@@ -115,7 +115,8 @@ export async function loadDashboard(userId: string) {
       };
     });
     const recommendation = recommendNext({
-      dueFlashcards: reviews.cards.length,
+      // Só revisões vencidas são prioridade 1 (SPEC QUE-02); cartão novo não é atraso.
+      dueFlashcards: reviews.dueCount,
       topics: topicInputs,
     });
 
