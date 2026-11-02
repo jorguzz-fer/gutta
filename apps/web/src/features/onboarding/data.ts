@@ -73,13 +73,3 @@ export async function loadOnboardingData(userId: string) {
     };
   });
 }
-
-export async function isOnboarded(userId: string) {
-  const row = await withUser(db(), userId, (tx) =>
-    tx.query.studentProfiles.findFirst({
-      where: eq(s.studentProfiles.userId, userId),
-      columns: { onboardingCompletedAt: true },
-    }),
-  );
-  return Boolean(row?.onboardingCompletedAt);
-}

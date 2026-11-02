@@ -293,7 +293,7 @@ export function QuestionPlayer({ sessionId }: { sessionId: string }) {
                   <p className="ml-13 px-3 text-[14.5px] text-fg/90">{st.explanation}</p>
                 ) : feedback && st?.explanation ? (
                   <details className="ml-13 px-3 text-[14px] text-muted">
-                    <summary className="cursor-pointer">Por que não esta</summary>
+                    <summary className="cursor-pointer">Por que não é esta</summary>
                     <p className="mt-1">{st.explanation}</p>
                   </details>
                 ) : null}

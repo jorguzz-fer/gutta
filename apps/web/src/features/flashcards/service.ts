@@ -85,7 +85,16 @@ type CardOut = {
 
 /** Fila de hoje: vencidos até o fim do dia local + alguns editoriais novos das disciplinas ativas. */
 export async function dueQueue(userId: string, opts: { limit?: number; moduleId?: string } = {}) {
-  return withUser(db(), userId, async (tx) => {
+  return withUser(db(), userId, (tx) => dueQueueTx(tx, userId, opts));
+}
+
+/** Mesma fila, dentro de uma transação já aberta (o painel reaproveita a dele). */
+export async function dueQueueTx(
+  tx: Tx,
+  userId: string,
+  opts: { limit?: number; moduleId?: string } = {},
+) {
+  {
     const tz = await timezoneOf(tx, userId);
     const now = new Date();
     const end = endOfLocalDay(now, tz);
@@ -170,7 +179,7 @@ export async function dueQueue(userId: string, opts: { limit?: number; moduleId?
       })),
     ];
     return { cards, dueCount: due.length, newCount: fresh.length, timezone: tz };
-  });
+  }
 }
 
 function toState(row: {
@@ -384,4 +393,45 @@ export async function dueSummary(userId: string) {
     ]);
     return { dueToday: today[0]?.n ?? 0, dueTomorrow: tomorrow[0]?.n ?? 0 };
   });
+}
+
+/**
+ * Só as contagens da fila de hoje, sem montar cartões nem prévias (o painel não precisa delas).
+ * Teste de carga: montar a fila completa no painel custava milhares de conversões de fuso por request.
+ */
+export async function dueCountsTx(tx: Tx, userId: string, tz: string) {
+  const now = new Date();
+  const end = endOfLocalDay(now, tz);
+  const startOfDay = addLocalDays(now, 0, tz, 0);
+  const topicIds = await activeTopicIds(tx, userId);
+  const [due] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(s.flashcardSchedules)
+    .where(and(eq(s.flashcardSchedules.studentId, userId), lt(s.flashcardSchedules.dueAt, end)));
+  const [startedToday] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(s.flashcardSchedules)
+    .where(
+      and(
+        eq(s.flashcardSchedules.studentId, userId),
+        gte(s.flashcardSchedules.createdAt, startOfDay),
+      ),
+    );
+  const budget = Math.max(0, NEW_PER_DAY - (startedToday?.n ?? 0));
+  let fresh = 0;
+  if (budget > 0 && topicIds.length) {
+    const [row] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(s.flashcards)
+      .where(
+        and(
+          isNull(s.flashcards.ownerId),
+          eq(s.flashcards.status, 'published'),
+          inArray(s.flashcards.topicId, topicIds),
+          sql`not exists (select 1 from flashcard_schedules fs where fs.flashcard_id = "flashcards"."id" and fs.student_id = ${userId})`,
+        ),
+      );
+    fresh = Math.min(budget, row?.n ?? 0);
+  }
+  return { dueCount: due?.n ?? 0, newCount: fresh, total: (due?.n ?? 0) + fresh };
 }

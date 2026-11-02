@@ -16,7 +16,8 @@
     "seed": "tsx src/scripts/seed.ts",
     "setup:local": "tsx src/scripts/setup-local.ts",
     "test": "vitest run",
-    "build:migrate": "esbuild src/scripts/migrate-cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/migrate.mjs --external:pg-native --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
+    "build:migrate": "esbuild src/scripts/migrate-cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/migrate.mjs --external:pg-native --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
+    "seed:load": "tsx src/scripts/seed-load.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",

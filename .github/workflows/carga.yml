@@ -1,0 +1,63 @@
+name: Teste de carga
+
+# Portão de desempenho (skill teste-de-carga): toda mudança passa por uma carga curta com os
+# mesmos limites do relatório. k6 sai com código ≠ 0 quando um threshold quebra, e o job falha.
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      vus:
+        description: Usuários simultâneos
+        default: '30'
+
+permissions:
+  contents: read
+
+env:
+  PG_SUPERUSER_URL: postgres://postgres:postgres@localhost:5432/postgres
+  LOAD_DATABASE_URL: postgres://gutta_app:gutta_app_ci@localhost:5432/gutta_load
+  LOAD_DATABASE_OWNER_URL: postgres://gutta_owner:gutta_owner_ci@localhost:5432/gutta_load
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  k6:
+    name: Carga curta (k6)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Massa de dados (banco gutta_load)
+        run: pnpm --filter @gutta/db seed:load
+        env: { LOAD_USERS: '60' }
+      - run: pnpm build
+      - name: Sobe o app (build de produção)
+        run: |
+          cd apps/web
+          APP_URL=http://localhost:3300 DATABASE_URL=$LOAD_DATABASE_URL AUTH_RATE_LIMIT=off \
+          BETTER_AUTH_SECRET=$(openssl rand -base64 32) nohup pnpm exec next start -p 3300 > ../../next.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:3300/api/health && break; sleep 2; done
+      - uses: grafana/setup-k6-action@v1
+      - name: k6 (smoke + carga curta)
+        working-directory: loadtest
+        run: |
+          k6 run -e BASE_URL=http://localhost:3300 -e PROFILE=smoke -e VUS=2 scenario.js
+          k6 run -e BASE_URL=http://localhost:3300 -e PROFILE=ci -e VUS=${{ inputs.vus || '30' }} \
+            --summary-export=resultados/ci-summary.json scenario.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-resumo
+          path: |
+            loadtest/resultados/ci-summary.json
+            next.log
+          retention-days: 14

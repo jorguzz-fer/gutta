@@ -15,16 +15,31 @@ export const getSession = cache(async () => {
   return auth().api.getSession({ headers: h });
 });
 
-export const getRoles = cache(async (userId: string): Promise<Role[]> => {
-  const rows = await withUser(db(), userId, (tx) =>
+/**
+ * Papéis e status do onboarding numa transação só, uma vez por requisição (React cache).
+ * O layout e a página pedem os dois; antes eram até 3 transações por página (teste de carga).
+ */
+export const getAccess = cache(async (userId: string) => {
+  return withUser(db(), userId, async (tx) => {
     // Filtro explícito: admin lê os papéis de todos pelo RLS, mas aqui só interessam os dele.
-    tx
+    const roles = await tx
       .select({ role: schema.roleAssignments.role })
       .from(schema.roleAssignments)
-      .where(eq(schema.roleAssignments.userId, userId)),
-  );
-  return rows.map((r) => r.role);
+      .where(eq(schema.roleAssignments.userId, userId));
+    const profile = await tx.query.studentProfiles.findFirst({
+      where: eq(schema.studentProfiles.userId, userId),
+      columns: { onboardingCompletedAt: true },
+    });
+    return {
+      roles: roles.map((r) => r.role as Role),
+      onboarded: Boolean(profile?.onboardingCompletedAt),
+    };
+  });
 });
+
+export async function getRoles(userId: string): Promise<Role[]> {
+  return (await getAccess(userId)).roles;
+}
 
 export type CurrentUser = {
   id: string;
@@ -74,7 +89,6 @@ export function safeNext(next: string | null | undefined, fallback = '/app') {
 /** Aluno com onboarding concluído. Sem perfil acadêmico, vai para /onboarding. */
 export async function requireStudent(next = '/app'): Promise<CurrentUser> {
   const user = await requireUser(next);
-  const { isOnboarded } = await import('@/features/onboarding/data');
-  if (!(await isOnboarded(user.id))) redirect('/onboarding');
+  if (!(await getAccess(user.id)).onboarded) redirect('/onboarding');
   return user;
 }

@@ -10,22 +10,11 @@ import {
   type MasteryBand,
   type TopicInput,
 } from '@gutta/core';
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gte,
-  inArray,
-  isNull,
-  schema as s,
-  sql,
-  withUser,
-  inSequence,
-} from '@gutta/db';
+import { and, asc, desc, eq, gte, inArray, isNull, schema as s, sql, withUser } from '@gutta/db';
 import { db } from '@/lib/db';
 import { track } from '@/lib/events';
-import { dueQueue } from '@/features/flashcards/service';
+import { memo } from '@/lib/memo';
+import { dueCountsTx } from '@/features/flashcards/service';
 
 export type Dashboard = Awaited<ReturnType<typeof loadDashboard>>;
 
@@ -34,11 +23,13 @@ const MIN_PER_QUESTION = 1.5;
 const SEC_PER_CARD = 20;
 
 export async function loadDashboard(userId: string) {
-  const reviews = await dueQueue(userId, { limit: 200 });
+  // Uma transação para o painel inteiro, incluindo a fila de revisões.
   return withUser(db(), userId, async (tx) => {
     const person = await tx.query.profiles.findFirst({ where: eq(s.profiles.userId, userId) });
     const tz = person?.timezone ?? 'America/Sao_Paulo';
     const now = new Date();
+    const reviews = await dueCountsTx(tx, userId, tz);
+    const todayStart = addLocalDays(now, 0, tz, 0);
     const profile = await tx.query.studentProfiles.findFirst({
       where: eq(s.studentProfiles.userId, userId),
     });
@@ -53,8 +44,13 @@ export async function loadDashboard(userId: string) {
       .orderBy(asc(s.disciplines.name));
     const disciplineIds = active.map((d) => d.id);
 
-    const topics = disciplineIds.length
-      ? await tx
+    // Catálogo publicado é igual para todos com as mesmas disciplinas: cache de 60 s por processo.
+    const catalog = await memo(
+      `painel:catalogo:${[...disciplineIds].sort().join(',')}`,
+      60_000,
+      async () => {
+        if (!disciplineIds.length) return { topics: [], publishedIds: [] as string[] };
+        const ts = await tx
           .select({
             id: s.topics.id,
             name: s.topics.name,
@@ -65,8 +61,25 @@ export async function loadDashboard(userId: string) {
           })
           .from(s.topics)
           .where(inArray(s.topics.disciplineId, disciplineIds))
-          .orderBy(asc(s.topics.orderIndex))
-      : [];
+          .orderBy(asc(s.topics.orderIndex));
+        const ids = ts.length
+          ? await tx
+              .select({ id: s.questions.id })
+              .from(s.questions)
+              .where(
+                and(
+                  eq(s.questions.status, 'published'),
+                  inArray(
+                    s.questions.topicId,
+                    ts.map((t) => t.id),
+                  ),
+                ),
+              )
+          : [];
+        return { topics: ts, publishedIds: ids.map((r) => r.id) };
+      },
+    );
+    const topics = catalog.topics;
     const topicIds = topics.map((t) => t.id);
     const mastery = topicIds.length
       ? await tx
@@ -121,7 +134,6 @@ export async function loadDashboard(userId: string) {
     });
 
     // Registra a recomendação uma vez por dia e motivo (rastreabilidade sem inflar a tabela).
-    const todayStart = addLocalDays(now, 0, tz, 0);
     const already = await tx
       .select({ id: s.learningRecommendations.id })
       .from(s.learningRecommendations)
@@ -152,12 +164,6 @@ export async function loadDashboard(userId: string) {
     }
 
     // Questão do dia: estável no dia, entre as publicadas das disciplinas ativas.
-    const published = topicIds.length
-      ? await tx
-          .select({ id: s.questions.id })
-          .from(s.questions)
-          .where(and(eq(s.questions.status, 'published'), inArray(s.questions.topicId, topicIds)))
-      : [];
     const answeredRows = await tx
       .select({
         questionId: s.questionAttempts.questionId,
@@ -169,17 +175,11 @@ export async function loadDashboard(userId: string) {
       .limit(1000);
     const todayKey = localDayKey(now, tz);
     // Para a escolha, só contam respostas de dias anteriores (a questão não troca depois de feita).
+    // Comparação com o início do dia local em UTC: nada de converter fuso linha a linha.
     const answeredBefore = new Set(
-      answeredRows
-        .filter((a) => localDayKey(a.answeredAt, tz) !== todayKey)
-        .map((a) => a.questionId),
+      answeredRows.filter((a) => a.answeredAt < todayStart).map((a) => a.questionId),
     );
-    const qotdId = questionOfTheDay(
-      published.map((p) => p.id),
-      answeredBefore,
-      todayKey,
-      userId,
-    );
+    const qotdId = questionOfTheDay(catalog.publishedIds, answeredBefore, todayKey, userId);
     const qotd = qotdId
       ? await tx
           .select({
@@ -194,40 +194,42 @@ export async function loadDashboard(userId: string) {
           .then((r) => r[0] ?? null)
       : null;
     const qotdDone = Boolean(
-      qotdId &&
-      answeredRows.some(
-        (a) => a.questionId === qotdId && localDayKey(a.answeredAt, tz) === todayKey,
-      ),
+      qotdId && answeredRows.some((a) => a.questionId === qotdId && a.answeredAt >= todayStart),
     );
 
     // Semana local (segunda a domingo): dias com estudo ativo, questões e revisões. Sem punição por falha.
     const daysSinceMonday = (localWeekday(now, tz) + 6) % 7;
     const weekStart = addLocalDays(now, -daysSinceMonday, tz, 0);
-    const [weekAttempts, weekReviews] = await inSequence([
-      () =>
-        tx
-          .select({ at: s.questionAttempts.answeredAt, ok: s.questionAttempts.isCorrect })
-          .from(s.questionAttempts)
-          .where(
-            and(
-              eq(s.questionAttempts.studentId, userId),
-              gte(s.questionAttempts.answeredAt, weekStart),
-            ),
-          ),
-      () =>
-        tx
-          .select({ at: s.flashcardReviews.reviewedAt })
-          .from(s.flashcardReviews)
-          .where(
-            and(
-              eq(s.flashcardReviews.studentId, userId),
-              gte(s.flashcardReviews.reviewedAt, weekStart),
-            ),
-          ),
-    ]);
+    // Agregado no banco, já no fuso do aluno.
+    const localDay = (col: unknown) =>
+      sql<string>`to_char((${col} at time zone ${tz})::date, 'YYYY-MM-DD')`;
+    const weekAttempts = await tx
+      .select({
+        day: localDay(s.questionAttempts.answeredAt),
+        n: sql<number>`count(*)::int`,
+        ok: sql<number>`count(*) filter (where ${s.questionAttempts.isCorrect})::int`,
+      })
+      .from(s.questionAttempts)
+      .where(
+        and(
+          eq(s.questionAttempts.studentId, userId),
+          gte(s.questionAttempts.answeredAt, weekStart),
+        ),
+      )
+      .groupBy(sql`1`);
+    const weekReviews = await tx
+      .select({ day: localDay(s.flashcardReviews.reviewedAt), n: sql<number>`count(*)::int` })
+      .from(s.flashcardReviews)
+      .where(
+        and(
+          eq(s.flashcardReviews.studentId, userId),
+          gte(s.flashcardReviews.reviewedAt, weekStart),
+        ),
+      )
+      .groupBy(sql`1`);
     const activeDays = new Set([
-      ...weekAttempts.map((a) => localDayKey(a.at, tz)),
-      ...weekReviews.map((r) => localDayKey(r.at, tz)),
+      ...weekAttempts.map((a) => a.day),
+      ...weekReviews.map((r) => r.day),
     ]);
     const weekDays = Array.from({ length: 7 }, (_, i) => {
       const day = addLocalDays(weekStart, i, tz, 12);
@@ -265,8 +267,8 @@ export async function loadDashboard(userId: string) {
       reviews: {
         due: reviews.dueCount,
         fresh: reviews.newCount,
-        total: reviews.cards.length,
-        minutes: Math.max(1, Math.round((reviews.cards.length * SEC_PER_CARD) / 60)),
+        total: reviews.total,
+        minutes: Math.max(1, Math.round((reviews.total * SEC_PER_CARD) / 60)),
       },
       recommendationMinutes:
         recommendation.type === 'review_flashcards'
@@ -281,9 +283,9 @@ export async function loadDashboard(userId: string) {
       week: {
         days: weekDays,
         activeDays: activeDays.size,
-        questions: weekAttempts.length,
-        correct: weekAttempts.filter((a) => a.ok).length,
-        reviews: weekReviews.length,
+        questions: weekAttempts.reduce((n, a) => n + a.n, 0),
+        correct: weekAttempts.reduce((n, a) => n + a.ok, 0),
+        reviews: weekReviews.reduce((n, r) => n + r.n, 0),
       },
       isNew: totalAttempts === 0,
     };
