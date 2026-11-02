@@ -309,9 +309,14 @@ export function QuestionPlayer({ sessionId }: { sessionId: string }) {
             <Button size="lg" onClick={submit} disabled={!selected} loading={submitting}>
               Responder
             </Button>
-            <span className="hidden text-xs text-muted sm:inline">
-              Atalhos: 1 a {q.options.length} e Enter
-            </span>
+            {selected ? (
+              <span className="hidden text-xs text-muted sm:inline">
+                Atalhos: 1 a {q.options.length} e Enter
+              </span>
+            ) : (
+              // Diz por que o botão está desabilitado, em vez de deixar o aluno adivinhar.
+              <span className="text-sm text-muted">Escolha uma alternativa</span>
+            )}
           </div>
         ) : (
           <div className="grid gap-4">

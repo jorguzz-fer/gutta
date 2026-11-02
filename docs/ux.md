@@ -52,6 +52,32 @@ Contexto: estudante de graduação em saúde, no celular, entre uma aula e outra
 - Cada finalidade em uma linha, e só o que é opcional tem botão (Occam).
 - Exportar é um clique. Excluir pede confirmação digitada, porque não tem volta.
 
-## Revisão do fluxo principal
+## Revisão do fluxo principal (02/11/2026)
 
-Os resultados da revisão estão na próxima seção.
+**Contexto:** aluno no celular, do cadastro até a primeira sessão de questões e a revisão. Revisão feita sobre o build de produção, com prints em tema claro e escuro (prévia em `docs/previa-design-gutta.png`).
+
+**Prioridade alta (corrigido)**
+- **Questão, botão "Próxima" fora da tela no celular.** *Lei de Fitts.* Depois de responder, o aluno rolava a página a cada questão para achar o resultado e o botão. **Correção:** resultado logo abaixo do enunciado e barra de ação fixa acima da navegação inferior.
+- **Onboarding enviava antes do último passo.** *Gradiente de Meta, quebrado.* O React reaproveitava o botão "Continuar" como `submit`. **Correção:** botões com `key` distintas e teste E2E cobrindo os 3 passos.
+- **Painel recomendava "Revisar 4 flashcards" para quem acabou de chegar.** *Pareto e personalização verificável.* Cartões novos eram contados como revisão atrasada. **Correção:** só vencidos entram na prioridade 1; o aluno novo recebe o diagnóstico.
+- **Botão "Bom" invisível na revisão.** *Von Restorff, invertido.* O destaque saía branco porque o fundo genérico vencia a cor do acento. **Correção:** fundo definido por variante.
+
+**Prioridade média (corrigido)**
+- **Erro continuava na tela depois de corrigido.** *Doherty, feedback.* **Correção:** o erro do campo some na hora em que o aluno o corrige; um erro novo do servidor volta a aparecer.
+- **"Responder" apagado sem explicação.** *Doherty.* **Correção:** "Escolha uma alternativa" ao lado do botão enquanto ele está desabilitado.
+- **Revisões abaixo das disciplinas no celular.** *Posição Serial.* A 3ª prioridade da SPEC ficava no fim da página. **Correção:** o bloco vem logo depois da questão do dia.
+- **Links no meio do texto distinguíveis só pela cor.** *WCAG 1.4.1 (axe).* **Correção:** links sublinhados por padrão.
+
+**Rápidos (corrigido)**
+- "Por que não esta" virou "Por que não é esta".
+- O favicon da gota tirava um 404 de cada página.
+
+**O que já está bom (não desfazer)**
+- Um único primário por tela, na cor do acento (Von Restorff): landing, painel e questão.
+- Progresso visível no onboarding, nas questões e nas revisões (Gradiente de Meta).
+- Selo "Demonstração · sem revisão" em todo conteúdo não revisado. É informação honesta, não ruído.
+
+**Para depois (não bloqueia o piloto)**
+- Testar com 5 alunos do teste de corredor (dezembro). A revisão por leis de UX não substitui observar gente de verdade.
+- Auditoria manual de acessibilidade com leitor de tela (VoiceOver e TalkBack). A varredura automática (axe, WCAG 2.2 AA) passa nas 10 telas principais.
+- O módulo mostra um retângulo vazio quando a aula externa não carrega no iframe. Detectar o erro e trocar pelo botão "Abrir a aula".

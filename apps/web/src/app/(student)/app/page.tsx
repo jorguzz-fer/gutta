@@ -114,6 +114,32 @@ export default async function TodayPage({
             </Card>
           ) : null}
 
+          {/* Revisões logo depois da questão do dia: no celular é a 3ª prioridade da SPEC (Posição Serial). */}
+          <Card as="section" aria-labelledby="revisoes" className="grid gap-2">
+            <h2 id="revisoes" className="flex items-center gap-2 text-lg font-bold">
+              <Layers className="size-5 text-muted" aria-hidden /> Revisões
+            </h2>
+            {d.reviews.total > 0 ? (
+              <>
+                <p>
+                  <strong className="font-display text-2xl">{d.reviews.total}</strong>{' '}
+                  {d.reviews.total === 1 ? 'cartão' : 'cartões'} para hoje
+                  <span className="text-muted"> · ~{d.reviews.minutes} min</span>
+                </p>
+                <p className="text-sm text-muted">
+                  {d.reviews.due} vencidos{d.reviews.fresh ? `, ${d.reviews.fresh} novos` : ''}
+                </p>
+                {r.type !== 'review_flashcards' ? (
+                  <Link href="/app/revisoes" className="text-sm">
+                    Revisar agora
+                  </Link>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-muted">Nada vencido hoje. Questões erradas podem virar cartões.</p>
+            )}
+          </Card>
+
           <section aria-labelledby="lacunas" className="grid gap-3">
             <h2 id="lacunas" className="text-lg font-bold">
               Suas disciplinas
@@ -171,31 +197,6 @@ export default async function TodayPage({
         </div>
 
         <aside className="grid content-start gap-6">
-          <Card as="section" aria-labelledby="revisoes" className="grid gap-2">
-            <h2 id="revisoes" className="flex items-center gap-2 text-lg font-bold">
-              <Layers className="size-5 text-muted" aria-hidden /> Revisões
-            </h2>
-            {d.reviews.total > 0 ? (
-              <>
-                <p>
-                  <strong className="font-display text-2xl">{d.reviews.total}</strong>{' '}
-                  {d.reviews.total === 1 ? 'cartão' : 'cartões'} para hoje
-                  <span className="text-muted"> · ~{d.reviews.minutes} min</span>
-                </p>
-                <p className="text-sm text-muted">
-                  {d.reviews.due} vencidos{d.reviews.fresh ? `, ${d.reviews.fresh} novos` : ''}
-                </p>
-                {r.type !== 'review_flashcards' ? (
-                  <Link href="/app/revisoes" className="text-sm">
-                    Revisar agora
-                  </Link>
-                ) : null}
-              </>
-            ) : (
-              <p className="text-muted">Nada vencido hoje. Questões erradas podem virar cartões.</p>
-            )}
-          </Card>
-
           <Card as="section" aria-labelledby="semana" className="grid gap-3">
             <h2 id="semana" className="text-lg font-bold">
               Esta semana
