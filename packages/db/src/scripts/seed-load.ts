@@ -104,24 +104,20 @@ async function main() {
       await db
         .insert(s.authUsers)
         .values({ id, email, name: `Carga ${u + 1}`, emailVerified: true });
-      await db
-        .insert(s.authAccounts)
-        .values({
-          id: randomUUID(),
-          accountId: id,
-          providerId: 'credential',
-          userId: id,
-          password: hash,
-        });
+      await db.insert(s.authAccounts).values({
+        id: randomUUID(),
+        accountId: id,
+        providerId: 'credential',
+        userId: id,
+        password: hash,
+      });
       await db.insert(s.profiles).values({ userId: id, displayName: `Carga ${u + 1}` });
-      await db
-        .insert(s.studentProfiles)
-        .values({
-          userId: id,
-          courseId: base.courseId,
-          semester: 3,
-          onboardingCompletedAt: new Date(),
-        });
+      await db.insert(s.studentProfiles).values({
+        userId: id,
+        courseId: base.courseId,
+        semester: 3,
+        onboardingCompletedAt: new Date(),
+      });
       await db
         .insert(s.studentDisciplines)
         .values(disciplines.map((d) => ({ studentId: id, disciplineId: d })));

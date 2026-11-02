@@ -34,7 +34,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 - [x] 21. E2E (Playwright): cadastro → verificação → onboarding → 5 questões → feedback → flashcard → dashboard; editor → revisor → publicação. Varredura de acessibilidade automatizada no fluxo principal.
 - [x] 22. Teste de carga (skill teste-de-carga): `loadtest/` com mapa de todas as rotas, cenário k6 ponderado, smoke, carga, estresse e pico contra build de produção local com banco populado; gargalos corrigidos; relatório HTML; job de CI.
 - [x] 23. Revisão de UX (skill leis-de-ux) das telas do fluxo principal, correções aplicadas, `docs/ux.md` com decisões de UX.
-- [ ] 24. Documentação final: README, `docs/architecture`, resultado real das verificações, riscos e próximo passo (tutor IA, M3).
+- [x] 24. Documentação final: README, `docs/architecture`, resultado real das verificações, riscos e próximo passo (tutor IA, M3).
 
 ## Fora deste ciclo (de propósito)
 
