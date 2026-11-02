@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.claude/*.local.md
+.claude/settings.local.json
+playwright-report/
+test-results/
+loadtest/resultados/*.json
+.DS_Store
+next-env.d.ts

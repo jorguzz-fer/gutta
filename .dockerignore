@@ -1,3 +1,10 @@
 .git
 README.md
 .dockerignore
+node_modules
+**/node_modules
+**/.next
+apps
+packages
+docs
+loadtest

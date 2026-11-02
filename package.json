@@ -1,0 +1,32 @@
+{
+  "name": "gutta",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @gutta/web dev",
+    "build": "pnpm --filter @gutta/web build",
+    "start": "pnpm --filter @gutta/web start",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:unit": "pnpm --filter @gutta/core test",
+    "e2e": "pnpm --filter @gutta/web e2e",
+    "db:setup": "pnpm --filter @gutta/db setup",
+    "db:migrate": "pnpm --filter @gutta/db migrate",
+    "db:seed": "pnpm --filter @gutta/db seed",
+    "db:generate": "pnpm --filter @gutta/db generate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.4.4",
+    "prettier": "^3.6.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}
