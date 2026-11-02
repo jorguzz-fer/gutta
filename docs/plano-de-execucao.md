@@ -21,7 +21,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 
 ## M1. Aprendizagem ativa mínima
 
-- [ ] 11. Onboarding (ONB-01): curso, instituição (catálogo + "não encontrei"), semestre, disciplinas, meta de minutos/dia, dias de estudo, prova opcional. Idempotente. Editável depois em `/app/perfil`.
+- [x] 11. Onboarding (ONB-01): curso, instituição (catálogo + "não encontrei"), semestre, disciplinas, meta de minutos/dia, dias de estudo, prova opcional. Idempotente. Editável depois em `/app/perfil`.
 - [ ] 12. Catálogo (CAT-01): `/app/disciplinas`, `/app/disciplinas/[slug]`, página de módulo com player da aula interativa (iframe com sandbox), resumo e chamadas para questões e flashcards.
 - [ ] 13. Banco de questões (QUE-01): schema `questions`, `question_options`, `question_sources`, `question_sessions`, `question_attempts`, `topic_mastery`, `learning_recommendations`, com RLS. Seeds com questões de demonstração.
 - [ ] 14. Sessão de questões: criar sessão (treino ou diagnóstico), próxima questão **sem gabarito**, tentativa corrigida no servidor com chave idempotente, feedback com explicação de cada alternativa e referência, histórico.

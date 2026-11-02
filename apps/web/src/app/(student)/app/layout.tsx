@@ -2,7 +2,7 @@ import { BookOpen, Home, Layers, ListChecks, User } from 'lucide-react';
 import Link from 'next/link';
 import { Wordmark } from '@/components/shared/logo';
 import { BottomNav, TopNav, type NavItem } from '@/components/layout/nav-links';
-import { hasAnyRole, EDITORIAL_ROLES, requireUser } from '@/lib/auth/session';
+import { hasAnyRole, EDITORIAL_ROLES, requireStudent } from '@/lib/auth/session';
 
 const icon = 'size-5';
 const items: NavItem[] = [
@@ -14,7 +14,7 @@ const items: NavItem[] = [
 ];
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireUser('/app');
+  const user = await requireStudent('/app');
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">

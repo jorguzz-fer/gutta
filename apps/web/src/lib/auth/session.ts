@@ -66,3 +66,11 @@ export function safeNext(next: string | null | undefined, fallback = '/app') {
     return fallback;
   return next;
 }
+
+/** Aluno com onboarding concluído. Sem perfil acadêmico, vai para /onboarding. */
+export async function requireStudent(next = '/app'): Promise<CurrentUser> {
+  const user = await requireUser(next);
+  const { isOnboarded } = await import('@/features/onboarding/data');
+  if (!(await isOnboarded(user.id))) redirect('/onboarding');
+  return user;
+}
