@@ -27,9 +27,9 @@
     "@types/node": "^22.18.0",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.25.12",
     "tsx": "^4.23.15",
     "typescript": "5.9.3",
-    "vitest": "^3.2.7",
-    "esbuild": "^0.25.12"
+    "vitest": "^4.1.12"
   }
 }

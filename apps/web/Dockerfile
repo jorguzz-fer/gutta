@@ -21,6 +21,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store --mount=type=secret,id=ca,requ
     pnpm install --frozen-lockfile
 
 FROM deps AS build
+ENV NEXT_OUTPUT_STANDALONE=1
 COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/web apps/web

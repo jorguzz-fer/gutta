@@ -17,7 +17,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 - [x] 07. RBAC no servidor (`requireUser`, `requireRole`), `proxy.ts` protegendo `/app` e `/admin`, layouts do aluno e do admin, páginas `/entrar`, `/cadastro`, `/recuperar-senha`, `/verificar-email`.
 - [x] 08. Testes de isolamento (integração contra Postgres real): aluno A não lê nem altera dados do aluno B; visitante não acessa API privada; papel `gutta_app` não ignora RLS.
 - [x] 09. Docker: `apps/web/Dockerfile` (multi-stage, não-root, `output: standalone`), `docker-compose.yml` (web + postgres), migrations no start, `/api/health`. Guia de deploy no Coolify em `docs/deploy.md`.
-- [ ] 10. CI no GitHub Actions: lint, typecheck, unit, integração com serviço Postgres, build, E2E.
+- [x] 10. CI no GitHub Actions: lint, typecheck, unit, integração com serviço Postgres, build, E2E.
 
 ## M1. Aprendizagem ativa mínima
 

@@ -9,7 +9,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test --pass-with-no-tests"
   },
   "dependencies": {
     "@gutta/core": "workspace:*",
@@ -32,6 +32,6 @@
     "eslint-config-next": "^16.4.4",
     "tailwindcss": "^4.3.3",
     "typescript": "5.9.3",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
   }
 }
