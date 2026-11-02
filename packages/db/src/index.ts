@@ -17,3 +17,4 @@ export {
   asc,
   count,
 } from 'drizzle-orm';
+export { hashPassword, verifyPassword } from './password';
