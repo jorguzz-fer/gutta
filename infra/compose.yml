@@ -1,0 +1,55 @@
+# Plataforma Gutta no Coolify (build pack "Docker Compose", arquivo infra/compose.yml).
+# Variáveis definidas no Coolify (nunca no repositório):
+#   APP_URL, BETTER_AUTH_SECRET, POSTGRES_PASSWORD, GUTTA_OWNER_PASSWORD, GUTTA_APP_PASSWORD,
+#   RESEND_API_KEY, MAIL_FROM, LESSON_ORIGINS
+name: gutta
+
+services:
+  web:
+    image: gutta-web:latest
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_URL: ${APP_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      DATABASE_URL: postgres://gutta_app:${GUTTA_APP_PASSWORD}@db:5432/gutta
+      DATABASE_OWNER_URL: postgres://gutta_owner:${GUTTA_OWNER_PASSWORD}@db:5432/gutta
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Gutta <nao-responda@gutta.tudomudou.com.br>}
+      LESSON_ORIGINS: ${LESSON_ORIGINS:-}
+    ports:
+      - '3000'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      GUTTA_OWNER_PASSWORD: ${GUTTA_OWNER_PASSWORD}
+      GUTTA_APP_PASSWORD: ${GUTTA_APP_PASSWORD}
+    command: ['postgres', '-c', 'shared_preload_libraries=pg_stat_statements', '-c', 'max_connections=100']
+    volumes:
+      - gutta-pg:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d gutta']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Sem "ports": o banco só é alcançável pela rede interna do compose.
+
+volumes:
+  gutta-pg:

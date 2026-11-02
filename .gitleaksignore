@@ -1,0 +1,3 @@
+# Falso positivo: valor fixo só de teste (não era segredo real), já substituído por um gerado na
+# execução. Fica ignorado porque está no histórico do commit e3f9171.
+e3f9171b4f2bda88e67dd8c2f0ccfbe4d1499a2d:apps/web/vitest.int.config.ts:generic-api-key:24
