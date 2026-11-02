@@ -3,3 +3,4 @@ export * from './time';
 export * from './mastery';
 export * from './selection';
 export * from './recommend';
+export * from './srs';

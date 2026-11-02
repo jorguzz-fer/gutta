@@ -3,7 +3,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { createDb, createPool, type Db } from '../client';
 import { hashPassword } from '../password';
 import * as s from '../schema';
-import { seedQuestions } from './seed-content';
+import { seedFlashcards, seedQuestions } from './seed-content';
 import { loadEnv, requireEnv } from './env';
 
 /*
@@ -227,6 +227,7 @@ export async function runSeed(url: string): Promise<SeedResult> {
     }
 
     await seedQuestions(db, { topics, authorId: editor!, reviewerId: reviewer! });
+    await seedFlashcards(db, { topics, authorId: editor!, reviewerId: reviewer! });
 
     return { users, courseId, disciplines, topics };
   } finally {

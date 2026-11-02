@@ -387,3 +387,82 @@ export async function seedQuestions(
     );
   }
 }
+
+// Flashcards editoriais de DEMONSTRAÇÃO, ligados aos mesmos assuntos.
+export const DEMO_FLASHCARDS: { topic: string; front: string; back: string }[] = [
+  {
+    topic: 'mchObstrucao',
+    front: 'MCH obstrutiva: o que acontece com o sopro na manobra de Valsalva?',
+    back: 'Aumenta. Menos pré-carga deixa o VE menor e piora a obstrução da via de saída.',
+  },
+  {
+    topic: 'mchObstrucao',
+    front: 'O que é o SAM na miocardiopatia hipertrófica?',
+    back: 'Movimento sistólico anterior do folheto mitral em direção ao septo, que estreita a via de saída do VE.',
+  },
+  {
+    topic: 'mchObstrucao',
+    front: 'Três manobras que DIMINUEM o sopro da MCH',
+    back: 'Agachamento, elevação passiva das pernas e preensão manual sustentada.',
+  },
+  {
+    topic: 'mchDiastole',
+    front: 'Problema hemodinâmico central da MCH, mesmo sem obstrução',
+    back: 'Disfunção diastólica: o VE espesso e rígido enche mal, com pressão de enchimento alta.',
+  },
+  {
+    topic: 'mch',
+    front: 'Herança típica da MCH',
+    back: 'Autossômica dominante, por variantes em genes do sarcômero (ex.: MYH7, MYBPC3).',
+  },
+  {
+    topic: 'mch',
+    front: 'Achado histológico característico da MCH',
+    back: 'Desarranjo das fibras miocárdicas (disarray) com fibrose intersticial.',
+  },
+  {
+    topic: 'cicloCardiaco',
+    front: 'B1 e B2: fechamento de quais valvas?',
+    back: 'B1: mitral e tricúspide (início da sístole). B2: aórtica e pulmonar (fim da sístole).',
+  },
+  {
+    topic: 'cicloCardiaco',
+    front: 'Fases do ciclo cardíaco, em ordem',
+    back: 'Contração isovolumétrica, ejeção, relaxamento isovolumétrico e enchimento (rápido, lento e contração atrial).',
+  },
+  {
+    topic: 'debito',
+    front: 'Fórmula do débito cardíaco',
+    back: 'DC = frequência cardíaca × volume sistólico.',
+  },
+  {
+    topic: 'debito',
+    front: 'Pré-carga × pós-carga',
+    back: 'Pré-carga: estiramento no fim da diástole (volume). Pós-carga: resistência que o VE vence para ejetar.',
+  },
+];
+
+export async function seedFlashcards(
+  db: Db,
+  ctx: { topics: Record<string, string>; authorId: string; reviewerId: string },
+) {
+  for (const f of DEMO_FLASHCARDS) {
+    const topicId = ctx.topics[f.topic]!;
+    const exists = await db.query.flashcards.findFirst({
+      where: and(eq(s.flashcards.topicId, topicId), eq(s.flashcards.front, f.front)),
+      columns: { id: true },
+    });
+    if (exists) continue;
+    await db.insert(s.flashcards).values({
+      topicId,
+      front: f.front,
+      back: f.back,
+      visibility: 'editorial',
+      status: 'published',
+      isDemo: true,
+      authorId: ctx.authorId,
+      reviewerId: ctx.reviewerId,
+      publishedAt: new Date(),
+    });
+  }
+}
