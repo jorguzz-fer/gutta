@@ -8,7 +8,10 @@ export function Card({
 }: React.HTMLAttributes<HTMLElement> & { as?: 'section' | 'div' | 'article' | 'li' }) {
   return (
     <Tag
-      className={cn('rounded-[var(--radius-lg)] border border-line bg-surface p-5', className)}
+      className={cn(
+        'glass-card rounded-[var(--radius-lg)] border border-line bg-surface p-5',
+        className,
+      )}
       {...rest}
     />
   );

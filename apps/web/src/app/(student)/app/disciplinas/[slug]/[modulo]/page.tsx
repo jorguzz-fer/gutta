@@ -57,7 +57,7 @@ export default async function ModulePage({
         </h2>
         {lesson?.embed ? (
           <>
-            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface">
+            <div className="glass-card overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface">
               <iframe
                 src={lesson.url}
                 title={`Aula interativa: ${m.title}`}

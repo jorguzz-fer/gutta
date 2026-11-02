@@ -17,7 +17,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const user = await requireStudent('/app');
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
-      <header className="sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
+      <header className="glass-bar sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
           <Link href="/app" className="text-fg no-underline" aria-label="Gutta, hoje">
             <Wordmark />
