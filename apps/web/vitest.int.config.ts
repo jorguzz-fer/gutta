@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 
 // Integração: serviços do app contra o Postgres de teste (mesmo banco dos testes de packages/db).
@@ -21,7 +22,8 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
       DATABASE_URL: TEST_APP_URL,
-      BETTER_AUTH_SECRET: 'teste-de-integracao-com-32-caracteres-ou-mais',
+      // Gerado a cada execução: nenhum segredo fixo no repositório.
+      BETTER_AUTH_SECRET: randomBytes(32).toString('base64'),
       APP_URL: 'http://localhost:3000',
     },
   },
