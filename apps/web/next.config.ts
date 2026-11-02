@@ -3,11 +3,15 @@ import path from 'node:path';
 
 // Cabeçalhos de segurança aplicados a todas as rotas.
 // A CSP permite iframes só das origens de aulas interativas listadas em LESSON_ORIGINS.
-const lessonOrigins = (process.env.LESSON_ORIGINS ?? '').split(/[\s,]+/).filter(Boolean).join(' ');
+const lessonOrigins = (process.env.LESSON_ORIGINS ?? '')
+  .split(/[\s,]+/)
+  .filter(Boolean)
+  .join(' ');
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'" + (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
+  "script-src 'self' 'unsafe-inline'" +
+    (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "img-src 'self' data: blob:",

@@ -53,6 +53,9 @@ export function Select({ className, ...rest }: React.SelectHTMLAttributes<HTMLSe
   return <select className={cn(control, 'pr-8', className)} {...rest} />;
 }
 
-export function Textarea({ className, ...rest }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea({
+  className,
+  ...rest
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea className={cn(control, 'min-h-24 py-2', className)} {...rest} />;
 }

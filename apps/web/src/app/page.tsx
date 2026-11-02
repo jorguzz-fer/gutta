@@ -40,7 +40,10 @@ export default function Home() {
             ['Goteja', 'Todo dia, poucas questões e revisões, no tempo que você tem.'],
             ['Cava', 'O que você erra volta na hora certa, até ficar.'],
           ].map(([title, text], i) => (
-            <li key={title} className="rounded-[var(--radius-lg)] border border-line bg-surface p-5">
+            <li
+              key={title}
+              className="rounded-[var(--radius-lg)] border border-line bg-surface p-5"
+            >
               <span className="font-mono text-xs text-muted">0{i + 1}</span>
               <h2 className="mt-1 text-lg font-bold">{title}</h2>
               <p className="mt-1 text-[15px] text-muted">{text}</p>

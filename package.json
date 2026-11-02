@@ -16,7 +16,7 @@
     "test": "pnpm -r test",
     "test:unit": "pnpm --filter @gutta/core test",
     "e2e": "pnpm --filter @gutta/web e2e",
-    "db:setup": "pnpm --filter @gutta/db setup",
+    "db:setup": "pnpm --filter @gutta/db setup:local",
     "db:migrate": "pnpm --filter @gutta/db migrate",
     "db:seed": "pnpm --filter @gutta/db seed",
     "db:generate": "pnpm --filter @gutta/db generate"

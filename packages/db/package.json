@@ -14,7 +14,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/scripts/migrate.ts",
     "seed": "tsx src/scripts/seed.ts",
-    "setup": "tsx src/scripts/setup-local.ts",
+    "setup:local": "tsx src/scripts/setup-local.ts",
     "test": "vitest run"
   },
   "dependencies": {
