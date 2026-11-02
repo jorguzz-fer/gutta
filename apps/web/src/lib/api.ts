@@ -102,3 +102,19 @@ export async function readJson<T>(req: Request, schema: z.ZodType<T>): Promise<T
   }
   return schema.parse(body);
 }
+
+/** Papel exigido numa rota de API. Admin precisa de 2FA ativo, como na área /admin. */
+export async function requireApiRole(userId: string, roles: string[]) {
+  const { getRoles } = await import('./auth/session');
+  const { db } = await import('./db');
+  const { schema, eq } = await import('@gutta/db');
+  const userRoles = await getRoles(userId);
+  if (!userRoles.some((r) => roles.includes(r)))
+    throw new ApiError(403, 'forbidden', 'Sem permissão para essa ação.');
+  if (userRoles.includes('admin')) {
+    const u = await db().query.authUsers.findFirst({ where: eq(schema.authUsers.id, userId) });
+    if (!u?.twoFactorEnabled)
+      throw new ApiError(403, 'mfa_required', 'Ative a verificação em duas etapas.');
+  }
+  return userRoles;
+}
