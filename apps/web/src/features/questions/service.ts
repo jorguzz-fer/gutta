@@ -459,8 +459,8 @@ export async function recentSessions(userId: string, limit = 10) {
         startedAt: s.questionSessions.startedAt,
         finishedAt: s.questionSessions.finishedAt,
         targetCount: s.questionSessions.targetCount,
-        answered: sql<number>`(select count(*)::int from question_attempts a where a.session_id = ${s.questionSessions.id})`,
-        correct: sql<number>`(select count(*)::int from question_attempts a where a.session_id = ${s.questionSessions.id} and a.is_correct)`,
+        answered: sql<number>`(select count(*)::int from question_attempts a where a.session_id = "question_sessions"."id")`,
+        correct: sql<number>`(select count(*)::int from question_attempts a where a.session_id = "question_sessions"."id" and a.is_correct)`,
       })
       .from(s.questionSessions)
       .orderBy(desc(s.questionSessions.startedAt))

@@ -27,7 +27,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 - [x] 14. Sessão de questões: criar sessão (treino ou diagnóstico), próxima questão **sem gabarito**, tentativa corrigida no servidor com chave idempotente, feedback com explicação de cada alternativa e referência, histórico.
 - [x] 15. Domínio V1 e recomendações (QUE-02) em `packages/core`: estimativa por recência e dificuldade, "sem diagnóstico" com amostra pequena, prioridade revisões atrasadas > assunto fraco com prova próxima > assunto ativo > exploração; motivo e versão do algoritmo persistidos. Testes unitários.
 - [x] 16. Flashcards (FC-01): revisão espaçada inspirada no SM-2 em `packages/core` (esqueci/difícil/bom/fácil), fila de vencidos com fuso horário, criação de flashcard pessoal a partir de questão errada, itens privados isolados. Testes unitários e de isolamento.
-- [ ] 17. Dashboard (HOME-01): próxima ação com justificativa, questão do dia, revisões vencidas com tempo estimado, disciplinas e lacunas, provas, progresso da semana. Funciona sem histórico.
+- [x] 17. Dashboard (HOME-01): próxima ação com justificativa, questão do dia, revisões vencidas com tempo estimado, disciplinas e lacunas, provas, progresso da semana. Funciona sem histórico.
 - [ ] 18. Editorial (ADM-01): `/admin/questoes` com fluxo `draft → in_review → approved → published → archived`; autor não aprova a própria questão; só revisor publica; versão e revisor registrados; auditoria. Questão não publicada não aparece no estudo.
 - [ ] 19. Privacidade: `/app/privacidade` com preferências por finalidade, exportação dos dados em JSON e pedido de exclusão.
 - [ ] 20. Eventos de produto (ANA-01) nas ações-chave e `/admin/metricas` com WALS e contagens reais.

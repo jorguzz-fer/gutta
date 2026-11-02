@@ -133,7 +133,7 @@ export async function dueQueue(userId: string, opts: { limit?: number; moduleId?
                 isNull(s.flashcards.ownerId),
                 eq(s.flashcards.status, 'published'),
                 inArray(s.flashcards.topicId, topicIds),
-                sql`not exists (select 1 from flashcard_schedules fs where fs.flashcard_id = ${s.flashcards.id} and fs.student_id = ${userId})`,
+                sql`not exists (select 1 from flashcard_schedules fs where fs.flashcard_id = "flashcards"."id" and fs.student_id = ${userId})`,
               ),
             )
             .orderBy(asc(s.flashcards.createdAt))

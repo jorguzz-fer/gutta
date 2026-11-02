@@ -59,7 +59,7 @@ export function recommendNext(input: {
       type: 'review_flashcards',
       reasonCode: 'flashcards_due',
       title: `Revisar ${plural(n, 'flashcard', 'flashcards')}`,
-      reason: 'Revisar no dia certo é o que fixa. Essas venceram hoje.',
+      reason: 'Revisar no dia certo é o que fixa. São os cartões de hoje.',
       count: n,
     };
   }
