@@ -1,0 +1,79 @@
+/*
+  Tokens de design do Gutta. A identidade final ainda depende do INPI (SPEC D01),
+  então toda cor e fonte passa por aqui: trocar a marca = trocar este arquivo.
+  Paleta herdada da página de espera (gota e pedra). Contrastes conferidos para WCAG AA:
+  texto --fg e --muted sobre --bg e --surface; texto branco sobre --accent e --danger.
+  --pulse é só destaque e foco, nunca cor de texto pequeno.
+*/
+:root {
+  --bg: #f2f5f4;
+  --surface: #ffffff;
+  --surface-2: #e9eeec;
+  --fg: #15201e;
+  --muted: #56645f;
+  --line: #d3dcd9;
+  --line-strong: #b7c4c0;
+  --accent: #0b6b63;
+  --accent-hover: #095a53;
+  --accent-ink: #ffffff;
+  --accent-soft: #dceeeb;
+  --pulse: #d9532b;
+  --danger: #b3261e;
+  --danger-soft: #fbe4e1;
+  --success: #1e7a46;
+  --success-soft: #dff2e6;
+  --warn: #8a5a00;
+  --warn-soft: #f8edd3;
+  --focus: #d9532b;
+  --radius: 10px;
+  --radius-lg: 14px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1514;
+    --surface: #151e1c;
+    --surface-2: #1c2725;
+    --fg: #e4ecea;
+    --muted: #9aaba7;
+    --line: #273431;
+    --line-strong: #3a4a46;
+    --accent: #3dbcae;
+    --accent-hover: #5fcabd;
+    --accent-ink: #0b1513;
+    --accent-soft: #153430;
+    --pulse: #ff7f5a;
+    --danger: #ff8a80;
+    --danger-soft: #3a1a18;
+    --success: #6fd49a;
+    --success-soft: #16301f;
+    --warn: #e2b04a;
+    --warn-soft: #352b14;
+    --focus: #ff7f5a;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e1514;
+  --surface: #151e1c;
+  --surface-2: #1c2725;
+  --fg: #e4ecea;
+  --muted: #9aaba7;
+  --line: #273431;
+  --line-strong: #3a4a46;
+  --accent: #3dbcae;
+  --accent-hover: #5fcabd;
+  --accent-ink: #0b1513;
+  --accent-soft: #153430;
+  --pulse: #ff7f5a;
+  --danger: #ff8a80;
+  --danger-soft: #3a1a18;
+  --success: #6fd49a;
+  --success-soft: #16301f;
+  --warn: #e2b04a;
+  --warn-soft: #352b14;
+  --focus: #ff7f5a;
+  color-scheme: dark;
+}
