@@ -23,7 +23,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 
 - [x] 11. Onboarding (ONB-01): curso, instituição (catálogo + "não encontrei"), semestre, disciplinas, meta de minutos/dia, dias de estudo, prova opcional. Idempotente. Editável depois em `/app/perfil`.
 - [x] 12. Catálogo (CAT-01): `/app/disciplinas`, `/app/disciplinas/[slug]`, página de módulo com player da aula interativa (iframe com sandbox), resumo e chamadas para questões e flashcards.
-- [ ] 13. Banco de questões (QUE-01): schema `questions`, `question_options`, `question_sources`, `question_sessions`, `question_attempts`, `topic_mastery`, `learning_recommendations`, com RLS. Seeds com questões de demonstração.
+- [x] 13. Banco de questões (QUE-01): schema `questions`, `question_options`, `question_sources`, `question_sessions`, `question_attempts`, `topic_mastery`, `learning_recommendations`, com RLS. Seeds com questões de demonstração.
 - [ ] 14. Sessão de questões: criar sessão (treino ou diagnóstico), próxima questão **sem gabarito**, tentativa corrigida no servidor com chave idempotente, feedback com explicação de cada alternativa e referência, histórico.
 - [ ] 15. Domínio V1 e recomendações (QUE-02) em `packages/core`: estimativa por recência e dificuldade, "sem diagnóstico" com amostra pequena, prioridade revisões atrasadas > assunto fraco com prova próxima > assunto ativo > exploração; motivo e versão do algoritmo persistidos. Testes unitários.
 - [ ] 16. Flashcards (FC-01): revisão espaçada inspirada no SM-2 em `packages/core` (esqueci/difícil/bom/fácil), fila de vencidos com fuso horário, criação de flashcard pessoal a partir de questão errada, itens privados isolados. Testes unitários e de isolamento.
