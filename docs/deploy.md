@@ -5,16 +5,17 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
 | Recurso | O que é | Build | Domínio |
 |---|---|---|---|
 | Site estático (já existe) | página de espera e `/roadmap` | `Dockerfile` da raiz | gutta.tudomudou.com.br |
-| Plataforma (novo) | app Next.js + Postgres | Docker Compose, arquivo `infra/compose.yml` | app.gutta.tudomudou.com.br (sugestão) |
+| Plataforma (novo) | app Next.js + Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
 
 ## Primeira vez
 
-1. No Coolify: **New Resource → Docker Compose**, repositório `jorguzz-fer/gutta`, branch `main`, arquivo `infra/compose.yml`.
+1. No Coolify: **New Resource → Docker Compose**, repositório `jorguzz-fer/gutta`, branch `main`, **Base Directory `/infra`** e arquivo **`/compose.yml`**.
+   Com a base em `/infra`, os caminhos relativos do compose (`..` do `web` e `./postgres` do `db`) valem igual no Coolify e na sua máquina.
 2. Defina as variáveis (aba Environment Variables). Gere as senhas com `openssl rand -base64 32`:
 
    | Variável | Exemplo / observação |
    |---|---|
-   | `APP_URL` | `https://app.gutta.tudomudou.com.br` (sem barra no fim) |
+   | `APP_URL` | `https://app-gutta.tudomudou.com.br` (sem barra no fim) |
    | `BETTER_AUTH_SECRET` | 32+ caracteres aleatórios |
    | `POSTGRES_PASSWORD` | superusuário do Postgres (só para administração) |
    | `GUTTA_OWNER_PASSWORD` | dono do schema; usado só pelas migrations |
@@ -23,13 +24,13 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `MAIL_FROM` | remetente verificado no Resend |
    | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
 
-3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app.gutta` apontando para o VPS.
+3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:
-   - o Postgres roda `infra/postgres/init/01-roles.sh`, que cria `gutta_owner`, `gutta_app` e o banco;
+   - o Postgres roda `infra/postgres/init/01-roles.sh`, que cria `gutta_owner`, `gutta_app` e o banco. O script vai **dentro da imagem** (`infra/postgres/Dockerfile`); montado como volume, chegaria vazio no Coolify;
    - o `web` aplica as migrations e só depois sobe o servidor.
-5. Confira `https://app.gutta…/api/health`, que deve responder `{"status":"ok","db":"ok"}`.
+5. Confira `https://app-gutta.tudomudou.com.br/api/health`, que deve responder `{"status":"ok","db":"ok"}`.
 
-O banco não publica porta: só o `web` o alcança, pela rede interna do compose.
+Nenhum dos dois publica porta no servidor (`expose`, não `ports`): o proxy do Coolify chega ao `web` pela rede interna, e só o `web` alcança o banco.
 
 ## Primeiro administrador
 
