@@ -7,6 +7,14 @@ import { Badge } from '@/components/ui/card';
 import { EDITORIAL_ROLES, requireRole } from '@/lib/auth/session';
 
 const icon = 'size-5';
+const ROLE_LABEL = {
+  student: 'Aluno',
+  editor: 'Editor',
+  reviewer: 'Revisão',
+  admin: 'Admin',
+  moderator: 'Moderação',
+  support: 'Suporte',
+} as const;
 const items: NavItem[] = [
   {
     href: '/admin',
@@ -39,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="mt-2 flex flex-wrap gap-1">
             {user.roles.map((r) => (
               <Badge key={r} tone="accent">
-                {r}
+                {ROLE_LABEL[r]}
               </Badge>
             ))}
           </div>

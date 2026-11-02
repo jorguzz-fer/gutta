@@ -9,7 +9,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test --pass-with-no-tests"
+    "e2e": "playwright test --pass-with-no-tests",
+    "test:int": "vitest run -c vitest.int.config.ts"
   },
   "dependencies": {
     "@gutta/core": "workspace:*",

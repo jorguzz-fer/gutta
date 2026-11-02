@@ -42,3 +42,15 @@ export async function withAnonymous<T>(db: Db, fn: (tx: Tx) => Promise<T>): Prom
     return fn(tx);
   });
 }
+
+/**
+ * Roda consultas em sequência dentro de uma transação. Uma conexão do Postgres executa uma
+ * consulta por vez; Promise.all na mesma transação só enfileira (e é depreciado no pg 9).
+ */
+export async function inSequence<const T extends readonly (() => unknown)[]>(
+  fns: T,
+): Promise<{ -readonly [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = [];
+  for (const f of fns) out.push(await f());
+  return out as { -readonly [K in keyof T]: Awaited<ReturnType<T[K]>> };
+}

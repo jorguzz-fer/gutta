@@ -1,5 +1,5 @@
 import 'server-only';
-import { schema, withUser } from '@gutta/db';
+import { eq, schema, withUser } from '@gutta/db';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
@@ -17,7 +17,11 @@ export const getSession = cache(async () => {
 
 export const getRoles = cache(async (userId: string): Promise<Role[]> => {
   const rows = await withUser(db(), userId, (tx) =>
-    tx.select({ role: schema.roleAssignments.role }).from(schema.roleAssignments),
+    // Filtro explícito: admin lê os papéis de todos pelo RLS, mas aqui só interessam os dele.
+    tx
+      .select({ role: schema.roleAssignments.role })
+      .from(schema.roleAssignments)
+      .where(eq(schema.roleAssignments.userId, userId)),
   );
   return rows.map((r) => r.role);
 });

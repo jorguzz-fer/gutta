@@ -57,6 +57,13 @@
       "when": 1793632782592,
       "tag": "0007_eventos_do_proprio_aluno",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793633175879,
+      "tag": "0008_recomendacoes_leitura_admin",
+      "breakpoints": true
     }
   ]
 }

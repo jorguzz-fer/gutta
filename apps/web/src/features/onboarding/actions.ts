@@ -150,6 +150,7 @@ export async function saveAcademicProfile(
         const examAt = zonedTimeToUtc(v.examDate, person?.timezone ?? 'America/Sao_Paulo', 8);
         const dup = await tx.query.examDates.findFirst({
           where: and(
+            eq(s.examDates.studentId, user.id),
             eq(s.examDates.disciplineId, v.examDisciplineId),
             eq(s.examDates.examAt, examAt),
           ),
@@ -200,6 +201,10 @@ export async function removeExam(form: FormData) {
   const user = await requireUser('/app/perfil');
   const id = z.uuid().safeParse(form.get('examId'));
   if (!id.success) return;
-  await withUser(db(), user.id, (tx) => tx.delete(s.examDates).where(eq(s.examDates.id, id.data)));
+  await withUser(db(), user.id, (tx) =>
+    tx
+      .delete(s.examDates)
+      .where(and(eq(s.examDates.id, id.data), eq(s.examDates.studentId, user.id))),
+  );
   revalidatePath('/app/perfil');
 }

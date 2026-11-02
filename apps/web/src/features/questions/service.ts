@@ -20,6 +20,7 @@ import {
   sql,
   withUser,
   type Tx,
+  inSequence,
 } from '@gutta/db';
 import { z } from 'zod';
 import { ApiError, notFound } from '@/lib/api';
@@ -147,9 +148,10 @@ export async function createSession(userId: string, input: z.infer<typeof create
   });
 }
 
-async function loadSession(tx: Tx, sessionId: string) {
+async function loadSession(tx: Tx, userId: string, sessionId: string) {
+  // Dono explícito: admin lê sessões de todos pelo RLS (métricas), mas só estuda as próprias.
   const session = await tx.query.questionSessions.findFirst({
-    where: eq(s.questionSessions.id, sessionId),
+    where: and(eq(s.questionSessions.id, sessionId), eq(s.questionSessions.studentId, userId)),
   });
   if (!session) throw notFound('Sessão');
   return session;
@@ -158,7 +160,7 @@ async function loadSession(tx: Tx, sessionId: string) {
 /** Próxima questão SEM gabarito: só enunciado e alternativas (SPEC §6.5). */
 export async function nextQuestion(userId: string, sessionId: string) {
   return withUser(db(), userId, async (tx) => {
-    const session = await loadSession(tx, sessionId);
+    const session = await loadSession(tx, userId, sessionId);
     const done = await tx
       .select({
         questionId: s.questionAttempts.questionId,
@@ -213,7 +215,12 @@ export async function nextQuestion(userId: string, sessionId: string) {
       if (h) history.set(c.id, h);
     }
     const masteryRows = topicIds.length
-      ? await tx.select().from(s.topicMastery).where(inArray(s.topicMastery.topicId, topicIds))
+      ? await tx
+          .select()
+          .from(s.topicMastery)
+          .where(
+            and(eq(s.topicMastery.studentId, userId), inArray(s.topicMastery.topicId, topicIds)),
+          )
       : [];
     const mastery = new Map<string, TopicState>(
       masteryRows.map((m) => [
@@ -294,7 +301,7 @@ async function refreshMastery(tx: Tx, userId: string, topicId: string) {
  */
 export async function submitAttempt(userId: string, input: z.infer<typeof attemptInput>) {
   return withUser(db(), userId, async (tx) => {
-    const session = await loadSession(tx, input.sessionId);
+    const session = await loadSession(tx, userId, input.sessionId);
     let attempt = await tx.query.questionAttempts.findFirst({
       where: and(
         eq(s.questionAttempts.studentId, userId),
@@ -343,13 +350,15 @@ export async function submitAttempt(userId: string, input: z.infer<typeof attemp
       where: eq(s.questions.id, attempt.questionId),
     });
     if (!question) throw notFound('Questão');
-    const [options, sources] = await Promise.all([
-      tx
-        .select()
-        .from(s.questionOptions)
-        .where(eq(s.questionOptions.questionId, question.id))
-        .orderBy(asc(s.questionOptions.displayOrder)),
-      tx.select().from(s.questionSources).where(eq(s.questionSources.questionId, question.id)),
+    const [options, sources] = await inSequence([
+      () =>
+        tx
+          .select()
+          .from(s.questionOptions)
+          .where(eq(s.questionOptions.questionId, question.id))
+          .orderBy(asc(s.questionOptions.displayOrder)),
+      () =>
+        tx.select().from(s.questionSources).where(eq(s.questionSources.questionId, question.id)),
     ]);
     const mastery = replay
       ? await tx.query.topicMastery.findFirst({
@@ -417,7 +426,7 @@ export async function submitAttempt(userId: string, input: z.infer<typeof attemp
 
 export async function sessionSummary(userId: string, sessionId: string) {
   return withUser(db(), userId, async (tx) => {
-    const session = await loadSession(tx, sessionId);
+    const session = await loadSession(tx, userId, sessionId);
     const rows = await tx
       .select({
         questionId: s.questions.id,
@@ -433,7 +442,12 @@ export async function sessionSummary(userId: string, sessionId: string) {
       .orderBy(asc(s.questionAttempts.answeredAt));
     const topicIds = [...new Set(rows.map((r) => r.topicId))];
     const mastery = topicIds.length
-      ? await tx.select().from(s.topicMastery).where(inArray(s.topicMastery.topicId, topicIds))
+      ? await tx
+          .select()
+          .from(s.topicMastery)
+          .where(
+            and(eq(s.topicMastery.studentId, userId), inArray(s.topicMastery.topicId, topicIds)),
+          )
       : [];
     return {
       session,
@@ -463,6 +477,7 @@ export async function recentSessions(userId: string, limit = 10) {
         correct: sql<number>`(select count(*)::int from question_attempts a where a.session_id = "question_sessions"."id" and a.is_correct)`,
       })
       .from(s.questionSessions)
+      .where(eq(s.questionSessions.studentId, userId))
       .orderBy(desc(s.questionSessions.startedAt))
       .limit(limit),
   );

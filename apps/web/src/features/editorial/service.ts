@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, desc, eq, ne, schema as s, sql, withUser, type Tx } from '@gutta/db';
+import { and, asc, desc, eq, ne, schema as s, sql, withUser, type Tx, inSequence } from '@gutta/db';
 import { z } from 'zod';
 import { ApiError, notFound } from '@/lib/api';
 import type { CurrentUser } from '@/lib/auth/session';
@@ -65,13 +65,14 @@ function mapDbError(err: unknown): never {
 async function load(tx: Tx, id: string) {
   const q = await tx.query.questions.findFirst({ where: eq(s.questions.id, id) });
   if (!q) throw notFound('Questão');
-  const [options, sources] = await Promise.all([
-    tx
-      .select()
-      .from(s.questionOptions)
-      .where(eq(s.questionOptions.questionId, id))
-      .orderBy(asc(s.questionOptions.displayOrder)),
-    tx.select().from(s.questionSources).where(eq(s.questionSources.questionId, id)),
+  const [options, sources] = await inSequence([
+    () =>
+      tx
+        .select()
+        .from(s.questionOptions)
+        .where(eq(s.questionOptions.questionId, id))
+        .orderBy(asc(s.questionOptions.displayOrder)),
+    () => tx.select().from(s.questionSources).where(eq(s.questionSources.questionId, id)),
   ]);
   return { ...q, options, sources };
 }
@@ -79,35 +80,39 @@ async function load(tx: Tx, id: string) {
 export async function getQuestion(user: CurrentUser, id: string) {
   return withUser(db(), user.id, async (tx) => {
     const q = await load(tx, id);
-    const [topic, stats, versions, history] = await Promise.all([
-      tx
-        .select({ topicName: s.topics.name, disciplineName: s.disciplines.name })
-        .from(s.topics)
-        .innerJoin(s.disciplines, eq(s.disciplines.id, s.topics.disciplineId))
-        .where(eq(s.topics.id, q.topicId))
-        .then((r) => r[0]),
-      // Estatística de uso (revisor/admin): o RLS só libera para esses papéis.
-      tx
-        .select({
-          attempts: sql<number>`count(*)::int`,
-          correct: sql<number>`count(*) filter (where ${s.questionAttempts.isCorrect})::int`,
-        })
-        .from(s.questionAttempts)
-        .where(eq(s.questionAttempts.questionId, id))
-        .then((r) => r[0]),
-      tx
-        .select({ id: s.questions.id, version: s.questions.version, status: s.questions.status })
-        .from(s.questions)
-        .where(eq(s.questions.rootId, q.rootId ?? q.id))
-        .orderBy(desc(s.questions.version)),
-      user.roles.includes('admin')
-        ? tx
-            .select()
-            .from(s.auditLogs)
-            .where(and(eq(s.auditLogs.entityType, 'question'), eq(s.auditLogs.entityId, id)))
-            .orderBy(desc(s.auditLogs.createdAt))
-            .limit(20)
-        : Promise.resolve([]),
+    const [topic, stats, versions, history] = await inSequence([
+      () =>
+        tx
+          .select({ topicName: s.topics.name, disciplineName: s.disciplines.name })
+          .from(s.topics)
+          .innerJoin(s.disciplines, eq(s.disciplines.id, s.topics.disciplineId))
+          .where(eq(s.topics.id, q.topicId))
+          .then((r) => r[0]),
+      () =>
+        // Estatística de uso (revisor/admin): o RLS só libera para esses papéis.
+        tx
+          .select({
+            attempts: sql<number>`count(*)::int`,
+            correct: sql<number>`count(*) filter (where ${s.questionAttempts.isCorrect})::int`,
+          })
+          .from(s.questionAttempts)
+          .where(eq(s.questionAttempts.questionId, id))
+          .then((r) => r[0]),
+      () =>
+        tx
+          .select({ id: s.questions.id, version: s.questions.version, status: s.questions.status })
+          .from(s.questions)
+          .where(eq(s.questions.rootId, q.rootId ?? q.id))
+          .orderBy(desc(s.questions.version)),
+      () =>
+        user.roles.includes('admin')
+          ? tx
+              .select()
+              .from(s.auditLogs)
+              .where(and(eq(s.auditLogs.entityType, 'question'), eq(s.auditLogs.entityId, id)))
+              .orderBy(desc(s.auditLogs.createdAt))
+              .limit(20)
+          : Promise.resolve([]),
     ]);
     return { ...q, ...topic, stats, versions, history };
   });

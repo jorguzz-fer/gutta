@@ -55,6 +55,7 @@ jobs:
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @gutta/db test
+      - run: pnpm --filter @gutta/web test:int
 
   e2e:
     name: Build e E2E (Playwright)

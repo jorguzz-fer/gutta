@@ -13,7 +13,7 @@
     "format": "prettier --write \"apps/**/*.{ts,tsx,css}\" \"packages/**/*.ts\"",
     "format:check": "prettier --check \"apps/**/*.{ts,tsx,css}\" \"packages/**/*.ts\"",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && pnpm --filter @gutta/web test:int",
     "test:unit": "pnpm --filter @gutta/core test",
     "e2e": "pnpm --filter @gutta/web e2e",
     "db:setup": "pnpm --filter @gutta/db setup:local",

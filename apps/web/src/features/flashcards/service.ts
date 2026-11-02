@@ -22,6 +22,7 @@ import {
   sql,
   withUser,
   type Tx,
+  inSequence,
 } from '@gutta/db';
 import { z } from 'zod';
 import { ApiError, notFound } from '@/lib/api';
@@ -108,6 +109,7 @@ export async function dueQueue(userId: string, opts: { limit?: number; moduleId?
       .leftJoin(s.topics, eq(s.topics.id, s.flashcards.topicId))
       .where(
         and(
+          eq(s.flashcardSchedules.studentId, userId),
           lt(s.flashcardSchedules.dueAt, end),
           moduleTopicId && topicIds.length ? inArray(s.flashcards.topicId, topicIds) : undefined,
         ),
@@ -120,7 +122,12 @@ export async function dueQueue(userId: string, opts: { limit?: number; moduleId?
     const startedToday = await tx
       .select({ n: sql<number>`count(*)::int` })
       .from(s.flashcardSchedules)
-      .where(gte(s.flashcardSchedules.createdAt, startOfDay));
+      .where(
+        and(
+          eq(s.flashcardSchedules.studentId, userId),
+          gte(s.flashcardSchedules.createdAt, startOfDay),
+        ),
+      );
     const newBudget = Math.max(0, NEW_PER_DAY - (startedToday[0]?.n ?? 0));
     const fresh =
       newBudget > 0 && topicIds.length
@@ -355,17 +362,25 @@ export async function dueSummary(userId: string) {
     const now = new Date();
     const end = endOfLocalDay(now, tz);
     const endTomorrow = endOfLocalDay(new Date(end.getTime() + 3600_000), tz);
-    const [today, tomorrow] = await Promise.all([
-      tx
-        .select({ n: sql<number>`count(*)::int` })
-        .from(s.flashcardSchedules)
-        .where(lt(s.flashcardSchedules.dueAt, end)),
-      tx
-        .select({ n: sql<number>`count(*)::int` })
-        .from(s.flashcardSchedules)
-        .where(
-          and(gte(s.flashcardSchedules.dueAt, end), lt(s.flashcardSchedules.dueAt, endTomorrow)),
-        ),
+    const [today, tomorrow] = await inSequence([
+      () =>
+        tx
+          .select({ n: sql<number>`count(*)::int` })
+          .from(s.flashcardSchedules)
+          .where(
+            and(eq(s.flashcardSchedules.studentId, userId), lt(s.flashcardSchedules.dueAt, end)),
+          ),
+      () =>
+        tx
+          .select({ n: sql<number>`count(*)::int` })
+          .from(s.flashcardSchedules)
+          .where(
+            and(
+              eq(s.flashcardSchedules.studentId, userId),
+              gte(s.flashcardSchedules.dueAt, end),
+              lt(s.flashcardSchedules.dueAt, endTomorrow),
+            ),
+          ),
     ]);
     return { dueToday: today[0]?.n ?? 0, dueTomorrow: tomorrow[0]?.n ?? 0 };
   });

@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, desc, eq, schema as s, withUser } from '@gutta/db';
+import { and, desc, eq, schema as s, withUser, inSequence } from '@gutta/db';
 import { db } from '@/lib/db';
 import { audit, track } from '@/lib/events';
 import { recordConsents, POLICY_VERSION, type ConsentPurpose } from './consent';
@@ -10,13 +10,18 @@ export async function currentConsents(userId: string) {
     const rows = await tx
       .select()
       .from(s.consentRecords)
+      .where(eq(s.consentRecords.userId, userId))
       .orderBy(desc(s.consentRecords.recordedAt));
     const latest: Partial<Record<ConsentPurpose, { granted: boolean; at: Date; version: string }>> =
       {};
     for (const r of rows)
       latest[r.purpose] ??= { granted: r.granted, at: r.recordedAt, version: r.policyVersion };
     const openDeletion = await tx.query.dataRequests.findFirst({
-      where: and(eq(s.dataRequests.kind, 'deletion'), eq(s.dataRequests.status, 'open')),
+      where: and(
+        eq(s.dataRequests.userId, userId),
+        eq(s.dataRequests.kind, 'deletion'),
+        eq(s.dataRequests.status, 'open'),
+      ),
     });
     return { latest, openDeletion: openDeletion ?? null, policyVersion: POLICY_VERSION };
   });
@@ -57,21 +62,27 @@ export async function exportData(userId: string) {
       recommendations,
       events,
       requests,
-    ] = await Promise.all([
-      tx.select().from(s.profiles),
-      tx.select().from(s.studentProfiles),
-      tx.select().from(s.studentDisciplines),
-      tx.select().from(s.examDates),
-      tx.select().from(s.questionSessions),
-      tx.select().from(s.questionAttempts),
-      tx.select().from(s.topicMastery),
-      tx.select().from(s.flashcards).where(eq(s.flashcards.ownerId, userId)),
-      tx.select().from(s.flashcardSchedules),
-      tx.select().from(s.flashcardReviews),
-      tx.select().from(s.consentRecords),
-      tx.select().from(s.learningRecommendations),
-      tx.select().from(s.productEvents).where(eq(s.productEvents.actorId, userId)),
-      tx.select().from(s.dataRequests),
+    ] = await inSequence([
+      () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
+      () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
+      () =>
+        tx.select().from(s.studentDisciplines).where(eq(s.studentDisciplines.studentId, userId)),
+      () => tx.select().from(s.examDates).where(eq(s.examDates.studentId, userId)),
+      () => tx.select().from(s.questionSessions).where(eq(s.questionSessions.studentId, userId)),
+      () => tx.select().from(s.questionAttempts).where(eq(s.questionAttempts.studentId, userId)),
+      () => tx.select().from(s.topicMastery).where(eq(s.topicMastery.studentId, userId)),
+      () => tx.select().from(s.flashcards).where(eq(s.flashcards.ownerId, userId)),
+      () =>
+        tx.select().from(s.flashcardSchedules).where(eq(s.flashcardSchedules.studentId, userId)),
+      () => tx.select().from(s.flashcardReviews).where(eq(s.flashcardReviews.studentId, userId)),
+      () => tx.select().from(s.consentRecords).where(eq(s.consentRecords.userId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.learningRecommendations)
+          .where(eq(s.learningRecommendations.studentId, userId)),
+      () => tx.select().from(s.productEvents).where(eq(s.productEvents.actorId, userId)),
+      () => tx.select().from(s.dataRequests).where(eq(s.dataRequests.userId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -103,7 +114,11 @@ export async function exportData(userId: string) {
 export async function requestDeletion(userId: string) {
   return withUser(db(), userId, async (tx) => {
     const open = await tx.query.dataRequests.findFirst({
-      where: and(eq(s.dataRequests.kind, 'deletion'), eq(s.dataRequests.status, 'open')),
+      where: and(
+        eq(s.dataRequests.userId, userId),
+        eq(s.dataRequests.kind, 'deletion'),
+        eq(s.dataRequests.status, 'open'),
+      ),
     });
     if (open) return open;
     const [row] = await tx.insert(s.dataRequests).values({ userId, kind: 'deletion' }).returning();
@@ -118,7 +133,13 @@ export async function cancelDeletion(userId: string) {
     await tx
       .update(s.dataRequests)
       .set({ status: 'cancelled', resolvedAt: new Date() })
-      .where(and(eq(s.dataRequests.kind, 'deletion'), eq(s.dataRequests.status, 'open')));
+      .where(
+        and(
+          eq(s.dataRequests.userId, userId),
+          eq(s.dataRequests.kind, 'deletion'),
+          eq(s.dataRequests.status, 'open'),
+        ),
+      );
     await audit(tx, userId, 'data.deletion_cancelled', { type: 'user', id: userId });
   });
 }

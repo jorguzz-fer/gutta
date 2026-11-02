@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, eq, inArray, isNull, schema as s, withUser } from '@gutta/db';
+import { and, asc, eq, inArray, isNull, schema as s, withUser, inSequence } from '@gutta/db';
 import { db } from '@/lib/db';
 
 // Catálogo do curso do aluno: disciplinas ativas dele primeiro. Só conteúdo publicado (RLS).
@@ -56,17 +56,19 @@ export async function getDiscipline(userId: string, slug: string) {
       where: and(eq(s.disciplines.courseId, profile.courseId), eq(s.disciplines.slug, slug)),
     });
     if (!discipline) return null;
-    const [modules, topics] = await Promise.all([
-      tx
-        .select()
-        .from(s.modules)
-        .where(and(eq(s.modules.disciplineId, discipline.id), eq(s.modules.status, 'published')))
-        .orderBy(asc(s.modules.orderIndex), asc(s.modules.title)),
-      tx
-        .select()
-        .from(s.topics)
-        .where(eq(s.topics.disciplineId, discipline.id))
-        .orderBy(asc(s.topics.orderIndex)),
+    const [modules, topics] = await inSequence([
+      () =>
+        tx
+          .select()
+          .from(s.modules)
+          .where(and(eq(s.modules.disciplineId, discipline.id), eq(s.modules.status, 'published')))
+          .orderBy(asc(s.modules.orderIndex), asc(s.modules.title)),
+      () =>
+        tx
+          .select()
+          .from(s.topics)
+          .where(eq(s.topics.disciplineId, discipline.id))
+          .orderBy(asc(s.topics.orderIndex)),
     ]);
     return { discipline, modules, topics };
   });

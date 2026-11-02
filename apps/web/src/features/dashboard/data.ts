@@ -10,7 +10,19 @@ import {
   type MasteryBand,
   type TopicInput,
 } from '@gutta/core';
-import { and, asc, desc, eq, gte, inArray, isNull, schema as s, sql, withUser } from '@gutta/db';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  schema as s,
+  sql,
+  withUser,
+  inSequence,
+} from '@gutta/db';
 import { db } from '@/lib/db';
 import { track } from '@/lib/events';
 import { dueQueue } from '@/features/flashcards/service';
@@ -57,7 +69,12 @@ export async function loadDashboard(userId: string) {
       : [];
     const topicIds = topics.map((t) => t.id);
     const mastery = topicIds.length
-      ? await tx.select().from(s.topicMastery).where(inArray(s.topicMastery.topicId, topicIds))
+      ? await tx
+          .select()
+          .from(s.topicMastery)
+          .where(
+            and(eq(s.topicMastery.studentId, userId), inArray(s.topicMastery.topicId, topicIds)),
+          )
       : [];
     const exams = await tx
       .select({
@@ -69,7 +86,12 @@ export async function loadDashboard(userId: string) {
       })
       .from(s.examDates)
       .innerJoin(s.disciplines, eq(s.disciplines.id, s.examDates.disciplineId))
-      .where(gte(s.examDates.examAt, addLocalDays(now, 0, tz, 0)))
+      .where(
+        and(
+          eq(s.examDates.studentId, userId),
+          gte(s.examDates.examAt, addLocalDays(now, 0, tz, 0)),
+        ),
+      )
       .orderBy(asc(s.examDates.examAt));
     const nextExamDays = new Map<string, number>();
     for (const e of exams) {
@@ -104,6 +126,7 @@ export async function loadDashboard(userId: string) {
       .from(s.learningRecommendations)
       .where(
         and(
+          eq(s.learningRecommendations.studentId, userId),
           gte(s.learningRecommendations.createdAt, todayStart),
           eq(s.learningRecommendations.reasonCode, recommendation.reasonCode),
           recommendation.topicId
@@ -140,6 +163,7 @@ export async function loadDashboard(userId: string) {
         answeredAt: s.questionAttempts.answeredAt,
       })
       .from(s.questionAttempts)
+      .where(eq(s.questionAttempts.studentId, userId))
       .orderBy(desc(s.questionAttempts.answeredAt))
       .limit(1000);
     const todayKey = localDayKey(now, tz);
@@ -178,15 +202,27 @@ export async function loadDashboard(userId: string) {
     // Semana local (segunda a domingo): dias com estudo ativo, questões e revisões. Sem punição por falha.
     const daysSinceMonday = (localWeekday(now, tz) + 6) % 7;
     const weekStart = addLocalDays(now, -daysSinceMonday, tz, 0);
-    const [weekAttempts, weekReviews] = await Promise.all([
-      tx
-        .select({ at: s.questionAttempts.answeredAt, ok: s.questionAttempts.isCorrect })
-        .from(s.questionAttempts)
-        .where(gte(s.questionAttempts.answeredAt, weekStart)),
-      tx
-        .select({ at: s.flashcardReviews.reviewedAt })
-        .from(s.flashcardReviews)
-        .where(gte(s.flashcardReviews.reviewedAt, weekStart)),
+    const [weekAttempts, weekReviews] = await inSequence([
+      () =>
+        tx
+          .select({ at: s.questionAttempts.answeredAt, ok: s.questionAttempts.isCorrect })
+          .from(s.questionAttempts)
+          .where(
+            and(
+              eq(s.questionAttempts.studentId, userId),
+              gte(s.questionAttempts.answeredAt, weekStart),
+            ),
+          ),
+      () =>
+        tx
+          .select({ at: s.flashcardReviews.reviewedAt })
+          .from(s.flashcardReviews)
+          .where(
+            and(
+              eq(s.flashcardReviews.studentId, userId),
+              gte(s.flashcardReviews.reviewedAt, weekStart),
+            ),
+          ),
     ]);
     const activeDays = new Set([
       ...weekAttempts.map((a) => localDayKey(a.at, tz)),
