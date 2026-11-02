@@ -209,7 +209,7 @@ export function ReviewSession({ moduleId }: { moduleId?: string }) {
 
       {error ? <Alert tone="danger">{error.message}</Alert> : null}
 
-      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+      <div className="glass-bar-mobile fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         {!flipped ? (
           <Button
             key="virar"

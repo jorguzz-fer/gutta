@@ -49,7 +49,7 @@ type Summary = {
 const LETTERS = 'ABCDEF';
 // No celular a ação principal fica fixa acima da barra de navegação, ao alcance do polegar (Fitts).
 const STICKY =
-  'fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 flex flex-wrap items-center gap-3 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur md:static md:z-auto md:border-0 md:bg-transparent md:p-0';
+  'glass-bar-mobile fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 flex flex-wrap items-center gap-3 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur md:static md:z-auto md:border-0 md:bg-transparent md:p-0';
 
 /*
   Player de questões. Uma decisão por tela (Hick): escolher e responder. Feedback imediato com

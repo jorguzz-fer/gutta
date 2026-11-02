@@ -81,3 +81,22 @@ Contexto: estudante de graduação em saúde, no celular, entre uma aula e outra
 - Testar com 5 alunos do teste de corredor (dezembro). A revisão por leis de UX não substitui observar gente de verdade.
 - Auditoria manual de acessibilidade com leitor de tela (VoiceOver e TalkBack). A varredura automática (axe, WCAG 2.2 AA) passa nas 10 telas principais.
 - O módulo mostra um retângulo vazio quando a aula externa não carrega no iframe. Detectar o erro e trocar pelo botão "Abrir a aula".
+
+## Experimento: visual de vidro (glassmorphism), 02/11/2026
+
+**O que é:** um segundo visual, opcional, com fundo de manchas nas cores da marca (verde-água e brasa) e cartões e barras translúcidos com desfoque. O visual clássico continua sendo o padrão. Prévia lado a lado em `docs/previa-vidro-gutta.png`.
+
+**Como ver:** em `/app/perfil`, bloco "Visual (experimento)", ou com `?look=glass` em qualquer endereço (`?look=classic` volta). A escolha fica só naquele navegador (`localStorage`), não na conta.
+
+**Como funciona:** tudo está em `apps/web/src/styles/glass.css` e só vale com `<html data-look="glass">`. Um script curto no `<head>` liga o atributo antes da pintura, para não piscar o visual clássico. Os componentes só ganharam as classes-gancho `glass-card`, `glass-bar` e `glass-bar-mobile`, que não fazem nada no visual clássico.
+
+**Cuidados tomados**
+- *Efeito Estética-Usabilidade, nos dois sentidos.* Bonito ajuda o aluno a tolerar atrito, mas transparência pode custar leitura. O texto fica sempre sobre o vidro, não sobre a mancha saturada, e a varredura axe (WCAG 2.2 AA) passa no claro e no escuro (teste E2E "visual de vidro").
+- *Von Restorff preservado.* O botão primário continua sólido, só com um brilho leve. Vidro só nas superfícies.
+- *Bug evitado:* `backdrop-filter` num ancestral prende `position: fixed`. Por isso o desfoque do cartão fica num pseudo-elemento; senão a barra "Próxima questão" do celular ficaria presa dentro do cartão. O E2E confere que ela continua no rodapé da tela.
+- *Acessibilidade e aparelho simples.* Quem ativa "reduzir transparência" no sistema, ou usa navegador sem `backdrop-filter`, recebe superfícies quase opacas. Não há vidro dentro de vidro, que é o que mais pesa na GPU.
+
+**Para decidir:**
+- Mostrar a prévia ao time e, no teste de corredor, deixar alguns alunos usarem o vidro.
+- O que observar: tempo para achar o próximo passo e queixas de leitura no sol.
+- Falta medir o custo do desfoque em Android de entrada. Se ficar lento, o caminho é diminuir o raio do desfoque ou desligá-lo só no celular.

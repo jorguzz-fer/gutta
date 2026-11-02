@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { AcademicForm } from '@/components/onboarding/academic-form';
+import { LookSwitch } from '@/components/shared/look-switch';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { removeExam } from '@/features/onboarding/actions';
@@ -56,6 +57,16 @@ export default async function ProfilePage() {
             ))}
           </ul>
         )}
+      </Card>
+
+      <Card aria-labelledby="visual">
+        <h2 id="visual" className="text-xl font-bold">
+          Visual <span className="font-sans text-sm font-normal text-muted">(experimento)</span>
+        </h2>
+        <p className="mt-1 mb-4 text-sm text-muted">
+          Estamos testando um visual com vidro fosco. A escolha fica só neste aparelho.
+        </p>
+        <LookSwitch />
       </Card>
 
       <Card aria-labelledby="conta">

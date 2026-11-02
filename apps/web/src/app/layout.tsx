@@ -41,9 +41,20 @@ export const viewport: Viewport = {
   ],
 };
 
+// Visual experimental (ver styles/glass.css). Roda antes da pintura para não piscar o
+// visual clássico. ?look=glass ou ?look=classic na URL grava a escolha neste navegador.
+const lookScript = `(function(){try{var q=new URLSearchParams(location.search).get('look');if(q==='glass'||q==='classic')localStorage.setItem('gutta-look',q);if((q||localStorage.getItem('gutta-look'))==='glass')document.documentElement.dataset.look='glass'}catch(e){}})()`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: lookScript }} />
+      </head>
       <body className="min-h-dvh">
         <a
           href="#conteudo"

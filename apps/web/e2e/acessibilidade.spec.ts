@@ -61,3 +61,32 @@ test('navegação por teclado: pular para o conteúdo e responder questão sem m
   await page.keyboard.press('Enter');
   await expect(page.getByText(/Você acertou\.|Não foi dessa vez\./)).toBeVisible();
 });
+
+// Experimento de vidro (styles/glass.css): o contraste muda com a transparência, então o
+// visual experimental passa pela mesma varredura, nos dois temas.
+for (const colorScheme of ['light', 'dark'] as const) {
+  test.describe(`visual de vidro (${colorScheme})`, () => {
+    test.use({ colorScheme });
+    test('sem violações e com a barra de ação no rodapé @celular', async ({ page }) => {
+      await page.goto('/?look=glass');
+      await expect(page.locator('html')).toHaveAttribute('data-look', 'glass');
+      await scan(page, 'landing (vidro)');
+      await signUp(page, 'Vera Vidro', uniqueEmail(`glass-${colorScheme}`));
+      await completeOnboarding(page);
+      await expect(page.locator('html')).toHaveAttribute('data-look', 'glass');
+      await scan(page, 'painel (vidro)');
+      await page.goto('/app/questoes/nova');
+      await page.waitForURL(/sessao/);
+      await page.locator('label:has(input[name=option])').first().click();
+      await page.getByRole('button', { name: 'Responder' }).click();
+      await expect(page.getByText(/Você acertou\.|Não foi dessa vez\./)).toBeVisible();
+      await scan(page, 'feedback (vidro)');
+      // No celular, a barra fica presa ao rodapé da tela, e não ao cartão (ver glass.css).
+      if ((page.viewportSize()?.width ?? 1280) < 768) {
+        await expect(page.getByRole('button', { name: 'Próxima questão' })).toBeInViewport();
+      }
+      await page.goto('/app/perfil?look=classic');
+      await expect(page.locator('html')).not.toHaveAttribute('data-look', 'glass');
+    });
+  });
+}

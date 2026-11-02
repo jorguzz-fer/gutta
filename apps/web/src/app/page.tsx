@@ -42,7 +42,7 @@ export default function Home() {
           ].map(([title, text], i) => (
             <li
               key={title}
-              className="rounded-[var(--radius-lg)] border border-line bg-surface p-5"
+              className="glass-card rounded-[var(--radius-lg)] border border-line bg-surface p-5"
             >
               <span className="font-mono text-xs text-muted">0{i + 1}</span>
               <h2 className="mt-1 text-lg font-bold">{title}</h2>
