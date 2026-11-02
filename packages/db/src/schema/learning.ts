@@ -101,7 +101,12 @@ export const questionSessions = pgTable(
     mode: sessionMode('mode').notNull().default('practice'),
     // Recorte pedido: módulo, disciplina ou assuntos. Guardado para refazer a seleção.
     scope: jsonb('scope')
-      .$type<{ moduleId?: string; disciplineId?: string; topicIds?: string[] }>()
+      .$type<{
+        moduleId?: string;
+        disciplineId?: string;
+        topicIds?: string[];
+        questionId?: string;
+      }>()
       .notNull()
       .default({}),
     targetCount: smallint('target_count').notNull().default(5),
