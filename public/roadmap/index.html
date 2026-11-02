@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Roadmap do MVP do Gutta Project: 26 semanas, tarefas por fase e por pessoa, critérios de saída e métricas de go/no-go.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cpath fill=%27%230B6B63%27 d=%27M32 4C32 4 10 30 10 42a22 22 0 0 0 44 0C54 30 32 4 32 4z%27/%3E%3C/svg%3E">
+<style>[hidden]{display:none!important} img{max-width:100%}</style>
+<title>Roadmap MVP Gutta Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: left-anchored working document, 1120px column; timeline as a 26-week grid; phases as sections with one task column per person; a second view regroups the same data per person. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --surface-2:#E9EEEC; --fg:#15201E; --muted:#5B6B68; --line:#D3DCD9; --line-strong:#B7C4C0;
+  --accent:#0B6B63; --accent-ink:#FFFFFF; --pulse:#D9532B;
+  --p-k:#0B6B63; --p-h:#C8431F; --p-r:#A06A00; --p-f:#3B4FBF;
+  --p-k-soft:#DCEEEB; --p-h-soft:#F8E2DA; --p-r-soft:#F5EAD0; --p-f-soft:#E1E5F8;
+  --gate:#FBF3E4; --gate-line:#E0C98F; --cut:#F4F0EC;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1514; --surface:#151E1C; --surface-2:#1C2725; --fg:#E4ECEA; --muted:#93A5A1; --line:#273431; --line-strong:#3A4A46;
+  --accent:#3DBCAE; --accent-ink:#0B1513; --pulse:#FF7F5A;
+  --p-k:#3DBCAE; --p-h:#FF8A66; --p-r:#E2B04A; --p-f:#8E9CF5;
+  --p-k-soft:#153430; --p-h-soft:#3A2119; --p-r-soft:#352B14; --p-f-soft:#222845;
+  --gate:#26231A; --gate-line:#5A4C27; --cut:#1A1F1E; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1514; --surface:#151E1C; --surface-2:#1C2725; --fg:#E4ECEA; --muted:#93A5A1; --line:#273431; --line-strong:#3A4A46;
+  --accent:#3DBCAE; --accent-ink:#0B1513; --pulse:#FF7F5A;
+  --p-k:#3DBCAE; --p-h:#FF8A66; --p-r:#E2B04A; --p-f:#8E9CF5;
+  --p-k-soft:#153430; --p-h-soft:#3A2119; --p-r-soft:#352B14; --p-f-soft:#222845;
+  --gate:#26231A; --gate-line:#5A4C27; --cut:#1A1F1E; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:32px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(30px,4.6vw,46px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(22px,3vw,28px);font-weight:700;letter-spacing:-.005em}
+h3{font-size:18px;font-weight:700}
+h4{font-size:14px;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;color:var(--muted);max-width:66ch}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.stack{display:grid;gap:12px}
+section{margin-top:56px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-bottom:18px}
+.sec-head p{color:var(--muted);max-width:70ch}
+
+/* header */
+header .top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 24px;align-items:flex-end}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.meta span{font-family:var(--mono);font-size:12px;padding:5px 10px;border:1px solid var(--line-strong);border-radius:999px;color:var(--muted);white-space:nowrap}
+.meta span b{color:var(--fg);font-weight:500}
+
+/* people */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:22px}
+.person{display:flex;gap:12px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,transform .15s}
+.person:hover{border-color:var(--line-strong)}
+.person:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.person .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:16px;color:#fff;flex:none}
+.person .nm{font-weight:600;font-size:14px;line-height:1.2}
+.person .rl{font-size:12.5px;color:var(--muted)}
+.person[aria-pressed="true"]{border-color:var(--pc);box-shadow:inset 0 0 0 1px var(--pc)}
+.filter-hint{font-size:12.5px;color:var(--muted);margin-top:8px}
+.filter-hint button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+body[data-filter] .filter-hint .clear{display:inline}
+.filter-hint .clear{display:none}
+
+/* timeline */
+.tl{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;overflow-x:auto}
+.tl-inner{min-width:640px}
+.months,.weeks,.bars{display:grid;grid-template-columns:repeat(26,1fr);gap:0}
+.months div{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-left:1px solid var(--line);padding:0 0 6px 6px}
+.months div:first-child{border-left:0;padding-left:0}
+.bars{margin-top:6px;height:46px;align-items:stretch}
+.bar{border-radius:6px;display:flex;align-items:center;padding:0 10px;color:#fff;font-family:var(--display);font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;background:var(--accent)}
+.bar small{font-family:var(--mono);font-weight:400;font-size:11px;opacity:.85;margin-left:8px}
+.bar.f0{background:var(--p-r)} .bar.f1{background:var(--p-k)} .bar.f2{background:var(--p-f)} .bar.f3{background:var(--p-h)} .bar.f4{background:var(--fg);color:var(--bg)}
+.bar.off{background:repeating-linear-gradient(135deg,var(--surface-2) 0 6px,var(--line) 6px 8px);color:var(--muted);font-weight:500;font-size:11.5px;font-family:var(--mono)}
+.marks{display:grid;grid-template-columns:repeat(26,1fr);margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.marks div{border-left:2px solid var(--pulse);padding-left:6px;line-height:1.3}
+.tl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+.tl-legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* this week */
+.now{margin-top:28px;border:1px solid var(--line);border-left:4px solid var(--pulse);border-radius:10px;background:var(--surface);padding:18px 20px}
+.now h3{margin-bottom:12px}
+.now ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 18px}
+.now li{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.tag{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-family:var(--display);font-weight:700;font-size:11.5px;color:#fff;margin-top:1px}
+
+/* view toggle */
+.views{display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;padding:3px;gap:2px;background:var(--surface)}
+.views button{font:inherit;font-size:13.5px;font-weight:500;padding:6px 14px;border-radius:999px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.views button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+.views button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* phases */
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;margin-top:18px}
+.phase-head{display:grid;grid-template-columns:auto 1fr;gap:14px 18px;align-items:start}
+.phase-id{font-family:var(--display);font-weight:700;font-size:15px;color:#fff;background:var(--pc);border-radius:8px;padding:6px 10px;line-height:1}
+.phase-head .dates{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:6px}
+.phase-head .goal{margin-top:10px;max-width:72ch}
+.phase .defn{margin-top:14px;padding:12px 14px;background:var(--surface-2);border-radius:8px;font-size:14px;max-width:80ch}
+.defn b{font-weight:600}
+.cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px}
+@media (max-width:860px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.cols{grid-template-columns:1fr}}
+.col{min-width:0;border-top:3px solid var(--pc);padding-top:10px;transition:opacity .15s}
+.col .who{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.col .who .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:12px;color:#fff;background:var(--pc)}
+.col .who span{font-weight:600;font-size:13.5px}
+.tasks{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.tasks li{position:relative;padding-left:16px;font-size:13.5px;line-height:1.45}
+.tasks li::before{content:"";position:absolute;left:0;top:.58em;width:7px;height:7px;border-radius:2px;background:var(--pc)}
+body[data-filter="K"] .col:not([data-p="K"]),body[data-filter="H"] .col:not([data-p="H"]),body[data-filter="R"] .col:not([data-p="R"]),body[data-filter="F"] .col:not([data-p="F"]){opacity:.28}
+.gate{margin-top:20px;background:var(--gate);border:1px solid var(--gate-line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.gate .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;padding-top:3px;white-space:nowrap}
+.gate ul{margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:4px}
+.offblock{margin-top:18px;border:1px dashed var(--line-strong);border-radius:12px;padding:12px 18px;color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.offblock b{font-family:var(--mono);font-weight:500;color:var(--fg)}
+
+/* per person view */
+.byp{display:grid;gap:18px;margin-top:18px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.pcard .who{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.pcard .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:17px;color:#fff;background:var(--pc)}
+.pcard .rl{color:var(--muted);font-size:13.5px}
+.pcard .mission{margin:8px 0 16px;max-width:72ch;font-size:14px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.pph{min-width:0;border-top:3px solid var(--line-strong);padding-top:8px}
+.pph .pid{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pph h4{margin:2px 0 8px}
+
+/* metrics */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .v{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13px;margin-top:6px}
+.kpi .n{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* names */
+.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.name{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:grid;gap:8px;align-content:start}
+.name.rec{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.name .nm{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1}
+.name .pill{justify-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:3px 8px}
+.name .why{font-size:13.5px}
+.name .risk{font-size:12.5px;color:var(--muted)}
+.name .tag-line{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.criteria{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 18px;font-size:13.5px;color:var(--muted)}
+.criteria li{list-style:none}
+.criteria{padding:0}
+
+/* cuts / risks */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.cuts{background:var(--cut);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.cuts ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:13.5px}
+.cuts li span{color:var(--muted)}
+.risks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.risks dl{margin:10px 0 0;display:grid;gap:10px}
+.risks dt{font-weight:600;font-size:13.5px}
+.risks dd{margin:0;font-size:13.5px;color:var(--muted)}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="top">
+    <div class="stack" style="gap:10px">
+      <div class="eyebrow">Gutta Project · Roadmap do MVP · plataforma de estudo diário para a graduação em saúde</div>
+      <h1>Da aula de miocardiopatia a uma turma estudando todo dia</h1>
+      <p class="lede">Seis meses para transformar o que já existe (a aula interativa de MCH) em um módulo padrão, montar uma trilha com ele e medir, numa turma real da Uni9, se o aluno volta todo dia e aprende mais.</p>
+    </div>
+    <div class="meta">
+      <span><b>26 semanas</b> · 3 nov 2026 → 30 abr 2027</span>
+      <span><b>4 pessoas</b></span>
+      <span>v2 · 02 nov 2026</span>
+    </div>
+  </div>
+
+  <div class="people" id="people"></div>
+  <p class="filter-hint">Clique em uma pessoa para destacar as tarefas dela. <button class="clear" id="clearFilter" type="button">Mostrar todos</button></p>
+
+  <div class="tl">
+    <div class="tl-inner">
+      <div class="months">
+        <div style="grid-column:1/span 4">Nov</div><div style="grid-column:5/span 5">Dez</div><div style="grid-column:10/span 4">Jan</div><div style="grid-column:14/span 4">Fev</div><div style="grid-column:18/span 5">Mar</div><div style="grid-column:23/span 4">Abr</div>
+      </div>
+      <div class="bars">
+        <div class="bar f0" style="grid-column:1/span 2">F0</div>
+        <div class="bar f1" style="grid-column:3/span 5">F1 <small>módulo padrão</small></div>
+        <div class="bar off" style="grid-column:8/span 2">recesso</div>
+        <div class="bar f2" style="grid-column:10/span 6">F2 <small>trilha piloto</small></div>
+        <div class="bar off" style="grid-column:16/span 1"></div>
+        <div class="bar f3" style="grid-column:17/span 7">F3 <small>piloto Uni9</small></div>
+        <div class="bar f4" style="grid-column:24/span 3">F4 <small>decisão</small></div>
+      </div>
+      <div class="marks">
+        <div style="grid-column:6/span 2">teste de corredor<br>1ª sem. dez</div>
+        <div style="grid-column:15/span 2">Carnaval 6–9 fev<br>início 2027.1</div>
+        <div style="grid-column:24/span 3">go / no-go<br>12 abr</div>
+      </div>
+    </div>
+    <div class="tl-legend">
+      <span style="--c:var(--p-r)">F0 Alinhamento</span><span style="--c:var(--p-k)">F1 Fundação</span><span style="--c:var(--p-f)">F2 Trilha piloto</span><span style="--c:var(--p-h)">F3 Piloto fechado</span><span style="--c:var(--fg)">F4 Decisão</span><span style="--c:var(--line)">Recesso / início do semestre</span>
+    </div>
+  </div>
+
+  <div class="now">
+    <h3>Esta semana (3 a 6 de novembro)</h3>
+    <ul id="now"></ul>
+  </div>
+</header>
+
+<section id="plano">
+  <div class="sec-head">
+    <h2>O plano</h2>
+    <div class="views" role="tablist" aria-label="Visualização">
+      <button role="tab" id="tabPhase" aria-selected="true" type="button">Por fase</button>
+      <button role="tab" id="tabPerson" aria-selected="false" type="button">Por pessoa</button>
+    </div>
+  </div>
+  <p style="color:var(--muted);max-width:72ch">Cada fase termina num critério de saída. Se o critério não for atingido, a fase seguinte não começa; a gente conserta ou decide parar. Isso é o que impede o escopo de voltar a ser o documento de 60 funcionalidades.</p>
+  <div id="viewPhase"></div>
+  <div id="viewPerson" hidden></div>
+</section>
+
+<section id="metricas">
+  <div class="sec-head"><h2>O que decide o go / no-go</h2><p>Medido na turma piloto da Uni9 ao longo da F3. Números de referência para apps de estudo; ajustamos depois do teste de corredor.</p></div>
+  <div class="kpis">
+    <div class="kpi"><div class="v">≥ 40%</div><div class="l">Retenção D7</div><div class="n">alunos que voltam na 2ª semana</div></div>
+    <div class="kpi"><div class="v">≥ 25%</div><div class="l">Retenção D30</div><div class="n">ainda ativos após um mês</div></div>
+    <div class="kpi"><div class="v">≥ 30%</div><div class="l">DAU / MAU</div><div class="n">proporção que usa quase todo dia</div></div>
+    <div class="kpi"><div class="v">≥ 20</div><div class="l">Questões por aluno por semana</div><div class="n">sinal de estudo ativo, não de visita</div></div>
+    <div class="kpi"><div class="v">≥ 40</div><div class="l">NPS na semana 7</div><div class="n">e entrevistas com 10 alunos</div></div>
+    <div class="kpi"><div class="v">≥ 10%</div><div class="l">Intenção de pagar</div><div class="n">R$ 30–50/mês no teste de paywall</div></div>
+  </div>
+</section>
+
+<section id="nome">
+  <div class="sec-head"><h2>Nome</h2><p>Decidido em 2 de novembro: a marca é <b>Gutta</b>, de <i>gutta cavat lapidem</i>, a gota que fura a pedra. Enquanto o INPI não responde, o app se chama <b>Gutta Project</b>.</p></div>
+  <div class="names">
+    <div class="name rec">
+      <span class="pill">Nome provisório do app</span>
+      <div class="nm">Gutta Project</div>
+      <p class="why">Ovídio, no exílio: <i>"Gutta cavat lapidem, consumitur anulus usu"</i>, a gota fura a pedra, o anel se gasta com o uso. O complemento medieval, <i>non vi, sed saepe cadendo</i>, não pela força, mas por cair sempre, é a tese do produto: pouco, todo dia.</p>
+      <p class="tag-line">"Um pouco, todo dia." · "Non vi, sed saepe."</p>
+      <p class="risk">gutta.com.br está ocupado. Livres em 1º de novembro: mestregutta.com.br, metodogutta.com.br e guttamind.com.br. Pendente: busca no INPI, classes 41 e 42, que é o que decide se Gutta fica.</p>
+    </div>
+    <div class="name">
+      <div class="nm">A família</div>
+      <p class="why"><b>Gutta</b> é o app, sem sobrenome. <b>Método Gutta</b> é a pedagogia: sonda, goteja, cava. <b>Clube Gutta</b> é a assinatura e a comunidade. <b>Gutta Lab</b> são as aulas interativas. <b>Instituto Gutta</b> é a pessoa jurídica e os contratos com universidades.</p>
+      <p class="tag-line">Repositório: github.com/jorguzz-fer/gutta</p>
+      <p class="risk">Tutor: Guta (a marca como pessoa) ou Mestre Gutta, a definir. Se virar desenho, não pode ser gota com rosto: o Zé Gotinha já existe.</p>
+    </div>
+    <div class="name">
+      <div class="nm">Descartados</div>
+      <p class="why">Gutta University e Universidade Gutta: "universidade" e "faculdade" são nomes reservados a instituições credenciadas pelo MEC, e posicionam o produto contra a faculdade do aluno, que é quem vamos querer como cliente.</p>
+      <p class="tag-line">—</p>
+      <p class="risk">Reservas, se Gutta cair no INPI: Vinco, Garoa, Shizuku, Gútula.</p>
+    </div>
+  </div>
+</section>
+
+<section id="escopo">
+  <div class="sec-head"><h2>Fora do MVP, de propósito</h2><p>Tudo isso está no documento de conceito e tudo isso só faz sentido depois que existe aluno voltando todo dia. Fica registrado para não ser esquecido, e para não entrar antes da hora.</p></div>
+  <div class="two">
+    <div class="cuts">
+      <h3>Não entra até a decisão de abril</h3>
+      <ul>
+        <li>E-mail com domínio próprio <span>· custo, suporte e LGPD altos; o canal do aluno é o WhatsApp. O "portfólio de competências" cobre o objetivo de identidade.</span></li>
+        <li>Marketplace de professores e aulas particulares <span>· precisa de base de alunos antes; problema do ovo e da galinha.</span></li>
+        <li>Área institucional completa <span>· só o painel do professor entra, porque o Hugo precisa dele no piloto.</span></li>
+        <li>AR/VR, OSCE virtual, pacientes virtuais, simulador de emergência <span>· Fase 3 e 4 do documento original.</span></li>
+        <li>App nativo nas lojas <span>· PWA instalável resolve o piloto.</span></li>
+        <li>Gamificação além de streak e questão do dia <span>· rankings e conquistas depois de medir o hábito básico.</span></li>
+        <li>Vários cursos ao mesmo tempo <span>· um curso, uma trilha, uma turma. O 2º curso é decisão de F4 (Vet é candidato natural: a MCH é a cardiopatia mais comum em gatos).</span></li>
+        <li>Cobrança recorrente completa <span>· só o teste de intenção de pagamento no fim da F3.</span></li>
+      </ul>
+    </div>
+    <div class="risks">
+      <h3>Riscos e decisões em aberto</h3>
+      <dl>
+        <dt>Calendário acadêmico manda no cronograma</dt><dd>Turma real só existe a partir de fevereiro. Por isso o teste de corredor em dezembro: validar o formato do módulo antes do recesso, não em março.</dd>
+        <dt>Um único professor produzindo conteúdo</dt><dd>O Hugo é o gargalo da F2. Mitigação: pipeline de geração assistida por IA com fila de revisão, e um segundo revisor convidado pelo Dr. Kleber já na F1.</dd>
+        <dt>Semestre-alvo da trilha</dt><dd>A aula de MCH é de fisiopatologia, não do ciclo básico puro. O Hugo define se a trilha mira o 3º–4º semestre ou se a gente recua para fisiologia e anatomia cardiovascular.</dd>
+        <dt>Piloto informal vs. formal na Uni9</dt><dd>Informal (via disciplina do Hugo) é mais rápido; formal protege a relação. Decisão do Dr. Kleber na F0, com os termos de consentimento prontos em qualquer caso.</dd>
+        <dt>Custo de IA por aluno</dt><dd>Tutor com RAG sobre conteúdo revisado é mais barato e mais confiável que chat livre. Meta: custo conhecido por aluno/mês antes da F3.</dd>
+        <dt>Veículo jurídico e acordo entre os quatro</dt><dd>Empresa nova ou existente, participações e vesting. Tem que estar acertado antes de produzir conteúdo que vira ativo da empresa.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Base: "Plataforma Integrada para Alunos de Graduação nas Áreas da Saúde", conceito v. out/2026.</span>
+  <span>Datas em semanas de segunda a sexta; Carnaval 2027 em 6–9 fev; Páscoa em 28 mar.</span>
+  <span>Nome provisório do app: Gutta Project, até a resposta do INPI.</span>
+  <span>Documento de trabalho dos quatro sócios. Revisar a cada fase.</span>
+</footer>
+</div>
+
+<script>
+(function(){
+const P={
+  K:{name:"Dr. Kleber Ferreira",role:"Coordenação estratégica",ini:"K",color:"var(--p-k)",
+     mission:"Dono da tese, das relações institucionais e da decisão de go/no-go. Abre portas (Uni9, outras instituições, professores) e garante que o produto continue respondendo a uma dor real do aluno."},
+  H:{name:"Hugo Orsini",role:"Conteúdo e academia · Professor de Medicina na Uni9",ini:"H",color:"var(--p-h)",
+     mission:"Dono do que o aluno estuda. Define a trilha, produz e revisa questões, flashcards e aulas, e leva a plataforma para dentro da sala de aula na Uni9."},
+  R:{name:"Rafael Dias",role:"Operações",ini:"R",color:"var(--p-r)",
+     mission:"Dono do ritmo e do piloto rodando. Cronograma, ferramentas, termos e LGPD, onboarding e suporte aos alunos, coleta de métricas e o relatório semanal para os quatro."},
+  F:{name:"Fernando Jorge",role:"Produto, tecnologia e marca",ini:"F",color:"var(--p-f)",
+     mission:"Dono do produto que o aluno usa. Plataforma, aulas interativas, tutor de IA, dados e a marca, com o cuidado de só construir o que a fase pede."}
+};
+const PH=[
+ {id:"F0",name:"Alinhamento e decisões",dates:"3 → 13 nov · 2 semanas",c:"var(--p-r)",
+  goal:"Sair com escopo fechado, nome escolhido, trilha e turma piloto definidas, papéis e acordo entre os quatro acertados.",
+  tasks:{
+   K:["Escrever a tese do MVP em uma página: para quem, que dor, por que agora, o que seria sucesso em abril","Definir os critérios de go/no-go com os outros três (base: tabela de métricas abaixo)","Decidir piloto informal ou formal na Uni9 e abrir a conversa certa","Propor veículo jurídico, participações e vesting; levar ao grupo"],
+   H:["Propor a trilha do MVP: sugestão é a trilha cardiovascular partindo da MCH, com 6 a 8 temas","Definir semestre-alvo e disciplinas em que a trilha encaixa","Levantar o calendário da Uni9 2027.1: início das aulas, datas de prova da disciplina","Estimar a turma piloto: quantos alunos, qual semestre, como chegar neles"],
+   R:["Montar o cronograma mestre a partir deste roadmap e o ritual semanal (45 min, toda segunda)","Abrir as ferramentas do time: quadro de tarefas, Drive, grupo de WhatsApp","Levantar o que o piloto exige de termos de uso, privacidade e consentimento de pesquisa (LGPD)","Mapear custos fixos do MVP: infra, IA, ferramentas, eventual freela de revisão"],
+   F:["Confirmar Gutta no INPI (classes 41 e 42) e registrar os domínios livres: mestregutta, metodogutta, guttamind; até lá o app é Gutta Project","Definir arquitetura e stack do MVP e o que se reaproveita (aula MCH, design system, base LMS existente)","Criar o design system Gutta: gota e pedra, sem gotinha com rosto","Estimar custo de IA por aluno/mês com tutor via RAG sobre conteúdo revisado"]
+  },
+  gate:["Gutta confirmado no INPI e domínios registrados","Trilha (temas e semestre) e turma piloto definidas pelo Hugo","Cronograma e ritual aprovados","Acordo entre os quatro acertado por escrito"]},
+ {id:"F1",name:"Fundação: o módulo padrão",dates:"16 nov → 18 dez · 5 semanas",c:"var(--p-k)",
+  goal:"Transformar a aula de MCH em um módulo completo dentro da plataforma e provar o formato com 10 a 15 alunos antes do recesso.",
+  defn:"<b>Módulo padrão</b> = aula interativa (3D e simulação) + 30 a 50 questões comentadas + 20 a 30 flashcards com revisão espaçada + resumo de uma página + tutor de IA que só responde sobre o conteúdo revisado daquele módulo.",
+  tasks:{
+   K:["Validar o módulo MCH do ponto de vista clínico e acadêmico","Trazer um segundo revisor de conteúdo (professor convidado) para destravar a F2","Conversas exploratórias com coordenação e ligas acadêmicas da Uni9","Definir a hipótese de freemium: o que é grátis para sempre e o que é pago"],
+   H:["Revisar e aprovar as questões e flashcards do módulo MCH gerados a partir da aula","Escrever os comentários de gabarito e as rubricas que o tutor vai usar","Definir a 'voz' do tutor: o que ele responde, o que ele recusa, quando manda procurar o professor","Recrutar 10 a 15 alunos para o teste de corredor na 1ª semana de dezembro"],
+   R:["Operar o teste de corredor: convite, termo de consentimento, roteiro de observação, formulário de feedback","Documentar o processo de produção de um módulo (SOP) com tempo e custo de cada etapa","Montar o painel inicial de acompanhamento (planilha de métricas e bugs)","Suporte direto aos alunos testers durante a semana de teste"],
+   F:["Base da plataforma: login, perfil (curso, instituição, semestre), catálogo de módulos, player da aula interativa","Banco de questões com revisão espaçada e flashcards","Tutor de IA com RAG sobre o conteúdo revisado e registro de cada conversa","Pipeline de geração assistida de questões e flashcards a partir do material do professor, com fila de revisão","Eventos e analytics desde o primeiro dia; landing page com lista de espera"]
+  },
+  gate:["Módulo MCH completo rodando na plataforma","10+ alunos usaram no teste de corredor","7 em cada 10 voltaram no 2º dia ou dizem que usariam de novo","Tempo e custo para produzir um módulo conhecidos e aceitáveis"]},
+ {id:"F2",name:"Trilha piloto",dates:"4 jan → 12 fev · 6 semanas (recesso de 21 dez a 1º jan)",c:"var(--p-f)",
+  goal:"Ter 6 a 8 módulos da trilha publicados e a plataforma pronta para uma turma real, com termos, suporte e plano de medição.",
+  tasks:{
+   K:["Formalizar o piloto com a Uni9, ou manter informal como decisão consciente","Abrir conversa com 2 instituições ou ligas fora da Uni9 para o segundo piloto","Preparar o one-pager para parceiros e investidores, se a rota for captar","Alinhar professores convidados para a trilha seguinte"],
+   H:["Produzir e curar o conteúdo dos módulos 2 a 8 da trilha (temas definidos na F0)","Revisar as questões e flashcards gerados pelo pipeline, módulo a módulo","Alinhar o calendário do piloto com as provas da disciplina em 2027.1","Confirmar a turma piloto (meta: 40 ou mais alunos) e preparar a apresentação em sala"],
+   R:["Rodar o kanban de produção: rascunho → revisão do Hugo → publicado, com prazo por módulo","Onboarding do piloto: material, vídeo de 2 minutos, FAQ, canal de suporte no WhatsApp","Publicar termos de uso e política de privacidade; consentimento granular para dados de aprendizagem","Pesquisa de linha de base com a turma: como estudam hoje, que ferramentas usam, quanto gastam"],
+   F:["Aulas interativas dos módulos 2 a 8 na mesma base da MCH","Questão do dia, streak e lembretes pelo WhatsApp","Painel do professor: desempenho da turma, erros mais comuns, quem está ficando para trás","Plano de revisão pré-prova gerado pela IA a partir dos erros do aluno","PWA instalável; exportação e exclusão de dados (LGPD); correções do teste de corredor"]
+  },
+  gate:["6 ou mais módulos publicados e revisados","Turma piloto confirmada com 40+ alunos","Termos, privacidade e consentimento no ar","Dashboard de métricas pronto antes do primeiro aluno entrar"]},
+ {id:"F3",name:"Piloto fechado na Uni9",dates:"22 fev → 9 abr · 7 semanas",c:"var(--p-h)",
+  goal:"Medir hábito e aprendizado com alunos reais ao longo de um bimestre com prova, melhorando o produto toda semana.",
+  tasks:{
+   K:["Acompanhar as métricas contra os critérios de go/no-go a cada semana","Negociar com 1 ou 2 instituições um piloto pago ou licença para o segundo semestre","Preparar a tese de expansão: próximo curso (Vet é candidato natural) e próxima instituição","Definir preço e empacotamento a partir da intenção de pagamento medida"],
+   H:["Usar a plataforma dentro da disciplina: questão do dia como aquecimento, revisão pré-prova","Comparar desempenho na prova com turma ou ano anterior, se houver base","Conversar com 5 alunos por semana e trazer o feedback pedagógico para a segunda-feira","Ajustar conteúdo e gabaritos com base nos erros recorrentes"],
+   R:["Suporte com resposta em menos de 24 horas e registro de todo bug e pedido","Entrevistas com 10 alunos (roteiro fixo) na semana 3 e na semana 7","NPS na semana 3 e na semana 7","Relatório semanal de uma página para os quatro sócios"],
+   F:["Release toda segunda com as correções da semana","Dashboard de métricas: D1, D7, D30, DAU/MAU, questões por aluno, uso do tutor, streak médio","Monitorar custo de IA por aluno e qualidade das respostas do tutor (amostra revisada pelo Hugo)","Teste de paywall suave nas duas últimas semanas: módulo premium ou plano mensal para medir intenção"]
+  },
+  gate:["Métricas de go/no-go atingidas (ou motivo claro de por que não)","10 entrevistas e 2 rodadas de NPS registradas","Custo por aluno/mês conhecido","Intenção de pagamento medida"]},
+ {id:"F4",name:"Decisão e próximo ciclo",dates:"12 → 30 abr · 3 semanas",c:"var(--fg)",
+  goal:"Decidir com dados: seguir, ajustar ou parar. Se seguir, sair com o plano do segundo ciclo (novo curso ou instituição) e a rota de financiamento.",
+  tasks:{
+   K:["Conduzir a decisão de go/no-go com base no relatório do piloto","Definir a rota: captação, bootstrapping ou licença institucional","Escolher o segundo curso e a segunda instituição"],
+   H:["Propor o currículo do segundo ciclo (segunda trilha ou segundo curso)","Recrutar 2 a 3 professores autores com o Dr. Kleber","Consolidar as lições pedagógicas do piloto em um guia de produção de módulos"],
+   R:["Escrever o relatório do piloto: um documento, com números e falas dos alunos","Plano operacional e orçamento do próximo ciclo","Fechar pendências de LGPD e termos para operação aberta"],
+   F:["Roadmap técnico v2: multi-curso, área do professor, pagamentos recorrentes","Custos unitários consolidados (infra + IA por aluno)","Deck e materiais para a rota escolhida"]
+  },
+  gate:["Decisão registrada: go, ajustar ou parar","Se go: plano, orçamento e responsáveis do ciclo 2"]}
+];
+const NOW=[
+ ["K","Marcar a reunião de kickoff dos quatro e levar a tese do MVP em uma página"],
+ ["H","Rascunhar os 6 a 8 temas da trilha e o semestre-alvo; pegar o calendário 2027.1 da Uni9"],
+ ["R","Abrir o quadro de tarefas e o grupo de WhatsApp; colocar este roadmap como cronograma mestre"],
+ ["F","Pedir a busca de Gutta no INPI (classes 41 e 42) e registrar mestregutta, metodogutta e guttamind .com.br; listar o que da aula MCH já vira módulo"]
+];
+
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const av=(k,cls)=>`<span class="${cls}" style="background:${P[k].color}">${P[k].ini}</span>`;
+
+// people
+const peopleEl=document.getElementById("people");
+peopleEl.innerHTML=Object.keys(P).map(k=>`<button class="person" type="button" data-p="${k}" aria-pressed="false" style="--pc:${P[k].color}">${av(k,"av")}<span><span class="nm">${esc(P[k].name)}</span><br><span class="rl">${esc(P[k].role)}</span></span></button>`).join("");
+
+// this week
+document.getElementById("now").innerHTML=NOW.map(([k,t])=>`<li>${av(k,"tag")}<span><b style="font-weight:600">${esc(P[k].name.split(" ")[0]==="Dr."?"Dr. Kleber":P[k].name.split(" ")[0])}</b> · ${esc(t)}</span></li>`).join("");
+
+// phase view
+const vp=document.getElementById("viewPhase");
+vp.innerHTML=PH.map((ph,i)=>{
+  const cols=Object.keys(P).map(k=>`<div class="col" data-p="${k}" style="--pc:${P[k].color}"><div class="who"><span class="av">${P[k].ini}</span><span>${esc(P[k].name.replace("Dr. Kleber Ferreira","Dr. Kleber"))}</span></div><ul class="tasks">${(ph.tasks[k]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`).join("");
+  const off=ph.id==="F1"?`<div class="offblock"><b>21 dez → 1º jan</b> recesso: ninguém produz conteúdo; só o build técnico continua se o Fernando quiser.</div>`:"";
+  const off2=ph.id==="F2"?`<div class="offblock"><b>15 → 19 fev</b> semana de respiro: início do semestre 2027.1 logo após o Carnaval; usar para ajustes finais e apresentação em sala.</div>`:"";
+  return `<article class="phase" style="--pc:${ph.c}"><div class="phase-head"><div class="phase-id"${ph.id==="F4"?' style="color:var(--bg)"':''}>${ph.id}</div><div><h3>${esc(ph.name)}</h3><div class="dates">${esc(ph.dates)}</div><p class="goal">${esc(ph.goal)}</p></div></div>${ph.defn?`<div class="defn">${ph.defn}</div>`:""}<div class="cols">${cols}</div><div class="gate"><div class="lbl">Critério de saída</div><ul>${ph.gate.map(g=>`<li>${esc(g)}</li>`).join("")}</ul></div></article>${off}${off2}`;
+}).join("");
+
+// person view
+const vpp=document.getElementById("viewPerson");
+vpp.innerHTML=`<div class="byp">`+Object.keys(P).map(k=>{
+  const cells=PH.map(ph=>`<div class="pph" style="border-top-color:${ph.c}"><div class="pid">${ph.id} · ${esc(ph.dates.split("·")[0].trim())}</div><h4>${esc(ph.name)}</h4><ul class="tasks" style="--pc:${P[k].color}">${(ph.tasks[k]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`).join("");
+  return `<div class="pcard" data-p="${k}" style="--pc:${P[k].color}"><div class="who"><span class="av">${P[k].ini}</span><div><h3>${esc(P[k].name)}</h3><div class="rl">${esc(P[k].role)}</div></div></div><p class="mission">${esc(P[k].mission)}</p><div class="pgrid">${cells}</div></div>`;
+}).join("")+`</div>`;
+
+// filter
+const body=document.body;
+function setFilter(k){
+  if(k){body.setAttribute("data-filter",k)}else{body.removeAttribute("data-filter")}
+  peopleEl.querySelectorAll(".person").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===k)));
+  try{localStorage.setItem("rm-filter",k||"")}catch(e){}
+}
+peopleEl.addEventListener("click",e=>{const b=e.target.closest(".person");if(!b)return;setFilter(body.getAttribute("data-filter")===b.dataset.p?null:b.dataset.p)});
+document.getElementById("clearFilter").addEventListener("click",()=>setFilter(null));
+try{const s=localStorage.getItem("rm-filter");if(s&&P[s])setFilter(s)}catch(e){}
+
+// tabs
+const tP=document.getElementById("tabPhase"),tQ=document.getElementById("tabPerson");
+function show(which){
+  const phase=which==="phase";
+  vp.hidden=!phase;vpp.hidden=phase;
+  tP.setAttribute("aria-selected",String(phase));tQ.setAttribute("aria-selected",String(!phase));
+  try{localStorage.setItem("rm-view",which)}catch(e){}
+}
+tP.addEventListener("click",()=>show("phase"));tQ.addEventListener("click",()=>show("person"));
+try{if(localStorage.getItem("rm-view")==="person")show("person")}catch(e){}
+})();
+</script>
+
+</body>
+</html>
