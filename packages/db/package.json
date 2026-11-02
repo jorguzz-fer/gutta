@@ -15,7 +15,8 @@
     "migrate": "tsx src/scripts/migrate.ts",
     "seed": "tsx src/scripts/seed.ts",
     "setup:local": "tsx src/scripts/setup-local.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:migrate": "esbuild src/scripts/migrate-cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/migrate.mjs --external:pg-native --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",
@@ -28,6 +29,7 @@
     "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "5.9.3",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "esbuild": "^0.25.12"
   }
 }

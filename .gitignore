@@ -14,3 +14,4 @@ test-results/
 loadtest/resultados/*.json
 .DS_Store
 next-env.d.ts
+packages/db/dist/

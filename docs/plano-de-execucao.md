@@ -16,7 +16,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 - [x] 06. Autenticação com Better Auth: cadastro com aceite de termos e consentimentos separados, verificação de e-mail, login, recuperação de senha, sair de todas as sessões. `MailProvider` com implementação de log (dev) e Resend (prod). Rate limit. TOTP obrigatório para admin.
 - [x] 07. RBAC no servidor (`requireUser`, `requireRole`), `proxy.ts` protegendo `/app` e `/admin`, layouts do aluno e do admin, páginas `/entrar`, `/cadastro`, `/recuperar-senha`, `/verificar-email`.
 - [x] 08. Testes de isolamento (integração contra Postgres real): aluno A não lê nem altera dados do aluno B; visitante não acessa API privada; papel `gutta_app` não ignora RLS.
-- [ ] 09. Docker: `apps/web/Dockerfile` (multi-stage, não-root, `output: standalone`), `docker-compose.yml` (web + postgres), migrations no start, `/api/health`. Guia de deploy no Coolify em `docs/deploy.md`.
+- [x] 09. Docker: `apps/web/Dockerfile` (multi-stage, não-root, `output: standalone`), `docker-compose.yml` (web + postgres), migrations no start, `/api/health`. Guia de deploy no Coolify em `docs/deploy.md`.
 - [ ] 10. CI no GitHub Actions: lint, typecheck, unit, integração com serviço Postgres, build, E2E.
 
 ## M1. Aprendizagem ativa mínima

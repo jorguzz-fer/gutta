@@ -1,23 +1,26 @@
 import type { Metadata, Viewport } from 'next';
-import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
-// Fontes servidas pelo próprio app (next/font), sem chamada ao Google no navegador do aluno.
-const display = Bricolage_Grotesque({
-  subsets: ['latin'],
-  weight: ['500', '700'],
+// Fontes no repositório (OFL, ver src/fonts/LICENSE.md): o build não depende de rede e o
+// navegador do aluno não faz requisição ao Google.
+const display = localFont({
+  src: '../fonts/bricolage-grotesque-latin.woff2',
+  weight: '500 700',
   variable: '--font-bricolage',
   display: 'swap',
 });
-const sans = IBM_Plex_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
+const sans = localFont({
+  src: '../fonts/ibm-plex-sans-latin.woff2',
+  weight: '400 600',
   variable: '--font-plex',
   display: 'swap',
 });
-const mono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const mono = localFont({
+  src: [
+    { path: '../fonts/ibm-plex-mono-400-latin.woff2', weight: '400' },
+    { path: '../fonts/ibm-plex-mono-500-latin.woff2', weight: '500' },
+  ],
   variable: '--font-plex-mono',
   display: 'swap',
 });

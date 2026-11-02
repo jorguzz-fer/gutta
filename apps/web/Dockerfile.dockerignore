@@ -1,0 +1,12 @@
+# Ignore usado pelo BuildKit para apps/web/Dockerfile (o .dockerignore da raiz é do site estático).
+**/node_modules
+**/.next
+**/dist
+.git
+.env
+**/.env
+docs
+loadtest
+public
+playwright-report
+test-results
