@@ -29,7 +29,7 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 - [x] 16. Flashcards (FC-01): revisão espaçada inspirada no SM-2 em `packages/core` (esqueci/difícil/bom/fácil), fila de vencidos com fuso horário, criação de flashcard pessoal a partir de questão errada, itens privados isolados. Testes unitários e de isolamento.
 - [x] 17. Dashboard (HOME-01): próxima ação com justificativa, questão do dia, revisões vencidas com tempo estimado, disciplinas e lacunas, provas, progresso da semana. Funciona sem histórico.
 - [x] 18. Editorial (ADM-01): `/admin/questoes` com fluxo `draft → in_review → approved → published → archived`; autor não aprova a própria questão; só revisor publica; versão e revisor registrados; auditoria. Questão não publicada não aparece no estudo.
-- [ ] 19. Privacidade: `/app/privacidade` com preferências por finalidade, exportação dos dados em JSON e pedido de exclusão.
+- [x] 19. Privacidade: `/app/privacidade` com preferências por finalidade, exportação dos dados em JSON e pedido de exclusão.
 - [ ] 20. Eventos de produto (ANA-01) nas ações-chave e `/admin/metricas` com WALS e contagens reais.
 - [ ] 21. E2E (Playwright): cadastro → verificação → onboarding → 5 questões → feedback → flashcard → dashboard; editor → revisor → publicação. Varredura de acessibilidade automatizada no fluxo principal.
 - [ ] 22. Teste de carga (skill teste-de-carga): `loadtest/` com mapa de todas as rotas, cenário k6 ponderado, smoke, carga, estresse e pico contra build de produção local com banco populado; gargalos corrigidos; relatório HTML; job de CI.
