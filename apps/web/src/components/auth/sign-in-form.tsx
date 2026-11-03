@@ -6,6 +6,7 @@ import { authClient } from '@/lib/auth/client';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
 import { Field, Input } from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export function SignInForm({ next }: { next: string }) {
   const router = useRouter();
@@ -53,9 +54,7 @@ export function SignInForm({ next }: { next: string }) {
         )}
       </Field>
       <Field label="Senha">
-        {(p) => (
-          <Input {...p} name="password" type="password" autoComplete="current-password" required />
-        )}
+        {(p) => <PasswordInput {...p} name="password" autoComplete="current-password" required />}
       </Field>
       <Button type="submit" size="lg" loading={pending}>
         Entrar

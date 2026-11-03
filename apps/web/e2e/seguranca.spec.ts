@@ -50,7 +50,7 @@ test('cadastro não revela se o e-mail já tem conta', async ({ page }) => {
   await page.goto('/cadastro');
   await page.getByLabel('Como quer ser chamado(a)').fill('Alguém');
   await page.getByLabel('E-mail').fill('aluno@gutta.test');
-  await page.getByLabel('Senha').fill('qualquer-senha-1');
+  await page.getByLabel('Senha', { exact: true }).fill('qualquer-senha-1');
   await page.getByRole('checkbox', { name: /termos de uso/ }).check();
   await page.getByRole('button', { name: 'Criar conta' }).click();
   await expect(page.getByText('Conta criada. Confira seu e-mail.')).toBeVisible();
@@ -63,4 +63,19 @@ test('cabeçalhos de segurança', async ({ request }) => {
   expect(h['content-security-policy']).toContain('https://aula.alumine.com.br');
   expect(h['x-content-type-options']).toBe('nosniff');
   expect(h['x-powered-by']).toBeUndefined();
+});
+
+test('olho do campo de senha mostra e esconde o que foi digitado', async ({ page }) => {
+  await page.goto('/entrar');
+  const field = page.getByLabel('Senha', { exact: true });
+  await field.fill('segredo-123');
+  await expect(field).toHaveAttribute('type', 'password');
+  await page.getByRole('button', { name: 'Mostrar senha' }).click();
+  await expect(field).toHaveAttribute('type', 'text');
+  await expect(page.getByRole('button', { name: 'Ocultar senha' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'Ocultar senha' }).click();
+  await expect(field).toHaveAttribute('type', 'password');
 });

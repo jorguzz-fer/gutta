@@ -5,6 +5,7 @@ import { authClient } from '@/lib/auth/client';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
 import { Field, Input } from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export function RequestResetForm() {
   const [state, setState] = useState<'idle' | 'pending' | 'sent' | 'error'>('idle');
@@ -76,10 +77,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
         hint="Pelo menos 8 caracteres. Ao salvar, você sai de todos os aparelhos."
       >
         {(p) => (
-          <Input
+          <PasswordInput
             {...p}
             name="password"
-            type="password"
+
             autoComplete="new-password"
             minLength={8}
             required
@@ -137,16 +138,14 @@ export function ChangePasswordForm() {
       ) : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       <Field label="Senha atual">
-        {(p) => (
-          <Input {...p} name="current" type="password" autoComplete="current-password" required />
-        )}
+        {(p) => <PasswordInput {...p} name="current" autoComplete="current-password" required />}
       </Field>
       <Field label="Nova senha" hint="Pelo menos 8 caracteres.">
         {(p) => (
-          <Input
+          <PasswordInput
             {...p}
             name="password"
-            type="password"
+
             autoComplete="new-password"
             minLength={8}
             maxLength={128}
