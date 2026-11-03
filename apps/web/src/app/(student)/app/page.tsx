@@ -22,6 +22,16 @@ function actionHref(r: Recommendation) {
   return '/app/questoes/nova';
 }
 
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="glass-card rounded-[var(--radius)] border border-line bg-surface p-4 md:p-5">
+      <dt className="text-xs font-semibold tracking-widest text-muted uppercase">{label}</dt>
+      <dd className="tabular mt-2 font-display text-2xl md:text-3xl">{value}</dd>
+      {hint ? <dd className="mt-1 text-xs text-accent">{hint}</dd> : null}
+    </div>
+  );
+}
+
 function actionLabel(r: Recommendation) {
   if (r.type === 'review_flashcards') return 'Começar revisão';
   if (r.type === 'empty') return 'Ver disciplinas';
@@ -62,15 +72,46 @@ export default async function TodayPage({
         <Alert tone="warn">Essa área é só para a equipe editorial.</Alert>
       ) : null}
 
-      <h1 className="text-3xl font-bold">Oi{d.firstName ? `, ${d.firstName}` : ''}.</h1>
+      <div className="grid gap-2">
+        <h1 className="text-4xl md:text-5xl">Oi{d.firstName ? `, ${d.firstName}` : ''}.</h1>
+        <p className="text-muted">Seu próximo passo de estudo está pronto.</p>
+      </div>
+
+      {/* Números do protótipo, com dados reais do aluno; nada de ranking ou recorde inventado. */}
+      <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat
+          label="Revisões hoje"
+          value={String(d.reviews.total)}
+          hint={d.reviews.total ? `~${d.reviews.minutes} min` : 'nada vencido'}
+        />
+        <Stat label="Questões na semana" value={String(d.week.questions)} />
+        <Stat
+          label="Dias com estudo"
+          value={`${d.week.activeDays} de 7`}
+          hint={`meta de ${d.goalMinutes} min/dia`}
+        />
+        <Stat
+          label="Próxima prova"
+          value={
+            d.exams[0]
+              ? d.exams[0].inDays === 0
+                ? 'hoje'
+                : d.exams[0].inDays === 1
+                  ? 'amanhã'
+                  : `${d.exams[0].inDays} dias`
+              : '—'
+          }
+          hint={d.exams[0] ? d.exams[0].disciplineName : 'nenhuma cadastrada'}
+        />
+      </dl>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="grid content-start gap-6">
-          <Card as="section" aria-labelledby="proximo" className="grid gap-3 border-accent/40 p-6">
-            <p className="flex items-center gap-2 font-mono text-xs tracking-wide text-accent uppercase">
+          <Card as="section" aria-labelledby="proximo" className="grid gap-3 border-accent/50 p-6">
+            <p className="flex items-center gap-2 text-xs font-semibold tracking-widest text-accent uppercase">
               <Sparkles className="size-4" aria-hidden /> Próximo passo
             </p>
-            <h2 id="proximo" className="text-2xl font-bold">
+            <h2 id="proximo" className="text-2xl md:text-3xl">
               {r.title}
             </h2>
             <p className="text-muted">
@@ -90,7 +131,7 @@ export default async function TodayPage({
           {d.questionOfTheDay ? (
             <Card as="section" aria-labelledby="qdia" className="grid gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 id="qdia" className="text-lg font-bold">
+                <h2 id="qdia" className="text-lg">
                   Questão do dia
                 </h2>
                 <Badge>{d.questionOfTheDay.topicName}</Badge>
@@ -116,7 +157,7 @@ export default async function TodayPage({
 
           {/* Revisões logo depois da questão do dia: no celular é a 3ª prioridade da SPEC (Posição Serial). */}
           <Card as="section" aria-labelledby="revisoes" className="grid gap-2">
-            <h2 id="revisoes" className="flex items-center gap-2 text-lg font-bold">
+            <h2 id="revisoes" className="flex items-center gap-2 text-lg">
               <Layers className="size-5 text-muted" aria-hidden /> Revisões
             </h2>
             {d.reviews.total > 0 ? (
@@ -141,7 +182,7 @@ export default async function TodayPage({
           </Card>
 
           <section aria-labelledby="lacunas" className="grid gap-3">
-            <h2 id="lacunas" className="text-lg font-bold">
+            <h2 id="lacunas" className="text-lg">
               Suas disciplinas
             </h2>
             {d.gaps.length === 0 ? (
@@ -153,7 +194,7 @@ export default async function TodayPage({
               d.gaps.map((g) => (
                 <Card key={g.id} className="grid gap-3 p-4">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 className="font-bold">
+                    <h3 className="text-base">
                       <Link href={`/app/disciplinas/${g.slug}`} className="text-fg">
                         {g.name}
                       </Link>
@@ -198,7 +239,7 @@ export default async function TodayPage({
 
         <aside className="grid content-start gap-6">
           <Card as="section" aria-labelledby="semana" className="grid gap-3">
-            <h2 id="semana" className="text-lg font-bold">
+            <h2 id="semana" className="text-lg">
               Esta semana
             </h2>
             <ol className="flex justify-between gap-1" aria-label="Dias da semana com estudo">
@@ -206,7 +247,7 @@ export default async function TodayPage({
                 <li
                   key={day.key}
                   className={cn(
-                    'grid size-9 place-items-center rounded-full text-sm font-medium',
+                    'grid size-9 place-items-center rounded-[var(--radius)] text-sm font-semibold',
                     day.active ? 'bg-accent text-accent-ink' : 'border border-line text-muted',
                     day.isToday && !day.active && 'border-accent text-accent',
                     day.isFuture && 'opacity-50',
@@ -225,7 +266,7 @@ export default async function TodayPage({
           </Card>
 
           <Card as="section" aria-labelledby="provas" className="grid gap-2">
-            <h2 id="provas" className="flex items-center gap-2 text-lg font-bold">
+            <h2 id="provas" className="flex items-center gap-2 text-lg">
               <CalendarDays className="size-5 text-muted" aria-hidden /> Provas
             </h2>
             {d.exams.length === 0 ? (

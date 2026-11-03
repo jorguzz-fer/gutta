@@ -5,11 +5,11 @@ export function Card({
   className,
   as: Tag = 'section',
   ...rest
-}: React.HTMLAttributes<HTMLElement> & { as?: 'section' | 'div' | 'article' | 'li' }) {
+}: React.HTMLAttributes<HTMLElement> & { as?: 'section' | 'div' | 'article' | 'li' | 'aside' }) {
   return (
     <Tag
       className={cn(
-        'glass-card rounded-[var(--radius-lg)] border border-line bg-surface p-5',
+        'glass-card rounded-[var(--radius)] border border-line bg-surface p-5',
         className,
       )}
       {...rest}
@@ -34,7 +34,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 font-mono text-[11.5px] tracking-wide uppercase',
+        'inline-flex items-center rounded-[4px] px-2 py-0.5 text-[11.5px] font-semibold tracking-widest uppercase',
         tones[tone],
         className,
       )}

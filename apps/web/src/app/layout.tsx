@@ -5,23 +5,19 @@ import './globals.css';
 // Fontes no repositório (OFL, ver src/fonts/LICENSE.md): o build não depende de rede e o
 // navegador do aluno não faz requisição ao Google.
 const display = localFont({
-  src: '../fonts/bricolage-grotesque-latin.woff2',
-  weight: '500 700',
-  variable: '--font-bricolage',
+  src: '../fonts/archivo-black-latin-400.woff2',
+  weight: '400',
+  variable: '--font-archivo',
   display: 'swap',
 });
 const sans = localFont({
-  src: '../fonts/ibm-plex-sans-latin.woff2',
-  weight: '400 600',
-  variable: '--font-plex',
-  display: 'swap',
-});
-const mono = localFont({
   src: [
-    { path: '../fonts/ibm-plex-mono-400-latin.woff2', weight: '400' },
-    { path: '../fonts/ibm-plex-mono-500-latin.woff2', weight: '500' },
+    { path: '../fonts/hind-latin-400.woff2', weight: '400' },
+    { path: '../fonts/hind-latin-500.woff2', weight: '500' },
+    { path: '../fonts/hind-latin-600.woff2', weight: '600' },
+    { path: '../fonts/hind-latin-700.woff2', weight: '700' },
   ],
-  variable: '--font-plex-mono',
+  variable: '--font-hind',
   display: 'swap',
 });
 
@@ -35,25 +31,19 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F2F5F4' },
-    { media: '(prefers-color-scheme: dark)', color: '#0E1514' },
-  ],
+  themeColor: '#0d0b0b',
 };
 
-// Visual experimental (ver styles/glass.css). Roda antes da pintura para não piscar o
-// visual clássico. ?look=glass ou ?look=classic na URL grava a escolha neste navegador.
-const lookScript = `(function(){try{var q=new URLSearchParams(location.search).get('look');if(q==='glass'||q==='classic')localStorage.setItem('gutta-look',q);if((q||localStorage.getItem('gutta-look'))==='glass')document.documentElement.dataset.look='glass'}catch(e){}})()`;
+// Roda antes da pintura, para não piscar: aplica o tema (escuro por padrão, claro se o aluno
+// escolheu no botão do topo) e o visual experimental de vidro (styles/glass.css).
+// ?look=glass ou ?look=classic na URL grava a escolha do visual neste navegador.
+const bootScript = `(function(){try{var d=document.documentElement;if(localStorage.getItem('gutta-theme')==='light')d.dataset.theme='light';var q=new URLSearchParams(location.search).get('look');if(q==='glass'||q==='classic')localStorage.setItem('gutta-look',q);if((q||localStorage.getItem('gutta-look'))==='glass')d.dataset.look='glass'}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="pt-BR" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: lookScript }} />
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="min-h-dvh">
         <a

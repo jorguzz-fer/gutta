@@ -4,20 +4,21 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'md' | 'lg';
 
 // Um primário por tela (Von Restorff). Altura mínima de 44 px para toque (Fitts).
+// Cantos retos e texto em Hind semibold, como no protótipo do Lovable (ADR 0007).
 const variants: Record<Variant, string> = {
   primary: 'bg-accent text-accent-ink hover:bg-accent-hover',
-  secondary: 'bg-surface text-fg border border-line-strong hover:border-fg',
+  secondary: 'bg-surface-2 text-fg border border-line hover:border-line-strong',
   ghost: 'bg-transparent text-accent hover:bg-accent-soft',
   danger: 'bg-surface text-danger border border-danger/60 hover:bg-danger-soft',
 };
 const sizes: Record<Size, string> = {
-  md: 'min-h-11 px-4 text-[15px]',
+  md: 'min-h-11 px-5 text-[15px]',
   lg: 'min-h-12 px-6 text-base',
 };
 
 export function buttonClass(variant: Variant = 'primary', size: Size = 'md', extra?: string) {
   return cn(
-    'inline-flex items-center justify-center gap-2 rounded-full font-display font-bold no-underline',
+    'inline-flex items-center justify-center gap-2 rounded-[var(--radius)] font-semibold no-underline',
     'transition-colors disabled:cursor-not-allowed disabled:opacity-55',
     variants[variant],
     sizes[size],

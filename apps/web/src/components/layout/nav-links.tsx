@@ -16,7 +16,7 @@ export function TopNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Principal" className="hidden md:block">
-      <ul className="flex items-center gap-1">
+      <ul className="flex items-center gap-5">
         {items.map((item) => {
           const active = isActive(pathname, item);
           return (
@@ -25,11 +25,10 @@ export function TopNav({ items }: { items: NavItem[] }) {
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-[15px] font-medium no-underline',
-                  active ? 'bg-accent-soft text-accent' : 'text-muted hover:text-fg',
+                  'inline-flex min-h-11 items-center text-[15px] no-underline transition-colors',
+                  active ? 'font-semibold text-fg' : 'text-fg/75 hover:text-fg',
                 )}
               >
-                {item.icon}
                 {item.label}
               </Link>
             </li>
@@ -45,7 +44,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
   return (
     <nav
       aria-label="Principal"
-      className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
       <ul
         className="grid"

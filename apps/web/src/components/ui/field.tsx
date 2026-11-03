@@ -42,8 +42,8 @@ export function Field({ label, hint, error, optional, children }: FieldProps) {
 }
 
 const control =
-  'w-full min-h-11 rounded-[var(--radius)] border border-line-strong bg-surface px-3 text-base text-fg ' +
-  'placeholder:text-muted/80 aria-[invalid=true]:border-danger';
+  'w-full min-h-11 rounded-[var(--radius)] border border-line-strong bg-surface-2 px-4 text-base text-fg ' +
+  'placeholder:text-muted/80 focus:border-accent aria-[invalid=true]:border-danger';
 
 export function Input({ className, ...rest }: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input className={cn(control, className)} {...rest} />;

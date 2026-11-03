@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { EmptyState } from '@/components/shared/states';
-import { Card, DemoBadge } from '@/components/ui/card';
+import { Cover } from '@/components/shared/cover';
+import { DemoBadge } from '@/components/ui/card';
 import { buttonClass } from '@/components/ui/button';
 import { listDisciplines } from '@/features/catalog/data';
 import { requireStudent } from '@/lib/auth/session';
@@ -12,25 +13,32 @@ type D = Awaited<ReturnType<typeof listDisciplines>>['mine'][number];
 
 function DisciplineCard({ d }: { d: D }) {
   return (
-    <Card as="li" className="grid gap-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-lg font-bold">
+    <li className="group relative">
+      <Cover
+        slug={d.slug}
+        eyebrow={d.periodHint ? `${d.periodHint}º semestre` : 'Disciplina'}
+        title={
           <Link
             href={`/app/disciplinas/${d.slug}`}
-            className="text-fg no-underline after:absolute after:inset-0"
+            className="text-cover-fg no-underline after:absolute after:inset-0 group-hover:underline"
           >
             {d.name}
           </Link>
-        </h3>
+        }
+        className="transition-transform duration-300 group-hover:scale-[1.02]"
+      />
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <p className="text-sm text-muted">
+          {d.moduleCount === 0
+            ? 'nenhum módulo publicado ainda'
+            : `${d.moduleCount} módulo${d.moduleCount > 1 ? 's' : ''}`}
+        </p>
         {d.isDemo ? <DemoBadge /> : null}
       </div>
-      {d.description ? <p className="text-[15px] text-muted">{d.description}</p> : null}
-      <p className="font-mono text-xs text-muted">
-        {d.moduleCount === 0
-          ? 'nenhum módulo publicado ainda'
-          : `${d.moduleCount} módulo${d.moduleCount > 1 ? 's' : ''}`}
-      </p>
-    </Card>
+      {d.description ? (
+        <p className="mt-1 text-sm text-muted line-clamp-2">{d.description}</p>
+      ) : null}
+    </li>
   );
 }
 
@@ -39,9 +47,9 @@ export default async function DisciplinesPage() {
   const { mine, others } = await listDisciplines(user.id);
   return (
     <div className="grid gap-8">
-      <h1 className="text-3xl font-bold">Estudar</h1>
+      <h1 className="text-4xl md:text-5xl">Estudar</h1>
       <section className="grid gap-3" aria-labelledby="minhas">
-        <h2 id="minhas" className="text-xl font-bold">
+        <h2 id="minhas" className="text-xl">
           Suas disciplinas
         </h2>
         {mine.length === 0 ? (
@@ -56,7 +64,7 @@ export default async function DisciplinesPage() {
             Escolha o que você está cursando para receber recomendações.
           </EmptyState>
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2 [&>li]:relative">
+          <ul className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
             {mine.map((d) => (
               <DisciplineCard key={d.id} d={d} />
             ))}
@@ -65,10 +73,10 @@ export default async function DisciplinesPage() {
       </section>
       {others.length > 0 ? (
         <section className="grid gap-3" aria-labelledby="outras">
-          <h2 id="outras" className="text-xl font-bold">
+          <h2 id="outras" className="text-xl">
             Outras do seu curso
           </h2>
-          <ul className="grid gap-3 sm:grid-cols-2 [&>li]:relative">
+          <ul className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((d) => (
               <DisciplineCard key={d.id} d={d} />
             ))}
