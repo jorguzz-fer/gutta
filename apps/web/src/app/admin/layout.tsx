@@ -3,9 +3,10 @@ import {
   Building2,
   FileQuestion,
   GraduationCap,
-  Sparkles,
   LayoutGrid,
+  LockKeyhole,
   ShieldCheck,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -40,6 +41,11 @@ const adminItems: NavItem[] = [
     icon: <Building2 className={icon} aria-hidden />,
   },
   { href: '/admin/tutor', label: 'Tutor IA', icon: <Sparkles className={icon} aria-hidden /> },
+  {
+    href: '/admin/privacidade',
+    label: 'Privacidade',
+    icon: <LockKeyhole className={icon} aria-hidden />,
+  },
   { href: '/admin/metricas', label: 'Métricas', icon: <BarChart3 className={icon} aria-hidden /> },
 ];
 const tailItems: NavItem[] = [

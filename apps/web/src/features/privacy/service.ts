@@ -1,10 +1,15 @@
 import 'server-only';
-import { and, desc, eq, schema as s, withUser, inSequence } from '@gutta/db';
+import { and, desc, eq, ne, schema as s, sql, withUser, inSequence } from '@gutta/db';
+import { z } from 'zod';
+import { ApiError } from '@/lib/api';
 import { db } from '@/lib/db';
 import { audit, track } from '@/lib/events';
 import { recordConsents, POLICY_VERSION, type ConsentPurpose } from './consent';
 
-/** Estado atual de cada finalidade: o registro mais recente vence. */
+/** Prazo legal de resposta ao titular (LGPD art. 19, II). */
+export const RESPONSE_DAYS = 15;
+
+/** Estado atual de cada finalidade (o registro mais recente vence) e os pedidos da pessoa. */
 export async function currentConsents(userId: string) {
   return withUser(db(), userId, async (tx) => {
     const rows = await tx
@@ -16,27 +21,125 @@ export async function currentConsents(userId: string) {
       {};
     for (const r of rows)
       latest[r.purpose] ??= { granted: r.granted, at: r.recordedAt, version: r.policyVersion };
-    const openDeletion = await tx.query.dataRequests.findFirst({
-      where: and(
-        eq(s.dataRequests.userId, userId),
-        eq(s.dataRequests.kind, 'deletion'),
-        eq(s.dataRequests.status, 'open'),
-      ),
-    });
-    return { latest, openDeletion: openDeletion ?? null, policyVersion: POLICY_VERSION };
+    const requests = await tx
+      .select()
+      .from(s.dataRequests)
+      .where(and(eq(s.dataRequests.userId, userId), ne(s.dataRequests.kind, 'export')))
+      .orderBy(desc(s.dataRequests.createdAt))
+      .limit(20);
+    const openDeletion = requests.find((r) => r.kind === 'deletion' && r.status === 'open') ?? null;
+    const [tutor] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(s.tutorMessages)
+      .where(
+        and(eq(s.tutorMessages.studentId, userId), sql`${s.tutorMessages.redactedAt} IS NULL`),
+      );
+    return {
+      latest,
+      openDeletion,
+      requests: requests.filter((r) => r.kind !== 'deletion'),
+      tutorMessages: tutor?.n ?? 0,
+      policyVersion: POLICY_VERSION,
+    };
+  });
+}
+
+/** Finalidades que a pessoa liga e desliga sem perder o serviço essencial (art. 8º, §5º). */
+export const OPTIONAL_PURPOSES = ['marketing', 'ai_tutor'] as const;
+export type OptionalPurpose = (typeof OPTIONAL_PURPOSES)[number];
+
+export async function setConsent(userId: string, purpose: OptionalPurpose, granted: boolean) {
+  await withUser(db(), userId, async (tx) => {
+    await recordConsents(tx, userId, { [purpose]: granted });
+    await audit(tx, userId, 'consent.changed', { type: 'user', id: userId }, { purpose, granted });
   });
 }
 
 export async function setMarketing(userId: string, granted: boolean) {
+  return setConsent(userId, 'marketing', granted);
+}
+
+/** Nova versão dos termos e da política: aceite registrado com a versão atual. */
+export async function acceptPolicy(userId: string) {
   await withUser(db(), userId, async (tx) => {
-    await recordConsents(tx, userId, { marketing: granted });
+    await recordConsents(tx, userId, { terms: true, privacy: true });
     await audit(
       tx,
       userId,
-      'consent.changed',
+      'consent.policy_accepted',
       { type: 'user', id: userId },
-      { purpose: 'marketing', granted },
+      { version: POLICY_VERSION },
     );
+  });
+}
+
+export const RIGHT_KINDS = ['correction', 'information', 'objection', 'other'] as const;
+export const RIGHT_LABEL: Record<(typeof RIGHT_KINDS)[number] | 'deletion' | 'export', string> = {
+  correction: 'Corrigir dados',
+  information: 'Saber com quem compartilhamos',
+  objection: 'Me opor a um uso ou pedir revisão',
+  other: 'Outro pedido',
+  deletion: 'Excluir conta',
+  export: 'Baixar dados',
+};
+
+export const rightInput = z.object({
+  kind: z.enum(RIGHT_KINDS, 'Escolha o tipo de pedido.'),
+  details: z
+    .string()
+    .trim()
+    .min(10, 'Conte em poucas palavras o que você precisa.')
+    .max(2000, 'Use no máximo 2.000 caracteres.'),
+});
+
+/** Pedido do titular (art. 18) com prazo de resposta. Um aberto por tipo, para não duplicar. */
+export async function requestRight(userId: string, raw: unknown) {
+  const v = rightInput.parse(raw);
+  return withUser(db(), userId, async (tx) => {
+    const open = await tx.query.dataRequests.findFirst({
+      where: and(
+        eq(s.dataRequests.userId, userId),
+        eq(s.dataRequests.kind, v.kind),
+        eq(s.dataRequests.status, 'open'),
+      ),
+    });
+    if (open)
+      throw new ApiError(
+        409,
+        'conflict',
+        'Você já tem um pedido desse tipo em aberto. Responderemos nele.',
+      );
+    const [row] = await tx
+      .insert(s.dataRequests)
+      .values({ userId, kind: v.kind, details: v.details })
+      .returning();
+    await audit(tx, userId, 'data.request_opened', { type: 'user', id: userId }, { kind: v.kind });
+    return row!;
+  });
+}
+
+export async function cancelRequest(userId: string, id: string) {
+  await withUser(db(), userId, async (tx) => {
+    await tx
+      .update(s.dataRequests)
+      .set({ status: 'cancelled', resolvedAt: new Date() })
+      .where(
+        and(
+          eq(s.dataRequests.id, id),
+          eq(s.dataRequests.userId, userId),
+          eq(s.dataRequests.status, 'open'),
+        ),
+      );
+  });
+}
+
+/** Apaga o texto das conversas com o tutor. Tokens e custo ficam (sem conteúdo). */
+export async function redactTutorHistory(userId: string) {
+  return withUser(db(), userId, async (tx) => {
+    const res = await tx.execute<{ n: number }>(sql`SELECT redact_my_tutor_history() AS n`);
+    const n = Number(res.rows[0]?.n ?? 0);
+    await audit(tx, userId, 'tutor.history_redacted', { type: 'user', id: userId }, { count: n });
+    return n;
   });
 }
 
@@ -90,6 +193,7 @@ export async function exportData(userId: string) {
           .select({
             role: s.tutorMessages.role,
             content: s.tutorMessages.content,
+            redactedAt: s.tutorMessages.redactedAt,
             moduleId: s.tutorConversations.moduleId,
             createdAt: s.tutorMessages.createdAt,
           })

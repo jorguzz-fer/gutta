@@ -3,7 +3,10 @@ import Link from 'next/link';
 import { Wordmark } from '@/components/shared/logo';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { BottomNav, TopNav, type NavItem } from '@/components/layout/nav-links';
-import { hasAnyRole, EDITORIAL_ROLES, requireStudent } from '@/lib/auth/session';
+import { Button } from '@/components/ui/button';
+import { acceptPolicyAction } from '@/features/privacy/actions';
+import { POLICY_VERSION } from '@/features/privacy/consent';
+import { getAccess, hasAnyRole, EDITORIAL_ROLES, requireStudent } from '@/lib/auth/session';
 
 const icon = 'size-5';
 const items: NavItem[] = [
@@ -16,6 +19,7 @@ const items: NavItem[] = [
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const user = await requireStudent('/app');
+  const { acceptedPolicy } = await getAccess(user.id);
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
       <header className="glass-bar sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
@@ -49,6 +53,24 @@ export default async function StudentLayout({ children }: { children: React.Reac
           </div>
         </div>
       </header>
+      {acceptedPolicy !== POLICY_VERSION ? (
+        <section aria-label="Nova versão dos termos" className="border-b border-line bg-surface-2">
+          <form
+            action={acceptPolicyAction}
+            className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm sm:px-6 md:px-8"
+          >
+            <input type="hidden" name="next" value="/app" />
+            <p>
+              Atualizamos os <Link href="/termos">termos de uso</Link> e a{' '}
+              <Link href="/politica-de-privacidade">política de privacidade</Link> (versão{' '}
+              {POLICY_VERSION}). Para continuar, leia e confirme.
+            </p>
+            <Button type="submit" variant="secondary">
+              Li e aceito
+            </Button>
+          </form>
+        </section>
+      ) : null}
       <main id="conteudo" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
         {children}
       </main>

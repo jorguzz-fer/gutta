@@ -21,13 +21,13 @@ flowchart LR
 
 ## Camadas
 
-| Camada | Onde | Regras |
-|---|---|---|
-| Domínio puro | `packages/core` | Sem I/O. Estimativa de domínio, seleção de questão, recomendação, revisão espaçada e datas por fuso. Coberto por testes unitários. |
-| Dados | `packages/db` | Schema Drizzle, migrations SQL com RLS e triggers, seeds e `withUser()`. |
-| Serviços | `apps/web/src/features/*/service.ts` | Regra de aplicação. Toda consulta pessoal roda em `withUser` **e** filtra pelo dono. |
-| Entradas | `app/api/v1/**`, server actions | Validação Zod; identidade só da sessão; contrato de erro `{ code, message, requestId }`. |
-| Telas | `app/**/page.tsx`, `components/*` | RSC por padrão; componentes de cliente só onde há interação. |
+| Camada       | Onde                                 | Regras                                                                                                                             |
+| ------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Domínio puro | `packages/core`                      | Sem I/O. Estimativa de domínio, seleção de questão, recomendação, revisão espaçada e datas por fuso. Coberto por testes unitários. |
+| Dados        | `packages/db`                        | Schema Drizzle, migrations SQL com RLS e triggers, seeds e `withUser()`.                                                           |
+| Serviços     | `apps/web/src/features/*/service.ts` | Regra de aplicação. Toda consulta pessoal roda em `withUser` **e** filtra pelo dono.                                               |
+| Entradas     | `app/api/v1/**`, server actions      | Validação Zod; identidade só da sessão; contrato de erro `{ code, message, requestId }`.                                           |
+| Telas        | `app/**/page.tsx`, `components/*`    | RSC por padrão; componentes de cliente só onde há interação.                                                                       |
 
 ## Segurança em camadas
 
@@ -47,28 +47,28 @@ flowchart LR
 
 As migrations ficam em `packages/db/migrations`, em ordem:
 
-| Migration | Conteúdo |
-|---|---|
-| 0000, 0001 | Identidade, catálogo, RLS, workflow editorial |
-| 0002 | Campos de bloqueio do 2FA |
-| 0003, 0004 | Banco de questões, tentativas, domínio, recomendações |
-| 0005, 0006 | Flashcards, agendamentos e revisões |
+| Migration  | Conteúdo                                                                      |
+| ---------- | ----------------------------------------------------------------------------- |
+| 0000, 0001 | Identidade, catálogo, RLS, workflow editorial                                 |
+| 0002       | Campos de bloqueio do 2FA                                                     |
+| 0003, 0004 | Banco de questões, tentativas, domínio, recomendações                         |
+| 0005, 0006 | Flashcards, agendamentos e revisões                                           |
 | 0007, 0008 | Leitura dos próprios eventos (LGPD); recomendações lidas por admin (métricas) |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 
 ## Verificação (estado em 02/11/2026)
 
-| Verificação | Resultado |
-|---|---|
-| `pnpm lint`, `pnpm format:check`, `pnpm typecheck` | ok |
-| Unitários (`packages/core`) | 31 passando |
-| Integração (Postgres, RLS e isolamento) | 26 em `packages/db` e 4 nos serviços do app |
-| Unitários do app (CSP) | 2 passando |
-| `pnpm build` | ok |
-| E2E Playwright (desktop e celular, axe WCAG 2.2 AA) | 13 passando |
+| Verificação                                          | Resultado                                                      |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| `pnpm lint`, `pnpm format:check`, `pnpm typecheck`   | ok                                                             |
+| Unitários (`packages/core`)                          | 31 passando                                                    |
+| Integração (Postgres, RLS e isolamento)              | 26 em `packages/db` e 4 nos serviços do app                    |
+| Unitários do app (CSP)                               | 2 passando                                                     |
+| `pnpm build`                                         | ok                                                             |
+| E2E Playwright (desktop e celular, axe WCAG 2.2 AA)  | 13 passando                                                    |
 | Teste de carga (k6, ver `docs/carga/relatorio.html`) | 100 alunos com p95 de 102 ms; teto de cerca de 230 por réplica |
-| Imagem Docker e compose (testados localmente) | builda, sobe, aplica migrations e roda como não-root |
+| Imagem Docker e compose (testados localmente)        | builda, sobe, aplica migrations e roda como não-root           |
 
 ## Riscos conhecidos
 
@@ -84,8 +84,12 @@ Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o f
 - **Painel do professor** (`/professor`): turmas com código. O professor só lê agregados por funções do banco, contando o que o aluno fez depois de entrar (ADR 0008).
 - **Tutor IA** (no módulo e em `/admin/tutor`): `AIProvider` com Anthropic e uma implementação de teste. O contexto é só o resumo publicado e as questões que o aluno já respondeu. Há cota diária, registro de tokens e custo, e 30 casos de avaliação (ADR 0008).
 
+- **Usuários pelo admin**: criar conta com senha temporária (mostrada uma vez) e trocar senha em `/seguranca/senha`.
+- **LGPD** (`/app/privacidade`, `/admin/privacidade`, ADR 0009, `docs/lgpd/`): exclusão executada por `erase_user`, pedidos do titular com prazo, consentimento específico do tutor, retenção por `apply_retention` e novo aceite quando a política muda.
+
 ## Próximo passo
 
-1. Cadastrar `ANTHROPIC_API_KEY` e rodar `pnpm --filter @gutta/web tutor:eval` antes de abrir o tutor para a turma piloto.
-2. Pipeline de geração assistida de questões e flashcards, alimentando a fila editorial que já existe.
-3. Questão do dia e lembretes pelo WhatsApp, PWA instalável (F2 do roadmap).
+1. Preencher controlador e encarregado (`LEGAL_CONTROLLER_*`, `DPO_*`), criar a tarefa diária de retenção no Coolify e levar `docs/lgpd/` à revisão jurídica.
+2. Cadastrar `ANTHROPIC_API_KEY` e rodar `pnpm --filter @gutta/web tutor:eval` antes de abrir o tutor para a turma piloto.
+3. Pipeline de geração assistida de questões e flashcards, alimentando a fila editorial que já existe.
+4. Questão do dia e lembretes pelo WhatsApp, PWA instalável (F2 do roadmap).

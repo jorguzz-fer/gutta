@@ -56,6 +56,8 @@ export const tutorMessages = pgTable(
     costMicros: integer('cost_micros').notNull().default(0),
     stopReason: text('stop_reason'),
     refused: boolean('refused').notNull().default(false),
+    /** Texto apagado (pedido do aluno ou retenção). Tokens e custo ficam para a conta de uso. */
+    redactedAt: timestamp('redacted_at', { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [

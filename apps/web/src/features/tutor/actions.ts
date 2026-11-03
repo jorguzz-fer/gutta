@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { ApiError } from '@/lib/api';
 import { requireRole, requireStudent } from '@/lib/auth/session';
+import { setConsent } from '@/features/privacy/service';
 import { askTutor, saveTutorSettings } from './service';
 
 export type TutorState = { error?: string; at?: number } | null;
@@ -34,4 +35,12 @@ export async function saveTutorSettingsAction(form: FormData) {
   }
   revalidatePath('/admin/tutor');
   redirect(`/admin/tutor?${q}`);
+}
+
+/** Consentimento específico do tutor (transferência internacional, LGPD art. 33, VIII). */
+export async function tutorConsentAction(form: FormData) {
+  const user = await requireStudent('/app');
+  await setConsent(user.id, 'ai_tutor', true);
+  const path = String(form.get('path') ?? '/app');
+  revalidatePath(path.startsWith('/app/') ? path : '/app');
 }

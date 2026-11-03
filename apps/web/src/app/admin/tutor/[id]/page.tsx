@@ -39,7 +39,15 @@ export default async function TutorConversationPage({
                   </>
                 ) : null}
               </span>
-              <p className="whitespace-pre-wrap">{m.content}</p>
+              <p className="whitespace-pre-wrap">
+                {m.redactedAt ? (
+                  <em className="text-muted">
+                    Texto apagado (pedido do aluno ou prazo de retenção).
+                  </em>
+                ) : (
+                  m.content
+                )}
+              </p>
             </Card>
           </li>
         ))}

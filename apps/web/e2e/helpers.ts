@@ -95,3 +95,19 @@ export function totp(secret: string, at = Date.now()) {
   const o = h[h.length - 1]! & 15;
   return String((h.readUInt32BE(o) & 0x7fffffff) % 1_000_000).padStart(6, '0');
 }
+
+/** Conta nova promovida a admin, com o segundo fator ativado (exigido para admin). */
+export async function becomeAdmin(page: Page, name = 'Carla Admin') {
+  const email = uniqueEmail('adm-crud');
+  await signUp(page, name, email);
+  await promote(email, 'admin');
+  await page.goto('/admin/cursos');
+  await expect(page).toHaveURL(/\/seguranca\/dois-fatores/);
+  await page.getByLabel('Confirme sua senha').fill('senha-e2e-segura-1');
+  await page.getByRole('button', { name: 'Continuar' }).click();
+  const secret = (await page.locator('code').innerText()).trim();
+  await page.getByLabel('Código de 6 dígitos do app').fill(totp(secret));
+  await page.getByRole('button', { name: 'Ativar', exact: true }).click();
+  await expect(page.getByText('Verificação em duas etapas ativa.')).toBeVisible();
+  return email;
+}

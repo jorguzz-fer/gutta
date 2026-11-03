@@ -6,6 +6,7 @@ import {
   eq,
   gte,
   inArray,
+  isNull,
   or,
   schema as s,
   sql,
@@ -18,6 +19,7 @@ import type { CurrentUser } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { audit, track } from '@/lib/events';
+import { latestConsent } from '@/features/privacy/consent';
 import { costMicros } from './pricing';
 import {
   answeredBlock,
@@ -154,13 +156,16 @@ export async function getTutorState(student: CurrentUser, moduleId: string) {
             and(
               eq(s.tutorMessages.conversationId, conv.id),
               eq(s.tutorMessages.studentId, student.id),
+              isNull(s.tutorMessages.redactedAt),
             ),
           )
           .orderBy(asc(s.tutorMessages.createdAt))
           .limit(60)
       : [];
     const used = await usedLast24h(tx, student.id);
+    const consent = await latestConsent(tx, student.id, 'ai_tutor');
     return {
+      consented: consent?.granted === true,
       available: settings.enabled && aiProvider().available(),
       remaining: Math.max(0, settings.dailyLimit - used),
       dailyLimit: settings.dailyLimit,
@@ -178,6 +183,14 @@ export async function askTutor(student: CurrentUser, raw: unknown) {
     const settings = await readSettings(tx);
     if (!settings.enabled || !provider.available())
       throw new ApiError(503, 'tutor_off', 'O tutor está desligado no momento.');
+    // A pergunta e o desempenho no módulo vão para um operador fora do Brasil (LGPD art. 33):
+    // só com consentimento específico, que o aluno retira em Privacidade.
+    if ((await latestConsent(tx, student.id, 'ai_tutor'))?.granted !== true)
+      throw new ApiError(
+        403,
+        'consent_required',
+        'Para usar o tutor, aceite antes o uso descrito acima.',
+      );
     if ((await usedLast24h(tx, student.id)) >= settings.dailyLimit)
       throw new ApiError(
         429,
@@ -205,6 +218,7 @@ export async function askTutor(student: CurrentUser, raw: unknown) {
         and(
           eq(s.tutorMessages.conversationId, conv!.id),
           eq(s.tutorMessages.studentId, student.id),
+          isNull(s.tutorMessages.redactedAt),
         ),
       )
       .orderBy(desc(s.tutorMessages.createdAt))

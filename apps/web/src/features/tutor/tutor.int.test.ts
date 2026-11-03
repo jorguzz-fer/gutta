@@ -3,6 +3,7 @@ import { and, createDb, createPool, eq, schema as s, withUser } from '@gutta/db'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { CurrentUser, Role } from '@/lib/auth/session';
 import { db } from '@/lib/db';
+import { setConsent } from '@/features/privacy/service';
 import { askTutor, getTutorState, loadTutorContext, saveTutorSettings } from './service';
 
 /*
@@ -51,6 +52,8 @@ beforeAll(async () => {
     explanation: right!.explanation ?? '',
   };
   await saveTutorSettings(admin, { enabled: 'on', dailyLimit: '3' });
+  await setConsent(ana.id, 'ai_tutor', true);
+  await setConsent(beto.id, 'ai_tutor', true);
 });
 afterAll(async () => {
   await saveTutorSettings(admin, { enabled: 'on', dailyLimit: '20' });
@@ -58,6 +61,25 @@ afterAll(async () => {
 });
 
 describe('tutor IA', () => {
+  it('sem o consentimento específico, nada é gravado nem enviado; retirar volta a bloquear', async () => {
+    const caio = await user();
+    await expect(askTutor(caio, { moduleId, message: 'O que é pós-carga?' })).rejects.toMatchObject(
+      { status: 403 },
+    );
+    expect((await getTutorState(caio, moduleId)).consented).toBe(false);
+    const rows = await owner
+      .select()
+      .from(s.tutorMessages)
+      .where(eq(s.tutorMessages.studentId, caio.id));
+    expect(rows).toEqual([]);
+    await setConsent(caio.id, 'ai_tutor', true);
+    expect((await getTutorState(caio, moduleId)).consented).toBe(true);
+    await setConsent(caio.id, 'ai_tutor', false);
+    await expect(askTutor(caio, { moduleId, message: 'O que é pós-carga?' })).rejects.toMatchObject(
+      { status: 403 },
+    );
+  });
+
   it('o gabarito só entra no contexto depois que o aluno responde', async () => {
     const before = await loadTutorContext(ana, moduleId);
     expect(before.answered.map((a) => a.stem)).not.toContain(topicQuestion.stem);

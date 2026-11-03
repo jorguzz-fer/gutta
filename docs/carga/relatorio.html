@@ -1,164 +1,790 @@
 <title>Carga da plataforma Gutta</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+/>
 <style>
-/* Relatório técnico na identidade do app (tokens de apps/web/src/styles/tokens.css):
+  /* Relatório técnico na identidade do app (tokens de apps/web/src/styles/tokens.css):
    coluna única de leitura, veredito no topo, gráficos de série única com o mesmo eixo de tempo. */
-:root {
-  --bg: #f2f5f4; --surface: #ffffff; --surface-2: #e9eeec; --fg: #15201e; --muted: #56645f;
-  --line: #d3dcd9; --accent: #0b6b63; --accent-soft: #dceeeb; --sla: #b3261e; --ok: #1e7a46; --ok-soft: #dff2e6;
-  --bad-soft: #fbe4e1; --warn: #8a5a00; --warn-soft: #f8edd3;
-  --display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
-  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0e1514; --surface: #151e1c; --surface-2: #1c2725; --fg: #e4ecea; --muted: #9aaba7;
-  --line: #273431; --accent: #3dbcae; --accent-soft: #153430; --sla: #ff8a80; --ok: #6fd49a; --ok-soft: #16301f;
-  --bad-soft: #3a1a18; --warn: #e2b04a; --warn-soft: #352b14; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #0e1514; --surface: #151e1c; --surface-2: #1c2725; --fg: #e4ecea; --muted: #9aaba7;
-  --line: #273431; --accent: #3dbcae; --accent-soft: #153430; --sla: #ff8a80; --ok: #6fd49a; --ok-soft: #16301f;
-  --bad-soft: #3a1a18; --warn: #e2b04a; --warn-soft: #352b14; color-scheme: dark }
-* { box-sizing: border-box }
-body { background: var(--bg); color: var(--fg); font: 15.5px/1.6 var(--body); margin: 0; -webkit-font-smoothing: antialiased }
-.wrap { max-width: 980px; margin: 0 auto; padding-block: 40px 72px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 48px }
-h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance }
-h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; letter-spacing: -.01em }
-h2 { font-size: 23px; font-weight: 700 }
-h3 { font-size: 17px; font-weight: 700 }
-p { margin: 0; max-width: 68ch }
-.eyebrow { font: 500 11.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
-.muted { color: var(--muted) }
-section { display: grid; gap: 16px; min-width: 0 }
-header { display: grid; gap: 14px }
-.verdict { font: 600 clamp(19px, 2.6vw, 24px)/1.35 var(--display); max-width: 40ch }
-.verdict b { color: var(--accent) }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px }
-.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; align-content: start }
-.tile .v { font: 700 26px/1.05 var(--display); font-variant-numeric: tabular-nums }
-.tile .l { font-size: 13px; color: var(--muted) }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 10px; min-width: 0 }
-.chart { position: relative; width: 100% }
-.chart svg { display: block; width: 100%; height: auto; overflow: visible }
-.chart text { fill: var(--muted); font: 11px var(--mono) }
-.chart .grid { stroke: var(--line); stroke-width: 1 }
-.chart .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round }
-.chart .area { fill: var(--accent); opacity: .12 }
-.chart .sla { stroke: var(--sla); stroke-width: 1.5; stroke-dasharray: 5 4 }
-.chart .sla-label { fill: var(--sla) }
-.chart .cross { stroke: var(--muted); stroke-width: 1; opacity: 0 }
-.chart .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; opacity: 0 }
-.chart .zone { fill: var(--sla); opacity: .06 }
-.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
-  padding: 6px 9px; font: 12px/1.4 var(--mono); color: var(--fg); box-shadow: 0 4px 14px rgb(0 0 0 / .12); opacity: 0; transition: opacity .1s; white-space: nowrap }
-.chart-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap }
-.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface) }
-table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums }
-th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap }
-th { font: 500 11.5px var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--surface-2) }
-tr:last-child td { border-bottom: 0 }
-td:first-child { white-space: normal; min-width: 180px }
-.pill { display: inline-block; font: 500 11.5px var(--mono); padding: 2px 8px; border-radius: 999px }
-.pill.ok { background: var(--ok-soft); color: var(--ok) }
-.pill.bad { background: var(--bad-soft); color: var(--sla) }
-.fix { display: grid; gap: 8px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface) }
-.fix dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 14.5px }
-.fix dt { color: var(--muted); font: 500 12px var(--mono); padding-top: 2px }
-.fix dd { margin: 0; min-width: 0 }
-ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch }
-code { font: 13px var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px }
-.bars { display: grid; gap: 10px }
-.bar-row { display: grid; grid-template-columns: minmax(120px, 190px) 1fr 70px; gap: 12px; align-items: center; font-size: 14px }
-.bar-num { font: 500 13px var(--mono); font-variant-numeric: tabular-nums; text-align: right }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
-.bar-track { position: relative; height: 26px; background: var(--surface-2); border-radius: 4px; overflow: hidden }
-.bar-fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 0 4px 4px 0 }
-.bar-sla { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--sla) }
-@media (max-width: 520px) { .fix dl { grid-template-columns: 1fr } .bar-row { grid-template-columns: 1fr 64px } .bar-row > span:first-child { grid-column: 1 / -1 } }
-@media (prefers-reduced-motion: reduce) { .tip { transition: none } }
+  :root {
+    --bg: #f2f5f4;
+    --surface: #ffffff;
+    --surface-2: #e9eeec;
+    --fg: #15201e;
+    --muted: #56645f;
+    --line: #d3dcd9;
+    --accent: #0b6b63;
+    --accent-soft: #dceeeb;
+    --sla: #b3261e;
+    --ok: #1e7a46;
+    --ok-soft: #dff2e6;
+    --bad-soft: #fbe4e1;
+    --warn: #8a5a00;
+    --warn-soft: #f8edd3;
+    --display: 'Bricolage Grotesque', 'IBM Plex Sans', system-ui, sans-serif;
+    --body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0e1514;
+      --surface: #151e1c;
+      --surface-2: #1c2725;
+      --fg: #e4ecea;
+      --muted: #9aaba7;
+      --line: #273431;
+      --accent: #3dbcae;
+      --accent-soft: #153430;
+      --sla: #ff8a80;
+      --ok: #6fd49a;
+      --ok-soft: #16301f;
+      --bad-soft: #3a1a18;
+      --warn: #e2b04a;
+      --warn-soft: #352b14;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0e1514;
+    --surface: #151e1c;
+    --surface-2: #1c2725;
+    --fg: #e4ecea;
+    --muted: #9aaba7;
+    --line: #273431;
+    --accent: #3dbcae;
+    --accent-soft: #153430;
+    --sla: #ff8a80;
+    --ok: #6fd49a;
+    --ok-soft: #16301f;
+    --bad-soft: #3a1a18;
+    --warn: #e2b04a;
+    --warn-soft: #352b14;
+    color-scheme: dark;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 15.5px/1.6 var(--body);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding-block: 40px 72px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    gap: 48px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--display);
+    line-height: 1.12;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: 23px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  p {
+    margin: 0;
+    max-width: 68ch;
+  }
+  .eyebrow {
+    font: 500 11.5px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .muted {
+    color: var(--muted);
+  }
+  section {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+  header {
+    display: grid;
+    gap: 14px;
+  }
+  .verdict {
+    font: 600 clamp(19px, 2.6vw, 24px)/1.35 var(--display);
+    max-width: 40ch;
+  }
+  .verdict b {
+    color: var(--accent);
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+  }
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    gap: 4px;
+    align-content: start;
+  }
+  .tile .v {
+    font: 700 26px/1.05 var(--display);
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .l {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .chart {
+    position: relative;
+    width: 100%;
+  }
+  .chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .chart text {
+    fill: var(--muted);
+    font: 11px var(--mono);
+  }
+  .chart .grid {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .chart .line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+  .chart .area {
+    fill: var(--accent);
+    opacity: 0.12;
+  }
+  .chart .sla {
+    stroke: var(--sla);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+  }
+  .chart .sla-label {
+    fill: var(--sla);
+  }
+  .chart .cross {
+    stroke: var(--muted);
+    stroke-width: 1;
+    opacity: 0;
+  }
+  .chart .dot {
+    fill: var(--accent);
+    stroke: var(--surface);
+    stroke-width: 2;
+    opacity: 0;
+  }
+  .chart .zone {
+    fill: var(--sla);
+    opacity: 0.06;
+  }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 9px;
+    font: 12px/1.4 var(--mono);
+    color: var(--fg);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+    opacity: 0;
+    transition: opacity 0.1s;
+    white-space: nowrap;
+  }
+  .chart-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  th {
+    font: 500 11.5px var(--mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+  }
+  tr:last-child td {
+    border-bottom: 0;
+  }
+  td:first-child {
+    white-space: normal;
+    min-width: 180px;
+  }
+  .pill {
+    display: inline-block;
+    font: 500 11.5px var(--mono);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .pill.ok {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .pill.bad {
+    background: var(--bad-soft);
+    color: var(--sla);
+  }
+  .fix {
+    display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .fix dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 14px;
+    margin: 0;
+    font-size: 14.5px;
+  }
+  .fix dt {
+    color: var(--muted);
+    font: 500 12px var(--mono);
+    padding-top: 2px;
+  }
+  .fix dd {
+    margin: 0;
+    min-width: 0;
+  }
+  ul.plain {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+    max-width: 72ch;
+  }
+  code {
+    font: 13px var(--mono);
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .bars {
+    display: grid;
+    gap: 10px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 190px) 1fr 70px;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+  }
+  .bar-num {
+    font: 500 13px var(--mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .bar-track {
+    position: relative;
+    height: 26px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .bar-sla {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 0;
+    border-left: 2px dashed var(--sla);
+  }
+  @media (max-width: 520px) {
+    .fix dl {
+      grid-template-columns: 1fr;
+    }
+    .bar-row {
+      grid-template-columns: 1fr 64px;
+    }
+    .bar-row > span:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tip {
+      transition: none;
+    }
+  }
 </style>
 
 <div class="wrap">
   <header>
     <span class="eyebrow">Gutta Project · teste de carga · 02 nov 2026</span>
     <h1>A plataforma aguenta a turma do piloto com folga</h1>
-    <p class="verdict">Aguenta <b>cerca de 230 alunos simultâneos por réplica</b> com p95 abaixo de 1 s. O piloto prevê 40 alunos. Com 2 réplicas, 400 alunos ficam dentro do limite no total.</p>
-    <p class="muted">Build de produção (<code>next start</code>) contra PostgreSQL 16 com volume de um semestre de piloto, medido com k6 em degraus: smoke, carga, pico, resistência e estresse. SLA: p95 abaixo de 1 s e erros abaixo de 1%.</p>
+    <p class="verdict">
+      Aguenta <b>cerca de 230 alunos simultâneos por réplica</b> com p95 abaixo de 1 s. O piloto
+      prevê 40 alunos. Com 2 réplicas, 400 alunos ficam dentro do limite no total.
+    </p>
+    <p class="muted">
+      Build de produção (<code>next start</code>) contra PostgreSQL 16 com volume de um semestre de
+      piloto, medido com k6 em degraus: smoke, carga, pico, resistência e estresse. SLA: p95 abaixo
+      de 1 s e erros abaixo de 1%.
+    </p>
   </header>
 
   <section aria-labelledby="numeros">
     <h2 id="numeros" class="sr">Números principais</h2>
     <div class="tiles">
-      <div class="tile"><span class="v">~230</span><span class="l">teto por réplica, em alunos simultâneos</span></div>
-      <div class="tile"><span class="v">102 ms</span><span class="l">p95 com 100 alunos (2,5× o piloto)</span></div>
-      <div class="tile"><span class="v">495 ms</span><span class="l">p95 no pico de 0 a 200 em 10 s</span></div>
-      <div class="tile"><span class="v">88 ms</span><span class="l">p95 em 10 min de resistência, memória estável</span></div>
+      <div class="tile">
+        <span class="v">~230</span><span class="l">teto por réplica, em alunos simultâneos</span>
+      </div>
+      <div class="tile">
+        <span class="v">102 ms</span><span class="l">p95 com 100 alunos (2,5× o piloto)</span>
+      </div>
+      <div class="tile">
+        <span class="v">495 ms</span><span class="l">p95 no pico de 0 a 200 em 10 s</span>
+      </div>
+      <div class="tile">
+        <span class="v">88 ms</span
+        ><span class="l">p95 em 10 min de resistência, memória estável</span>
+      </div>
     </div>
   </section>
 
   <section aria-labelledby="teto">
     <h2 id="teto">Onde a plataforma quebra</h2>
-    <p>No estresse, os alunos sobem de 0 a 400 em 4 minutos, numa réplica. O p95 fica abaixo de 1 s até cerca de 230 alunos. Daí em diante a vazão para de crescer, em torno de 75 a 80 requisições/s, porque a CPU do único processo Node satura, e as requisições passam a esperar na fila.</p>
+    <p>
+      No estresse, os alunos sobem de 0 a 400 em 4 minutos, numa réplica. O p95 fica abaixo de 1 s
+      até cerca de 230 alunos. Daí em diante a vazão para de crescer, em torno de 75 a 80
+      requisições/s, porque a CPU do único processo Node satura, e as requisições passam a esperar
+      na fila.
+    </p>
     <div class="panel">
-      <div class="chart-title"><h3>p95 de latência a cada 10 s</h3><span class="muted" style="font-size:13px">linha tracejada: SLA de 1 s</span></div>
+      <div class="chart-title">
+        <h3>p95 de latência a cada 10 s</h3>
+        <span class="muted" style="font-size: 13px">linha tracejada: SLA de 1 s</span>
+      </div>
       <div class="chart" id="c-lat"></div>
-      <div class="chart-title"><h3>Alunos simultâneos</h3><span class="muted" style="font-size:13px">mesmo eixo de tempo</span></div>
+      <div class="chart-title">
+        <h3>Alunos simultâneos</h3>
+        <span class="muted" style="font-size: 13px">mesmo eixo de tempo</span>
+      </div>
       <div class="chart" id="c-vus"></div>
-      <details><summary class="muted" style="cursor:pointer;font-size:13.5px">Ver como tabela</summary>
-        <div class="table-wrap" style="margin-top:10px"><table id="t-series"><thead><tr><th>Tempo</th><th>Alunos</th><th>p95</th><th>req/s</th></tr></thead><tbody></tbody></table></div>
+      <details>
+        <summary class="muted" style="cursor: pointer; font-size: 13.5px">Ver como tabela</summary>
+        <div class="table-wrap" style="margin-top: 10px">
+          <table id="t-series">
+            <thead>
+              <tr>
+                <th>Tempo</th>
+                <th>Alunos</th>
+                <th>p95</th>
+                <th>req/s</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </details>
     </div>
   </section>
 
   <section aria-labelledby="degraus">
     <h2 id="degraus">Resultado por degrau</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Degrau</th><th>Alunos</th><th>p95 geral</th><th>p95 painel</th><th>Erros</th><th>Requisições</th><th>Resultado</th></tr></thead>
-      <tbody><tr><td>Smoke</td><td>2</td><td>121 ms</td><td>110 ms</td><td>0,00%</td><td>52</td><td><span class="pill ok">dentro do SLA</span></td></tr>
-<tr><td>Carga</td><td>100</td><td>102 ms</td><td>196 ms</td><td>0,01%</td><td>9.231</td><td><span class="pill ok">dentro do SLA</span></td></tr>
-<tr><td>Pico</td><td>0 → 200 em 10 s</td><td>495 ms</td><td>944 ms</td><td>0,06%</td><td>6.266</td><td><span class="pill ok">dentro do SLA</span></td></tr>
-<tr><td>Resistência (10 min)</td><td>100</td><td>88 ms</td><td>165 ms</td><td>0,01%</td><td>23.150</td><td><span class="pill ok">dentro do SLA</span></td></tr>
-<tr><td>Estresse, 1 réplica</td><td>100 → 400</td><td>3,61 s</td><td>5,86 s</td><td>0,05%</td><td>17.283</td><td><span class="pill bad">fora do SLA</span></td></tr>
-<tr><td>Estresse, 2 réplicas</td><td>100 → 400</td><td>614 ms</td><td>1,54 s</td><td>0,01%</td><td>21.749</td><td><span class="pill ok">dentro do SLA</span></td></tr></tbody>
-    </table></div>
-    <p class="muted">Os erros que aparecem (no máximo 0,05%) são requisições interrompidas pelo próprio k6 na rampa de descida (status 0). O servidor não registrou nenhum erro 5xx em nenhum degrau.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Degrau</th>
+            <th>Alunos</th>
+            <th>p95 geral</th>
+            <th>p95 painel</th>
+            <th>Erros</th>
+            <th>Requisições</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Smoke</td>
+            <td>2</td>
+            <td>121 ms</td>
+            <td>110 ms</td>
+            <td>0,00%</td>
+            <td>52</td>
+            <td><span class="pill ok">dentro do SLA</span></td>
+          </tr>
+          <tr>
+            <td>Carga</td>
+            <td>100</td>
+            <td>102 ms</td>
+            <td>196 ms</td>
+            <td>0,01%</td>
+            <td>9.231</td>
+            <td><span class="pill ok">dentro do SLA</span></td>
+          </tr>
+          <tr>
+            <td>Pico</td>
+            <td>0 → 200 em 10 s</td>
+            <td>495 ms</td>
+            <td>944 ms</td>
+            <td>0,06%</td>
+            <td>6.266</td>
+            <td><span class="pill ok">dentro do SLA</span></td>
+          </tr>
+          <tr>
+            <td>Resistência (10 min)</td>
+            <td>100</td>
+            <td>88 ms</td>
+            <td>165 ms</td>
+            <td>0,01%</td>
+            <td>23.150</td>
+            <td><span class="pill ok">dentro do SLA</span></td>
+          </tr>
+          <tr>
+            <td>Estresse, 1 réplica</td>
+            <td>100 → 400</td>
+            <td>3,61 s</td>
+            <td>5,86 s</td>
+            <td>0,05%</td>
+            <td>17.283</td>
+            <td><span class="pill bad">fora do SLA</span></td>
+          </tr>
+          <tr>
+            <td>Estresse, 2 réplicas</td>
+            <td>100 → 400</td>
+            <td>614 ms</td>
+            <td>1,54 s</td>
+            <td>0,01%</td>
+            <td>21.749</td>
+            <td><span class="pill ok">dentro do SLA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">
+      Os erros que aparecem (no máximo 0,05%) são requisições interrompidas pelo próprio k6 na rampa
+      de descida (status 0). O servidor não registrou nenhum erro 5xx em nenhum degrau.
+    </p>
   </section>
 
   <section aria-labelledby="rotas">
     <h2 id="rotas">Por rota, com 100 alunos</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Rota</th><th>Requisições</th><th>p50</th><th>p95</th><th>p99</th><th>Erros</th><th>SLA</th></tr></thead>
-      <tbody><tr><td>Próxima questão</td><td>3.105</td><td>32 ms</td><td>90 ms</td><td>157 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Responder questão</td><td>3.105</td><td>36 ms</td><td>101 ms</td><td>179 ms</td><td>0,03%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Criar sessão de questões</td><td>621</td><td>29 ms</td><td>87 ms</td><td>151 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Resumo da sessão</td><td>619</td><td>18 ms</td><td>52 ms</td><td>138 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Painel /app</td><td>528</td><td>69 ms</td><td>196 ms</td><td>335 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Página de revisões</td><td>278</td><td>33 ms</td><td>99 ms</td><td>156 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Fila de revisões (API)</td><td>278</td><td>24 ms</td><td>77 ms</td><td>202 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/disciplinas/fisiopatologia-cardiovascular/miocardiopatia-hipertrofica</td><td>49</td><td>43 ms</td><td>131 ms</td><td>225 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/disciplinas/fisiologia-cardiovascular</td><td>46</td><td>45 ms</td><td>186 ms</td><td>296 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/disciplinas</td><td>44</td><td>40 ms</td><td>90 ms</td><td>241 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/perfil</td><td>43</td><td>64 ms</td><td>125 ms</td><td>135 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/disciplinas/fisiopatologia-cardiovascular</td><td>38</td><td>47 ms</td><td>101 ms</td><td>119 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/api/v1/questions/sessions</td><td>35</td><td>22 ms</td><td>81 ms</td><td>280 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/questoes</td><td>34</td><td>51 ms</td><td>132 ms</td><td>233 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/privacidade</td><td>33</td><td>40 ms</td><td>215 ms</td><td>373 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/app/flashcards</td><td>30</td><td>35 ms</td><td>99 ms</td><td>179 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/api/v1/communication-preferences</td><td>30</td><td>19 ms</td><td>48 ms</td><td>88 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>/api/v1/flashcards</td><td>29</td><td>16 ms</td><td>94 ms</td><td>172 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /cadastro</td><td>27</td><td>5 ms</td><td>13 ms</td><td>16 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /politica-de-privacidade</td><td>26</td><td>5 ms</td><td>10 ms</td><td>11 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /</td><td>26</td><td>4 ms</td><td>23 ms</td><td>86 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /entrar</td><td>24</td><td>14 ms</td><td>33 ms</td><td>177 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /termos</td><td>24</td><td>5 ms</td><td>11 ms</td><td>12 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Exportar dados (LGPD)</td><td>21</td><td>59 ms</td><td>117 ms</td><td>203 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Criar cartão pessoal</td><td>20</td><td>26 ms</td><td>78 ms</td><td>122 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr>
-<tr><td>Público /api/health</td><td>18</td><td>9 ms</td><td>19 ms</td><td>22 ms</td><td>0,00%</td><td><span class="pill ok">passou</span></td></tr></tbody>
-    </table></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rota</th>
+            <th>Requisições</th>
+            <th>p50</th>
+            <th>p95</th>
+            <th>p99</th>
+            <th>Erros</th>
+            <th>SLA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Próxima questão</td>
+            <td>3.105</td>
+            <td>32 ms</td>
+            <td>90 ms</td>
+            <td>157 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Responder questão</td>
+            <td>3.105</td>
+            <td>36 ms</td>
+            <td>101 ms</td>
+            <td>179 ms</td>
+            <td>0,03%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Criar sessão de questões</td>
+            <td>621</td>
+            <td>29 ms</td>
+            <td>87 ms</td>
+            <td>151 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Resumo da sessão</td>
+            <td>619</td>
+            <td>18 ms</td>
+            <td>52 ms</td>
+            <td>138 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Painel /app</td>
+            <td>528</td>
+            <td>69 ms</td>
+            <td>196 ms</td>
+            <td>335 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Página de revisões</td>
+            <td>278</td>
+            <td>33 ms</td>
+            <td>99 ms</td>
+            <td>156 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Fila de revisões (API)</td>
+            <td>278</td>
+            <td>24 ms</td>
+            <td>77 ms</td>
+            <td>202 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/disciplinas/fisiopatologia-cardiovascular/miocardiopatia-hipertrofica</td>
+            <td>49</td>
+            <td>43 ms</td>
+            <td>131 ms</td>
+            <td>225 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/disciplinas/fisiologia-cardiovascular</td>
+            <td>46</td>
+            <td>45 ms</td>
+            <td>186 ms</td>
+            <td>296 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/disciplinas</td>
+            <td>44</td>
+            <td>40 ms</td>
+            <td>90 ms</td>
+            <td>241 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/perfil</td>
+            <td>43</td>
+            <td>64 ms</td>
+            <td>125 ms</td>
+            <td>135 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/disciplinas/fisiopatologia-cardiovascular</td>
+            <td>38</td>
+            <td>47 ms</td>
+            <td>101 ms</td>
+            <td>119 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/api/v1/questions/sessions</td>
+            <td>35</td>
+            <td>22 ms</td>
+            <td>81 ms</td>
+            <td>280 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/questoes</td>
+            <td>34</td>
+            <td>51 ms</td>
+            <td>132 ms</td>
+            <td>233 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/privacidade</td>
+            <td>33</td>
+            <td>40 ms</td>
+            <td>215 ms</td>
+            <td>373 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/app/flashcards</td>
+            <td>30</td>
+            <td>35 ms</td>
+            <td>99 ms</td>
+            <td>179 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/api/v1/communication-preferences</td>
+            <td>30</td>
+            <td>19 ms</td>
+            <td>48 ms</td>
+            <td>88 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>/api/v1/flashcards</td>
+            <td>29</td>
+            <td>16 ms</td>
+            <td>94 ms</td>
+            <td>172 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /cadastro</td>
+            <td>27</td>
+            <td>5 ms</td>
+            <td>13 ms</td>
+            <td>16 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /politica-de-privacidade</td>
+            <td>26</td>
+            <td>5 ms</td>
+            <td>10 ms</td>
+            <td>11 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /</td>
+            <td>26</td>
+            <td>4 ms</td>
+            <td>23 ms</td>
+            <td>86 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /entrar</td>
+            <td>24</td>
+            <td>14 ms</td>
+            <td>33 ms</td>
+            <td>177 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /termos</td>
+            <td>24</td>
+            <td>5 ms</td>
+            <td>11 ms</td>
+            <td>12 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Exportar dados (LGPD)</td>
+            <td>21</td>
+            <td>59 ms</td>
+            <td>117 ms</td>
+            <td>203 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Criar cartão pessoal</td>
+            <td>20</td>
+            <td>26 ms</td>
+            <td>78 ms</td>
+            <td>122 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+          <tr>
+            <td>Público /api/health</td>
+            <td>18</td>
+            <td>9 ms</td>
+            <td>19 ms</td>
+            <td>22 ms</td>
+            <td>0,00%</td>
+            <td><span class="pill ok">passou</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section aria-labelledby="gargalos">
@@ -171,30 +797,70 @@ code { font: 13px var(--mono); background: var(--surface-2); padding: 1px 5px; b
     <div class="fix">
       <h3>1. Painel fazia trabalho de CPU desnecessário</h3>
       <dl>
-        <dt>Evidência</dt><dd>O painel levava 63 ms sem carga, o dobro das outras páginas (cerca de 30 ms). Com carga, a CPU do Node saturou (70 a 78% de um núcleo a 150 alunos). O banco seguia folgado: todas as consultas abaixo de 1 ms em média no <code>pg_stat_statements</code>.</dd>
-        <dt>Causa</dt><dd>Para cada cartão da fila (até 200), o painel montava a prévia dos 4 botões de nota, com cerca de 20 conversões de fuso via <code>Intl</code> por cartão, e ainda convertia o fuso linha a linha de até mil tentativas. O painel só precisa das contagens.</dd>
-        <dt>Correção</dt><dd>Contagens da fila em SQL (<code>dueCountsTx</code>) e dias da semana agregados no banco com <code>at time zone</code>.</dd>
+        <dt>Evidência</dt>
+        <dd>
+          O painel levava 63 ms sem carga, o dobro das outras páginas (cerca de 30 ms). Com carga, a
+          CPU do Node saturou (70 a 78% de um núcleo a 150 alunos). O banco seguia folgado: todas as
+          consultas abaixo de 1 ms em média no <code>pg_stat_statements</code>.
+        </dd>
+        <dt>Causa</dt>
+        <dd>
+          Para cada cartão da fila (até 200), o painel montava a prévia dos 4 botões de nota, com
+          cerca de 20 conversões de fuso via <code>Intl</code> por cartão, e ainda convertia o fuso
+          linha a linha de até mil tentativas. O painel só precisa das contagens.
+        </dd>
+        <dt>Correção</dt>
+        <dd>
+          Contagens da fila em SQL (<code>dueCountsTx</code>) e dias da semana agregados no banco
+          com <code>at time zone</code>.
+        </dd>
       </dl>
     </div>
     <div class="fix">
       <h3>2. Até 3 transações só para checar acesso</h3>
       <dl>
-        <dt>Evidência</dt><dd>O layout e a página chamavam, cada um, a consulta de papéis e a de onboarding (cada <code>withUser</code> custa BEGIN, set_config, consulta e COMMIT).</dd>
-        <dt>Correção</dt><dd><code>getAccess</code> traz papéis e onboarding numa transação, com cache por requisição. A fila de revisões do painel passou a rodar na mesma transação do painel.</dd>
+        <dt>Evidência</dt>
+        <dd>
+          O layout e a página chamavam, cada um, a consulta de papéis e a de onboarding (cada
+          <code>withUser</code> custa BEGIN, set_config, consulta e COMMIT).
+        </dd>
+        <dt>Correção</dt>
+        <dd>
+          <code>getAccess</code> traz papéis e onboarding numa transação, com cache por requisição.
+          A fila de revisões do painel passou a rodar na mesma transação do painel.
+        </dd>
       </dl>
     </div>
     <div class="fix">
       <h3>3. O que todo mundo pede, recalculado a cada visita</h3>
       <dl>
-        <dt>Evidência</dt><dd>A lista de questões publicadas e a contagem por assunto, iguais para todos os alunos das mesmas disciplinas, eram consultadas em toda abertura do painel.</dd>
-        <dt>Correção</dt><dd>Cache em memória de 60 s, só para conteúdo publicado (nunca dado pessoal). Uma questão nova aparece no painel em até 1 minuto.</dd>
+        <dt>Evidência</dt>
+        <dd>
+          A lista de questões publicadas e a contagem por assunto, iguais para todos os alunos das
+          mesmas disciplinas, eram consultadas em toda abertura do painel.
+        </dd>
+        <dt>Correção</dt>
+        <dd>
+          Cache em memória de 60 s, só para conteúdo publicado (nunca dado pessoal). Uma questão
+          nova aparece no painel em até 1 minuto.
+        </dd>
       </dl>
     </div>
     <div class="fix">
       <h3>4. Uma réplica só (correção de infraestrutura, recomendada)</h3>
       <dl>
-        <dt>Evidência</dt><dd>Com 2 réplicas atrás de um balanceador, o estresse de 400 alunos ficou em p95 de 614 ms no total, contra 3,6 s com uma réplica. Foi medido antes das correções 1 e 3, então o número é conservador.</dd>
-        <dt>Quando</dt><dd>Não é necessário para o piloto de 40 alunos. Ativar a segunda réplica no Coolify antes de passar de cerca de 150 alunos ativos ao mesmo tempo (dois terços do teto medido). O pool do banco é de 10 conexões por réplica, e o Postgres aceita 100.</dd>
+        <dt>Evidência</dt>
+        <dd>
+          Com 2 réplicas atrás de um balanceador, o estresse de 400 alunos ficou em p95 de 614 ms no
+          total, contra 3,6 s com uma réplica. Foi medido antes das correções 1 e 3, então o número
+          é conservador.
+        </dd>
+        <dt>Quando</dt>
+        <dd>
+          Não é necessário para o piloto de 40 alunos. Ativar a segunda réplica no Coolify antes de
+          passar de cerca de 150 alunos ativos ao mesmo tempo (dois terços do teto medido). O pool
+          do banco é de 10 conexões por réplica, e o Postgres aceita 100.
+        </dd>
       </dl>
     </div>
   </section>
@@ -202,10 +868,26 @@ code { font: 13px var(--mono); background: var(--surface-2); padding: 1px 5px; b
   <section aria-labelledby="fora">
     <h2 id="fora">Rotas fora do teste, e por quê</h2>
     <ul class="plain">
-      <li><b>Cadastro, recuperação de senha e verificação de e-mail.</b> Disparam e-mail e têm rate limit por IP; o teste mediria o limitador. Cobertos pelo E2E.</li>
-      <li><b>Segundo fator e área administrativa</b> (<code>/admin/*</code>, <code>/api/v1/admin/*</code>). São poucas pessoas, com TOTP. As consultas de métricas foram medidas com EXPLAIN sobre 88 mil eventos: retenção em 4,6 ms (usa índice); ranking de questões difíceis em 58 ms (varre todas as tentativas; quando passar de cerca de 1 milhão de tentativas, materializar à noite).</li>
-      <li><b>Server actions</b> (onboarding, perfil, editorial, privacidade). O Next gera os IDs de action no build e eles não são estáveis para o k6. Fazem as mesmas escritas das APIs testadas e estão no E2E.</li>
-      <li><b>Apagar cartão e mudar preferência de comunicação.</b> Raros, com uma escrita indexada cada. Cobertos por testes de integração.</li>
+      <li>
+        <b>Cadastro, recuperação de senha e verificação de e-mail.</b> Disparam e-mail e têm rate
+        limit por IP; o teste mediria o limitador. Cobertos pelo E2E.
+      </li>
+      <li>
+        <b>Segundo fator e área administrativa</b> (<code>/admin/*</code>,
+        <code>/api/v1/admin/*</code>). São poucas pessoas, com TOTP. As consultas de métricas foram
+        medidas com EXPLAIN sobre 88 mil eventos: retenção em 4,6 ms (usa índice); ranking de
+        questões difíceis em 58 ms (varre todas as tentativas; quando passar de cerca de 1 milhão de
+        tentativas, materializar à noite).
+      </li>
+      <li>
+        <b>Server actions</b> (onboarding, perfil, editorial, privacidade). O Next gera os IDs de
+        action no build e eles não são estáveis para o k6. Fazem as mesmas escritas das APIs
+        testadas e estão no E2E.
+      </li>
+      <li>
+        <b>Apagar cartão e mudar preferência de comunicação.</b> Raros, com uma escrita indexada
+        cada. Cobertos por testes de integração.
+      </li>
       <li><b>Login.</b> Só no setup do teste (300 logins com Argon2id), não durante a carga.</li>
     </ul>
   </section>
@@ -213,87 +895,228 @@ code { font: 13px var(--mono); background: var(--surface-2); padding: 1px 5px; b
   <section aria-labelledby="ressalvas">
     <h2 id="ressalvas">Diferenças para a produção</h2>
     <ul class="plain">
-      <li>O k6, o app e o Postgres rodaram na mesma máquina (4 vCPU). O k6 disputa CPU com o app, então os números aqui são conservadores. Entre rodadas iguais, o p95 do estresse variou cerca de 20%.</li>
-      <li>Rate limit de autenticação desligado no ambiente do teste, porque todo o tráfego sai de um IP só. Em produção ele fica ligado.</li>
-      <li>Sem rede entre usuário e servidor: o teste mede o servidor. Em produção, some a latência da rede móvel (tipicamente de 50 a 150 ms).</li>
-      <li>A massa de dados (300 alunos e 12 mil tentativas) equivale a cerca de 2 vezes o piloto inteiro. O conteúdo é sintético e marcado como demonstração.</li>
-      <li>O Postgres usou a configuração padrão do pacote, com <code>max_connections</code> de 100. O do Coolify sobe com a mesma imagem e o mesmo limite.</li>
+      <li>
+        O k6, o app e o Postgres rodaram na mesma máquina (4 vCPU). O k6 disputa CPU com o app,
+        então os números aqui são conservadores. Entre rodadas iguais, o p95 do estresse variou
+        cerca de 20%.
+      </li>
+      <li>
+        Rate limit de autenticação desligado no ambiente do teste, porque todo o tráfego sai de um
+        IP só. Em produção ele fica ligado.
+      </li>
+      <li>
+        Sem rede entre usuário e servidor: o teste mede o servidor. Em produção, some a latência da
+        rede móvel (tipicamente de 50 a 150 ms).
+      </li>
+      <li>
+        A massa de dados (300 alunos e 12 mil tentativas) equivale a cerca de 2 vezes o piloto
+        inteiro. O conteúdo é sintético e marcado como demonstração.
+      </li>
+      <li>
+        O Postgres usou a configuração padrão do pacote, com <code>max_connections</code> de 100. O
+        do Coolify sobe com a mesma imagem e o mesmo limite.
+      </li>
     </ul>
   </section>
 
   <section aria-labelledby="portao">
     <h2 id="portao">O que fica instalado</h2>
     <ul class="plain">
-      <li><code>loadtest/</code>: cenário k6, mapa de rotas e README. Rota nova entra em <code>routes.js</code> no mesmo PR.</li>
-      <li>CI <code>.github/workflows/carga.yml</code>: em todo PR, smoke e 2 minutos com 30 alunos, com os mesmos limites. Se um limite quebrar, o PR fica vermelho.</li>
-      <li>Alerta sugerido para produção: Uptime Kuma checando <code>/api/health</code> a cada minuto e avisando no WhatsApp do time se o tempo de resposta passar de 1 s ou se a resposta não for 200.</li>
+      <li>
+        <code>loadtest/</code>: cenário k6, mapa de rotas e README. Rota nova entra em
+        <code>routes.js</code> no mesmo PR.
+      </li>
+      <li>
+        CI <code>.github/workflows/carga.yml</code>: em todo PR, smoke e 2 minutos com 30 alunos,
+        com os mesmos limites. Se um limite quebrar, o PR fica vermelho.
+      </li>
+      <li>
+        Alerta sugerido para produção: Uptime Kuma checando <code>/api/health</code> a cada minuto e
+        avisando no WhatsApp do time se o tempo de resposta passar de 1 s ou se a resposta não for
+        200.
+      </li>
     </ul>
   </section>
 </div>
 
 <script>
-const DATA = {"series": [{"t": 0, "vus": 0, "p95": null, "rps": 0.0}, {"t": 10, "vus": 12, "p95": 38, "rps": 3.4}, {"t": 20, "vus": 29, "p95": 42, "rps": 10.5}, {"t": 30, "vus": 45, "p95": 53, "rps": 14.7}, {"t": 40, "vus": 62, "p95": 77, "rps": 21.2}, {"t": 50, "vus": 78, "p95": 67, "rps": 29.1}, {"t": 60, "vus": 95, "p95": 116, "rps": 32.8}, {"t": 70, "vus": 111, "p95": 94, "rps": 44.2}, {"t": 80, "vus": 128, "p95": 115, "rps": 46.8}, {"t": 90, "vus": 145, "p95": 210, "rps": 51.9}, {"t": 100, "vus": 161, "p95": 158, "rps": 59.1}, {"t": 110, "vus": 178, "p95": 240, "rps": 67.3}, {"t": 120, "vus": 195, "p95": 712, "rps": 66.5}, {"t": 130, "vus": 211, "p95": 753, "rps": 70.0}, {"t": 140, "vus": 228, "p95": 819, "rps": 76.6}, {"t": 150, "vus": 245, "p95": 1407, "rps": 73.9}, {"t": 160, "vus": 261, "p95": 1662, "rps": 79.5}, {"t": 170, "vus": 278, "p95": 2043, "rps": 77.2}, {"t": 180, "vus": 295, "p95": 3091, "rps": 72.8}, {"t": 190, "vus": 311, "p95": 2846, "rps": 79.7}, {"t": 200, "vus": 328, "p95": 3651, "rps": 74.8}, {"t": 210, "vus": 345, "p95": 4750, "rps": 70.6}, {"t": 220, "vus": 361, "p95": 5020, "rps": 74.4}, {"t": 230, "vus": 378, "p95": 5409, "rps": 75.8}, {"t": 240, "vus": 395, "p95": 5990, "rps": 79.8}, {"t": 250, "vus": 386, "p95": 4796, "rps": 87.7}, {"t": 260, "vus": 321, "p95": 3893, "rps": 88.5}, {"t": 270, "vus": 227, "p95": 1872, "rps": 87.2}, {"t": 280, "vus": 109, "p95": 70, "rps": 51.6}, {"t": 290, "vus": 43, "p95": 50, "rps": 24.3}, {"t": 300, "vus": 5, "p95": 34, "rps": 6.4}, {"t": 310, "vus": 1, "p95": null, "rps": 0.0}], "beforeAfter": [["Antes", 3112.0375847], ["1 transa\u00e7\u00e3o de acesso", 2629.5746956000003], ["Contagens no SQL", 1382.736342], ["Cat\u00e1logo em cache", 944.4268108000002]]};
-const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const NS = 'http://www.w3.org/2000/svg';
-const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
-const fmtMs = (v) => v == null ? '—' : v >= 1000 ? (v / 1000).toFixed(2).replace('.', ',') + ' s' : Math.round(v) + ' ms';
-const fmtT = (t) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
-
-function lineChart(host, rows, key, opts) {
-  const W = 900, H = opts.h, L = 52, R = 12, T = 12, B = 26;
-  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opts.label }, null);
-  host.appendChild(svg);
-  const xs = rows.map((r) => r.t), xmax = Math.max(...xs);
-  const x = (t) => L + (t / xmax) * (W - L - R);
-  const ymax = opts.ymax, y = (v) => T + (1 - v / ymax) * (H - T - B);
-  for (const tick of opts.ticks) {
-    el('line', { x1: L, x2: W - R, y1: y(tick), y2: y(tick), class: 'grid' }, svg);
-    el('text', { x: L - 8, y: y(tick) + 4, 'text-anchor': 'end' }, svg).textContent = opts.fmt(tick);
-  }
-  for (let t = 0; t <= xmax; t += 60) el('text', { x: x(t), y: H - 6, 'text-anchor': 'middle' }, svg).textContent = fmtT(t);
-  if (opts.sla) {
-    const over = rows.filter((r) => r[key] != null && r[key] > opts.sla);
-    if (over.length) el('rect', { x: x(over[0].t), y: T, width: x(over.at(-1).t) - x(over[0].t), height: H - T - B, class: 'zone' }, svg);
-    el('line', { x1: L, x2: W - R, y1: y(opts.sla), y2: y(opts.sla), class: 'sla' }, svg);
-    el('text', { x: W - R, y: y(opts.sla) - 6, 'text-anchor': 'end', class: 'sla-label' }, svg).textContent = 'SLA 1 s';
-  }
-  const pts = rows.filter((r) => r[key] != null);
-  const d = pts.map((r, i) => `${i ? 'L' : 'M'}${x(r.t).toFixed(1)},${y(Math.min(r[key], ymax)).toFixed(1)}`).join('');
-  el('path', { d: `${d}L${x(pts.at(-1).t)},${y(0)}L${x(pts[0].t)},${y(0)}Z`, class: 'area' }, svg);
-  el('path', { d, class: 'line' }, svg);
-  const cross = el('line', { y1: T, y2: H - B, class: 'cross' }, svg);
-  const dot = el('circle', { r: 5, class: 'dot' }, svg);
-  const tip = document.createElement('div'); tip.className = 'tip'; host.appendChild(tip);
-  const hit = el('rect', { x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent' }, svg);
-  const show = (evt) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((evt.clientX - box.left) / box.width) * W;
-    const r = pts.reduce((a, b) => (Math.abs(x(b.t) - px) < Math.abs(x(a.t) - px) ? b : a));
-    cross.setAttribute('x1', x(r.t)); cross.setAttribute('x2', x(r.t)); cross.style.opacity = 1;
-    dot.setAttribute('cx', x(r.t)); dot.setAttribute('cy', y(Math.min(r[key], ymax))); dot.style.opacity = 1;
-    tip.innerHTML = `${fmtT(r.t)} · ${r.vus} alunos<br><b>p95 ${fmtMs(r.p95)}</b> · ${String(r.rps).replace('.', ',')} req/s`;
-    const left = (x(r.t) / W) * box.width;
-    tip.style.left = Math.min(Math.max(left - 70, 0), box.width - 170) + 'px';
-    tip.style.top = '-6px'; tip.style.opacity = 1;
+  const DATA = {
+    series: [
+      { t: 0, vus: 0, p95: null, rps: 0.0 },
+      { t: 10, vus: 12, p95: 38, rps: 3.4 },
+      { t: 20, vus: 29, p95: 42, rps: 10.5 },
+      { t: 30, vus: 45, p95: 53, rps: 14.7 },
+      { t: 40, vus: 62, p95: 77, rps: 21.2 },
+      { t: 50, vus: 78, p95: 67, rps: 29.1 },
+      { t: 60, vus: 95, p95: 116, rps: 32.8 },
+      { t: 70, vus: 111, p95: 94, rps: 44.2 },
+      { t: 80, vus: 128, p95: 115, rps: 46.8 },
+      { t: 90, vus: 145, p95: 210, rps: 51.9 },
+      { t: 100, vus: 161, p95: 158, rps: 59.1 },
+      { t: 110, vus: 178, p95: 240, rps: 67.3 },
+      { t: 120, vus: 195, p95: 712, rps: 66.5 },
+      { t: 130, vus: 211, p95: 753, rps: 70.0 },
+      { t: 140, vus: 228, p95: 819, rps: 76.6 },
+      { t: 150, vus: 245, p95: 1407, rps: 73.9 },
+      { t: 160, vus: 261, p95: 1662, rps: 79.5 },
+      { t: 170, vus: 278, p95: 2043, rps: 77.2 },
+      { t: 180, vus: 295, p95: 3091, rps: 72.8 },
+      { t: 190, vus: 311, p95: 2846, rps: 79.7 },
+      { t: 200, vus: 328, p95: 3651, rps: 74.8 },
+      { t: 210, vus: 345, p95: 4750, rps: 70.6 },
+      { t: 220, vus: 361, p95: 5020, rps: 74.4 },
+      { t: 230, vus: 378, p95: 5409, rps: 75.8 },
+      { t: 240, vus: 395, p95: 5990, rps: 79.8 },
+      { t: 250, vus: 386, p95: 4796, rps: 87.7 },
+      { t: 260, vus: 321, p95: 3893, rps: 88.5 },
+      { t: 270, vus: 227, p95: 1872, rps: 87.2 },
+      { t: 280, vus: 109, p95: 70, rps: 51.6 },
+      { t: 290, vus: 43, p95: 50, rps: 24.3 },
+      { t: 300, vus: 5, p95: 34, rps: 6.4 },
+      { t: 310, vus: 1, p95: null, rps: 0.0 },
+    ],
+    beforeAfter: [
+      ['Antes', 3112.0375847],
+      ['1 transa\u00e7\u00e3o de acesso', 2629.5746956000003],
+      ['Contagens no SQL', 1382.736342],
+      ['Cat\u00e1logo em cache', 944.4268108000002],
+    ],
   };
-  hit.addEventListener('pointermove', show);
-  hit.addEventListener('pointerleave', () => { cross.style.opacity = 0; dot.style.opacity = 0; tip.style.opacity = 0; });
-}
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    parent && parent.appendChild(e);
+    return e;
+  };
+  const fmtMs = (v) =>
+    v == null
+      ? '—'
+      : v >= 1000
+        ? (v / 1000).toFixed(2).replace('.', ',') + ' s'
+        : Math.round(v) + ' ms';
+  const fmtT = (t) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
 
-const rows = DATA.series;
-lineChart(document.getElementById('c-lat'), rows, 'p95', {
-  h: 260, ymax: 6000, ticks: [0, 1000, 2000, 3000, 4000, 5000, 6000], sla: 1000,
-  fmt: (v) => (v ? v / 1000 + ' s' : '0'), label: 'p95 de latência ao longo do estresse; passa de 1 s com cerca de 240 alunos',
-});
-lineChart(document.getElementById('c-vus'), rows, 'vus', {
-  h: 150, ymax: 400, ticks: [0, 100, 200, 300, 400], fmt: (v) => String(v), label: 'Alunos simultâneos ao longo do estresse, de 0 a 400',
-});
-const tb = document.querySelector('#t-series tbody');
-for (const r of rows) tb.insertAdjacentHTML('beforeend', `<tr><td>${fmtT(r.t)}</td><td>${r.vus}</td><td>${fmtMs(r.p95)}</td><td>${String(r.rps).replace('.', ',')}</td></tr>`);
+  function lineChart(host, rows, key, opts) {
+    const W = 900,
+      H = opts.h,
+      L = 52,
+      R = 12,
+      T = 12,
+      B = 26;
+    const svg = el(
+      'svg',
+      { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opts.label },
+      null,
+    );
+    host.appendChild(svg);
+    const xs = rows.map((r) => r.t),
+      xmax = Math.max(...xs);
+    const x = (t) => L + (t / xmax) * (W - L - R);
+    const ymax = opts.ymax,
+      y = (v) => T + (1 - v / ymax) * (H - T - B);
+    for (const tick of opts.ticks) {
+      el('line', { x1: L, x2: W - R, y1: y(tick), y2: y(tick), class: 'grid' }, svg);
+      el('text', { x: L - 8, y: y(tick) + 4, 'text-anchor': 'end' }, svg).textContent =
+        opts.fmt(tick);
+    }
+    for (let t = 0; t <= xmax; t += 60)
+      el('text', { x: x(t), y: H - 6, 'text-anchor': 'middle' }, svg).textContent = fmtT(t);
+    if (opts.sla) {
+      const over = rows.filter((r) => r[key] != null && r[key] > opts.sla);
+      if (over.length)
+        el(
+          'rect',
+          {
+            x: x(over[0].t),
+            y: T,
+            width: x(over.at(-1).t) - x(over[0].t),
+            height: H - T - B,
+            class: 'zone',
+          },
+          svg,
+        );
+      el('line', { x1: L, x2: W - R, y1: y(opts.sla), y2: y(opts.sla), class: 'sla' }, svg);
+      el(
+        'text',
+        { x: W - R, y: y(opts.sla) - 6, 'text-anchor': 'end', class: 'sla-label' },
+        svg,
+      ).textContent = 'SLA 1 s';
+    }
+    const pts = rows.filter((r) => r[key] != null);
+    const d = pts
+      .map((r, i) => `${i ? 'L' : 'M'}${x(r.t).toFixed(1)},${y(Math.min(r[key], ymax)).toFixed(1)}`)
+      .join('');
+    el(
+      'path',
+      { d: `${d}L${x(pts.at(-1).t)},${y(0)}L${x(pts[0].t)},${y(0)}Z`, class: 'area' },
+      svg,
+    );
+    el('path', { d, class: 'line' }, svg);
+    const cross = el('line', { y1: T, y2: H - B, class: 'cross' }, svg);
+    const dot = el('circle', { r: 5, class: 'dot' }, svg);
+    const tip = document.createElement('div');
+    tip.className = 'tip';
+    host.appendChild(tip);
+    const hit = el(
+      'rect',
+      { x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent' },
+      svg,
+    );
+    const show = (evt) => {
+      const box = svg.getBoundingClientRect();
+      const px = ((evt.clientX - box.left) / box.width) * W;
+      const r = pts.reduce((a, b) => (Math.abs(x(b.t) - px) < Math.abs(x(a.t) - px) ? b : a));
+      cross.setAttribute('x1', x(r.t));
+      cross.setAttribute('x2', x(r.t));
+      cross.style.opacity = 1;
+      dot.setAttribute('cx', x(r.t));
+      dot.setAttribute('cy', y(Math.min(r[key], ymax)));
+      dot.style.opacity = 1;
+      tip.innerHTML = `${fmtT(r.t)} · ${r.vus} alunos<br><b>p95 ${fmtMs(r.p95)}</b> · ${String(r.rps).replace('.', ',')} req/s`;
+      const left = (x(r.t) / W) * box.width;
+      tip.style.left = Math.min(Math.max(left - 70, 0), box.width - 170) + 'px';
+      tip.style.top = '-6px';
+      tip.style.opacity = 1;
+    };
+    hit.addEventListener('pointermove', show);
+    hit.addEventListener('pointerleave', () => {
+      cross.style.opacity = 0;
+      dot.style.opacity = 0;
+      tip.style.opacity = 0;
+    });
+  }
 
-const ba = document.getElementById('c-before-after');
-const bmax = Math.max(...DATA.beforeAfter.map((b) => b[1]));
-for (const [label, v] of DATA.beforeAfter) {
-  ba.insertAdjacentHTML('beforeend', `<div class="bar-row"><span>${label}</span><div class="bar-track" role="img" aria-label="${label}: ${fmtMs(v)}"><div class="bar-fill" style="width:${(v / bmax) * 100}%;opacity:${v < 1000 ? 1 : .55}"></div><span class="bar-sla" style="left:${(1000 / bmax) * 100}%"></span></div><span class="bar-num">${fmtMs(v)}</span></div>`);
-}
+  const rows = DATA.series;
+  lineChart(document.getElementById('c-lat'), rows, 'p95', {
+    h: 260,
+    ymax: 6000,
+    ticks: [0, 1000, 2000, 3000, 4000, 5000, 6000],
+    sla: 1000,
+    fmt: (v) => (v ? v / 1000 + ' s' : '0'),
+    label: 'p95 de latência ao longo do estresse; passa de 1 s com cerca de 240 alunos',
+  });
+  lineChart(document.getElementById('c-vus'), rows, 'vus', {
+    h: 150,
+    ymax: 400,
+    ticks: [0, 100, 200, 300, 400],
+    fmt: (v) => String(v),
+    label: 'Alunos simultâneos ao longo do estresse, de 0 a 400',
+  });
+  const tb = document.querySelector('#t-series tbody');
+  for (const r of rows)
+    tb.insertAdjacentHTML(
+      'beforeend',
+      `<tr><td>${fmtT(r.t)}</td><td>${r.vus}</td><td>${fmtMs(r.p95)}</td><td>${String(r.rps).replace('.', ',')}</td></tr>`,
+    );
+
+  const ba = document.getElementById('c-before-after');
+  const bmax = Math.max(...DATA.beforeAfter.map((b) => b[1]));
+  for (const [label, v] of DATA.beforeAfter) {
+    ba.insertAdjacentHTML(
+      'beforeend',
+      `<div class="bar-row"><span>${label}</span><div class="bar-track" role="img" aria-label="${label}: ${fmtMs(v)}"><div class="bar-fill" style="width:${(v / bmax) * 100}%;opacity:${v < 1000 ? 1 : 0.55}"></div><span class="bar-sla" style="left:${(1000 / bmax) * 100}%"></span></div><span class="bar-num">${fmtMs(v)}</span></div>`,
+    );
+  }
 </script>

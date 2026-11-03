@@ -17,6 +17,15 @@ const schema = z.object({
   AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),
   TUTOR_MODEL: z.string().default('claude-opus-5-5'),
   TUTOR_DAILY_LIMIT: z.coerce.number().int().min(0).max(500).default(20),
+  // LGPD: quem é o controlador e o encarregado (art. 41). Sem valor, as páginas avisam que
+  // falta definir; não inventamos razão social, CNPJ nem contato.
+  LEGAL_CONTROLLER_NAME: z.string().trim().optional(),
+  LEGAL_CONTROLLER_DOCUMENT: z.string().trim().optional(),
+  DPO_NAME: z.string().trim().optional(),
+  DPO_EMAIL: z
+    .email()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
 
 type Env = z.infer<typeof schema>;
