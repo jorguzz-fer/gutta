@@ -2,10 +2,10 @@
 
 São dois recursos no mesmo projeto do Coolify. O site estático continua como está.
 
-| Recurso                   | O que é                       | Build                                                           | Domínio                    |
-| ------------------------- | ----------------------------- | --------------------------------------------------------------- | -------------------------- |
-| Site estático (já existe) | página de espera e `/roadmap` | `Dockerfile` da raiz                                            | gutta.tudomudou.com.br     |
-| Plataforma (novo)         | app Next.js + Postgres        | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
+| Recurso | O que é | Build | Domínio |
+|---|---|---|---|
+| Site estático (já existe) | página de espera e `/roadmap` | `Dockerfile` da raiz | gutta.tudomudou.com.br |
+| Plataforma (novo) | app Next.js + Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
 
 ## Primeira vez
 
@@ -13,23 +13,23 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    Com a base em `/infra`, os caminhos relativos do compose (`..` do `web` e `./postgres` do `db`) valem igual no Coolify e na sua máquina.
 2. Defina as variáveis (aba Environment Variables). Gere as senhas com `openssl rand -base64 32`:
 
-   | Variável                                             | Exemplo / observação                                                                                                               |
-   | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-   | `APP_URL`                                            | `https://app-gutta.tudomudou.com.br` (sem barra no fim)                                                                            |
-   | `BETTER_AUTH_SECRET`                                 | 32+ caracteres aleatórios                                                                                                          |
-   | `POSTGRES_PASSWORD`                                  | superusuário do Postgres (só para administração)                                                                                   |
-   | `GUTTA_OWNER_PASSWORD`                               | dono do schema; usado só pelas migrations                                                                                          |
-   | `GUTTA_APP_PASSWORD`                                 | papel da aplicação (sem BYPASSRLS)                                                                                                 |
-   | `RESEND_API_KEY`                                     | sem ela, nenhum e-mail sai (confirmação de conta fica travada)                                                                     |
-   | `MAIL_FROM`                                          | remetente verificado no Resend                                                                                                     |
-   | `LESSON_ORIGINS`                                     | origens das aulas interativas, ex. `https://aula.alumine.com.br`                                                                   |
-   | `ANTHROPIC_API_KEY`                                  | chave da API da Anthropic para o tutor IA; sem ela o tutor fica desligado (ADR 0008)                                               |
-   | `TUTOR_MODEL`                                        | opcional; padrão `claude-opus-5-5`                                                                                                 |
-   | `TUTOR_DAILY_LIMIT`                                  | opcional; perguntas por aluno em 24 h (padrão 20; o admin muda em `/admin/tutor`)                                                  |
-   | `SEED_CATALOG`                                       | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005 |
-   | `BOOTSTRAP_ADMIN_EMAILS`                             | opcional; e-mails que viram admin no start (ver "Primeiro administrador")                                                          |
-   | `LEGAL_CONTROLLER_NAME`, `LEGAL_CONTROLLER_DOCUMENT` | LGPD: razão social e CNPJ do controlador, mostrados na política (ADR 0009). Sem valor, aparece "a definir"                         |
-   | `DPO_NAME`, `DPO_EMAIL`                              | LGPD: encarregado de dados (art. 41). Preencha antes do piloto                                                                     |
+   | Variável | Exemplo / observação |
+   |---|---|
+   | `APP_URL` | `https://app-gutta.tudomudou.com.br` (sem barra no fim) |
+   | `BETTER_AUTH_SECRET` | 32+ caracteres aleatórios |
+   | `POSTGRES_PASSWORD` | superusuário do Postgres (só para administração) |
+   | `GUTTA_OWNER_PASSWORD` | dono do schema; usado só pelas migrations |
+   | `GUTTA_APP_PASSWORD` | papel da aplicação (sem BYPASSRLS) |
+   | `RESEND_API_KEY` | sem ela, nenhum e-mail sai (confirmação de conta fica travada) |
+   | `MAIL_FROM` | remetente verificado no Resend |
+   | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
+   | `ANTHROPIC_API_KEY` | chave da API da Anthropic para o tutor IA; sem ela o tutor fica desligado (ADR 0008) |
+   | `TUTOR_MODEL` | opcional; padrão `claude-opus-5-5` |
+   | `TUTOR_DAILY_LIMIT` | opcional; perguntas por aluno em 24 h (padrão 20; o admin muda em `/admin/tutor`) |
+   | `SEED_CATALOG` | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005 |
+   | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
+   | `LEGAL_CONTROLLER_NAME`, `LEGAL_CONTROLLER_DOCUMENT` | LGPD: razão social e CNPJ do controlador, mostrados na política (ADR 0009). Sem valor, aparece "a definir" |
+   | `DPO_NAME`, `DPO_EMAIL` | LGPD: encarregado de dados (art. 41). Preencha antes do piloto |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:

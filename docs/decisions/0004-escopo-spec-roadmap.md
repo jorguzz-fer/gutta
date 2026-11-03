@@ -4,11 +4,9 @@
 - Data: 2026-11-02
 
 ## Contexto
-
 A SPEC v1 deriva do documento de conceito. O roadmap v2 (02/11/2026, `public/roadmap`) é o plano acordado entre os quatro sócios e corta escopo de propósito.
 
 ## Decisão
-
 - Para **escopo e prioridade**, vale o roadmap:
   - um curso (Medicina) e uma trilha (cardiovascular, a partir da aula de MCH);
   - "módulo padrão" = aula interativa + questões comentadas + flashcards + resumo + tutor;
@@ -20,5 +18,4 @@ A SPEC v1 deriva do documento de conceito. O roadmap v2 (02/11/2026, `public/roa
 - Identidade digital (SPEC ID-01) não entra neste ciclo.
 
 ## Consequências
-
 Quando o roadmap mudar, este ADR é revisto. Funcionalidades cortadas continuam listadas em `docs/plano-de-execucao.md`, em "Fora deste ciclo".
