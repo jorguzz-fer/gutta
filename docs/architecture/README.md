@@ -78,13 +78,14 @@ Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o f
 - **Aula interativa:** se o site da aula bloquear iframe (`X-Frame-Options`), o módulo mostra um quadro vazio. Há o link "Abrir a aula em tela cheia", mas falta detectar o bloqueio (ver `docs/ux.md`).
 - **Escala:** o rate limit de login fica em memória. Ao ligar a segunda réplica, ele precisa ir para o banco (ADR 0006).
 
+## Ciclo 2 (03/11/2026)
+
+- **Admin da empresa** (`/admin`): catálogo completo, instituições e usuários, sobre o mesmo RLS.
+- **Painel do professor** (`/professor`): turmas com código. O professor só lê agregados por funções do banco, contando o que o aluno fez depois de entrar (ADR 0008).
+- **Tutor IA** (no módulo e em `/admin/tutor`): `AIProvider` com Anthropic e uma implementação de teste. O contexto é só o resumo publicado e as questões que o aluno já respondeu. Há cota diária, registro de tokens e custo, e 30 casos de avaliação (ADR 0008).
+
 ## Próximo passo
 
-O tutor IA (M3 da SPEC e F1 do roadmap) foi deixado para depois de a fundação estar testada, como manda a SPEC §19.2. A sequência sugerida:
-
-1. Interface `AIProvider` com implementação Anthropic e uma de teste.
-2. RAG sobre o resumo e as explicações revisadas do módulo, com busca textual do Postgres primeiro e `pgvector` quando o volume pedir.
-3. Cota por plano e registro de uso e custo (`ai_usage`).
-4. Bateria de 30 casos de avaliação (SPEC §12.3), incluindo prompt injection, pedido clínico real e citação inexistente.
-
-Em paralelo, o pipeline de geração assistida de questões e flashcards, que precisa da revisão humana antes de publicar, já tem a fila editorial pronta para recebê-las.
+1. Cadastrar `ANTHROPIC_API_KEY` e rodar `pnpm --filter @gutta/web tutor:eval` antes de abrir o tutor para a turma piloto.
+2. Pipeline de geração assistida de questões e flashcards, alimentando a fila editorial que já existe.
+3. Questão do dia e lembretes pelo WhatsApp, PWA instalável (F2 do roadmap).

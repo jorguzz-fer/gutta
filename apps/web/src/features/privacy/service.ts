@@ -62,6 +62,8 @@ export async function exportData(userId: string) {
       recommendations,
       events,
       requests,
+      tutorMessages,
+      classes,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -83,6 +85,21 @@ export async function exportData(userId: string) {
           .where(eq(s.learningRecommendations.studentId, userId)),
       () => tx.select().from(s.productEvents).where(eq(s.productEvents.actorId, userId)),
       () => tx.select().from(s.dataRequests).where(eq(s.dataRequests.userId, userId)),
+      () =>
+        tx
+          .select({
+            role: s.tutorMessages.role,
+            content: s.tutorMessages.content,
+            moduleId: s.tutorConversations.moduleId,
+            createdAt: s.tutorMessages.createdAt,
+          })
+          .from(s.tutorMessages)
+          .innerJoin(
+            s.tutorConversations,
+            eq(s.tutorConversations.id, s.tutorMessages.conversationId),
+          )
+          .where(eq(s.tutorMessages.studentId, userId)),
+      () => tx.select().from(s.classMembers).where(eq(s.classMembers.studentId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -107,6 +124,8 @@ export async function exportData(userId: string) {
       recommendations,
       productEvents: events,
       dataRequests: requests,
+      tutorMessages,
+      classMemberships: classes,
     };
   });
 }

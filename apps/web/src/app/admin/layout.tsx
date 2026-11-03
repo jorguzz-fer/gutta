@@ -3,6 +3,7 @@ import {
   Building2,
   FileQuestion,
   GraduationCap,
+  Sparkles,
   LayoutGrid,
   ShieldCheck,
   Users,
@@ -38,6 +39,7 @@ const adminItems: NavItem[] = [
     label: 'Instituições',
     icon: <Building2 className={icon} aria-hidden />,
   },
+  { href: '/admin/tutor', label: 'Tutor IA', icon: <Sparkles className={icon} aria-hidden /> },
   { href: '/admin/metricas', label: 'Métricas', icon: <BarChart3 className={icon} aria-hidden /> },
 ];
 const tailItems: NavItem[] = [

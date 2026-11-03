@@ -30,6 +30,12 @@ const ADMIN = [
     cta: 'Ver instituições',
   },
   {
+    href: '/admin/tutor',
+    title: 'Tutor IA',
+    text: 'Uso, custo, conversas e o botão de desligar.',
+    cta: 'Abrir tutor',
+  },
+  {
     href: '/admin/metricas',
     title: 'Métricas',
     text: 'Estudantes ativos na semana e uso do banco de questões.',

@@ -13,6 +13,7 @@ export type EventName =
   | 'module_opened'
   | 'recommendation_shown'
   | 'data_export_requested'
+  | 'tutor_asked'
   | 'account_deletion_requested';
 
 export async function track(
