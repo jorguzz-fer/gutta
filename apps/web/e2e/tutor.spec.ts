@@ -14,7 +14,9 @@ test('aluno pergunta ao tutor no módulo e a conversa fica na tela @celular', as
   await expect(page.getByText(/Pelo material de Miocardiopatia hipertrófica/)).toBeVisible();
   await expect(page.getByText('Por que a diástole é o problema principal?')).toBeVisible();
   await expect(page.getByText(/19 de 20 perguntas restantes/)).toBeVisible();
+  // A aula interativa é de outro site (iframe): fora do que o app controla, fica fora da varredura.
   const res = await new AxeBuilder({ page })
+    .exclude('iframe')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze();
   expect(
