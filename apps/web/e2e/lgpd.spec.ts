@@ -73,7 +73,7 @@ test('exclusão: aluno pede, admin executa e a conta deixa de existir', async ({
   const again = await (await browser.newContext({ baseURL })).newPage();
   await again.goto('/entrar');
   await again.getByLabel('E-mail').fill(email);
-  await again.getByLabel('Senha').fill(PASSWORD);
+  await again.getByLabel('Senha', { exact: true }).fill(PASSWORD);
   await again.getByRole('button', { name: 'Entrar' }).click();
   await expect(again.getByText('E-mail ou senha incorretos.')).toBeVisible();
 });

@@ -6,6 +6,7 @@ import { authClient } from '@/lib/auth/client';
 import { Button } from '@/components/ui/button';
 import { Alert, Card } from '@/components/ui/card';
 import { Field, Input } from '@/components/ui/field';
+import { PasswordInput } from '@/components/ui/password-input';
 
 // Ativação do segundo fator em 3 passos, com progresso visível (Gradiente de Meta).
 export function TwoFactorSetup() {
@@ -58,10 +59,10 @@ export function TwoFactorSetup() {
         <form onSubmit={start} className="grid gap-4">
           <Field label="Confirme sua senha">
             {(p) => (
-              <Input
+              <PasswordInput
                 {...p}
                 name="password"
-                type="password"
+
                 autoComplete="current-password"
                 required
               />

@@ -38,7 +38,7 @@ export async function signUp(page: Page, name: string, email: string) {
   await page.goto('/cadastro');
   await page.getByLabel('Como quer ser chamado(a)').fill(name);
   await page.getByLabel('E-mail').fill(email);
-  await page.getByLabel('Senha').fill(PASSWORD);
+  await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
   await page.getByRole('checkbox', { name: /termos de uso/ }).check();
   await page.getByRole('button', { name: 'Criar conta' }).click();
   await expect(page.getByText('Conta criada. Confira seu e-mail.')).toBeVisible();
@@ -48,7 +48,7 @@ export async function signUp(page: Page, name: string, email: string) {
 export async function signIn(page: Page, email: string, password = PASSWORD, next = '/app') {
   await page.goto(`/entrar?next=${encodeURIComponent(next)}`);
   await page.getByLabel('E-mail').fill(email);
-  await page.getByLabel('Senha').fill(password);
+  await page.getByLabel('Senha', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Entrar' }).click();
   await page.waitForURL(
     (u) => !u.pathname.startsWith('/entrar') || u.pathname.startsWith('/entrar/dois-fatores'),
