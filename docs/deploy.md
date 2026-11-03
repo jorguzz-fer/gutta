@@ -23,6 +23,7 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `RESEND_API_KEY` | sem ela, nenhum e-mail sai (confirmação de conta fica travada) |
    | `MAIL_FROM` | remetente verificado no Resend |
    | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
+   | `SEED_CATALOG` | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005 |
    | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
@@ -35,7 +36,7 @@ Nenhum dos dois publica porta no servidor (`expose`, não `ports`): o proxy do C
 
 ## Primeiro administrador
 
-Não há seed em produção (ADR 0005).
+Os usuários de demonstração nunca vão para produção (ADR 0005). O catálogo só entra com `SEED_CATALOG=demo`.
 
 1. Crie a conta pelo `/cadastro`.
 2. No Coolify, defina `BOOTSTRAP_ADMIN_EMAILS` com o seu e-mail (vários: separados por vírgula) e faça um redeploy.
