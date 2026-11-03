@@ -88,7 +88,7 @@ pnpm build && pnpm e2e
 
 O E2E roda o Playwright contra o build de produção, num banco próprio (`gutta_e2e`).
 
-A CI (`.github/workflows/`) roda tudo isso em todo PR, mais CodeQL, gitleaks, o build da imagem Docker e uma carga curta com k6.
+A CI (`.github/workflows/`) roda tudo isso em todo PR, mais CodeQL, gitleaks e o build da imagem Docker. O teste de carga (k6) só roda sob pedido: Actions → Teste de carga → Run workflow.
 
 ## Time
 
