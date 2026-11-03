@@ -92,3 +92,71 @@ export function ResetPasswordForm({ token }: { token: string }) {
     </form>
   );
 }
+
+/** Troca de senha com a sessão aberta (ex.: senha temporária criada pelo admin). */
+export function ChangePasswordForm() {
+  const [state, setState] = useState<'idle' | 'pending' | 'done'>('idle');
+  const [error, setError] = useState<string | null>(null);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const form = new FormData(el);
+    const currentPassword = String(form.get('current') ?? '');
+    const newPassword = String(form.get('password') ?? '');
+    if (newPassword.length < 8) {
+      setError('A nova senha precisa de pelo menos 8 caracteres.');
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setError('A nova senha precisa ser diferente da atual.');
+      return;
+    }
+    setState('pending');
+    setError(null);
+    const { error } = await authClient.changePassword({
+      currentPassword,
+      newPassword,
+      revokeOtherSessions: true,
+    });
+    if (error) {
+      setState('idle');
+      setError(
+        error.status === 429
+          ? 'Muitas tentativas. Espere alguns minutos.'
+          : 'Senha atual incorreta. Confira e tente de novo.',
+      );
+      return;
+    }
+    el.reset();
+    setState('done');
+  }
+  return (
+    <form onSubmit={onSubmit} className="grid gap-4">
+      {state === 'done' ? (
+        <Alert tone="success">Senha trocada. Os outros aparelhos precisam entrar de novo.</Alert>
+      ) : null}
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      <Field label="Senha atual">
+        {(p) => (
+          <Input {...p} name="current" type="password" autoComplete="current-password" required />
+        )}
+      </Field>
+      <Field label="Nova senha" hint="Pelo menos 8 caracteres.">
+        {(p) => (
+          <Input
+            {...p}
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            maxLength={128}
+            required
+          />
+        )}
+      </Field>
+      <Button type="submit" size="lg" loading={state === 'pending'}>
+        Trocar senha
+      </Button>
+    </form>
+  );
+}

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { promote, signUp, totp, uniqueEmail } from './helpers';
+import { promote, signIn, signUp, totp, uniqueEmail } from './helpers';
 
 async function scan(page: Page, name: string) {
   const res = await new AxeBuilder({ page })
@@ -92,4 +92,40 @@ test('admin dá o papel de professor e cria uma instituição', async ({ page, b
   await page.getByLabel('Nome').last().fill(`Faculdade E2E ${Date.now()}`);
   await page.getByRole('button', { name: 'Criar' }).click();
   await expect(page.getByText('Instituição criada.')).toBeVisible();
+});
+
+test('admin cria conta com senha temporária e a pessoa troca a senha', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  await becomeAdmin(page);
+  await page.goto('/admin/usuarios');
+  const email = uniqueEmail('criado');
+  const form = page.getByRole('region', { name: 'Novo usuário' });
+  await form.getByLabel('Nome', { exact: true }).fill('Beatriz Criada');
+  await form.getByLabel('E-mail', { exact: true }).fill(email);
+  await form.getByLabel('Papel', { exact: true }).selectOption({ label: 'Professor' });
+  await form.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(form.getByText(/Conta criada para/)).toBeVisible();
+  const temp = (await form.locator('code').innerText()).trim();
+  expect(temp).toMatch(/^[A-Za-z0-9]{14}$/);
+  await expect(page.getByRole('link', { name: 'Beatriz Criada' })).toBeVisible();
+  await scan(page, 'usuário criado');
+
+  await form.getByLabel('E-mail', { exact: true }).fill(email);
+  await form.getByLabel('Nome', { exact: true }).fill('Beatriz Repetida');
+  await form.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(form.getByText('Já existe uma conta com esse e-mail.')).toBeVisible();
+
+  const other = await (await browser.newContext({ baseURL })).newPage();
+  await signIn(other, email, temp, '/seguranca/senha');
+  await expect(other.getByRole('heading', { name: 'Trocar senha' })).toBeVisible();
+  await other.getByLabel('Senha atual').fill(temp);
+  await other.getByLabel('Nova senha').fill('nova-senha-da-bia-1');
+  await other.getByRole('button', { name: 'Trocar senha' }).click();
+  await expect(other.getByText(/Senha trocada/)).toBeVisible();
+  await scan(other, 'trocar senha');
+  await other.goto('/professor');
+  await expect(other.getByRole('heading', { name: /turmas/i }).first()).toBeVisible();
 });

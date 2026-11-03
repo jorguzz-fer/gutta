@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { NewUserForm } from '@/components/admin/new-user-form';
 import { AdminHeader, Flash, tableClass } from '@/components/admin/ui';
 import { Button } from '@/components/ui/button';
 import { Badge, Card } from '@/components/ui/card';
@@ -26,6 +27,12 @@ export default async function UsersPage({
         lead="Contas, papéis e acesso. Toda mudança fica na auditoria. Mostra os 200 mais recentes; use a busca para achar alguém."
       />
       <Flash ok={sp.ok} erro={sp.erro} />
+      <Card as="section" aria-labelledby="novo" className="grid gap-4">
+        <h2 id="novo" className="text-lg">
+          Novo usuário
+        </h2>
+        <NewUserForm roles={ASSIGNABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))} />
+      </Card>
       <form className="flex flex-wrap gap-2" role="search">
         <Input
           name="q"

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { TwoFactorSetup } from '@/components/auth/two-factor-setup';
 import { Alert } from '@/components/ui/card';
@@ -22,6 +23,9 @@ export default async function TwoFactorSettingsPage() {
       ) : (
         <TwoFactorSetup />
       )}
+      <p className="text-sm">
+        <Link href="/seguranca/senha">Trocar senha</Link>
+      </p>
     </AuthShell>
   );
 }

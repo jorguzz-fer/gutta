@@ -90,6 +90,9 @@ export default async function ProfilePage({
           <li>
             <Link href="/seguranca/dois-fatores">Verificação em duas etapas</Link>
           </li>
+          <li>
+            <Link href="/seguranca/senha">Trocar senha</Link>
+          </li>
         </ul>
         <div className="mt-4 flex flex-wrap gap-3">
           <SignOutButton />
