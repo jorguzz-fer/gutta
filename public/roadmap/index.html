@@ -120,6 +120,16 @@ body[data-filter] .filter-hint .clear{display:inline}
 .tasks{margin:0;padding:0;list-style:none;display:grid;gap:8px}
 .tasks li{position:relative;padding-left:16px;font-size:13.5px;line-height:1.45}
 .tasks li::before{content:"";position:absolute;left:0;top:.58em;width:7px;height:7px;border-radius:2px;background:var(--pc)}
+.tasks li.done{color:var(--muted)}
+.tasks li.done::before{content:"✓";width:auto;height:auto;top:0;background:none;color:var(--pc);font-weight:700;font-size:12px}
+.tasks li.doing::before{background:none;border:2px solid var(--pc);border-radius:50%;width:5px;height:5px}
+.tasks li .st{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);margin-top:2px}
+.status{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:18px 20px}
+.status h3{margin-bottom:10px}
+.status .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 24px}
+.status h4{font-size:13px;font-family:var(--mono);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.status ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13.5px}
+.st-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12.5px;color:var(--muted)}
 body[data-filter="K"] .col:not([data-p="K"]),body[data-filter="H"] .col:not([data-p="H"]),body[data-filter="R"] .col:not([data-p="R"]),body[data-filter="F"] .col:not([data-p="F"]){opacity:.28}
 .gate{margin-top:20px;background:var(--gate);border:1px solid var(--gate-line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
 .gate .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;padding-top:3px;white-space:nowrap}
@@ -184,7 +194,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-si
     <div class="meta">
       <span><b>26 semanas</b> · 3 nov 2026 → 30 abr 2027</span>
       <span><b>4 pessoas</b></span>
-      <span>v2 · 02 nov 2026</span>
+      <span>v2.1 · 03 nov 2026</span>
     </div>
   </div>
 
@@ -214,6 +224,31 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-si
     <div class="tl-legend">
       <span style="--c:var(--p-r)">F0 Alinhamento</span><span style="--c:var(--p-k)">F1 Fundação</span><span style="--c:var(--p-f)">F2 Trilha piloto</span><span style="--c:var(--p-h)">F3 Piloto fechado</span><span style="--c:var(--fg)">F4 Decisão</span><span style="--c:var(--line)">Recesso / início do semestre</span>
     </div>
+  </div>
+
+  <div class="status">
+    <h3>Onde estamos (3 de novembro)</h3>
+    <div class="grid">
+      <div>
+        <h4>No ar</h4>
+        <ul>
+          <li>Plataforma em <a href="https://app-gutta.tudomudou.com.br">app-gutta.tudomudou.com.br</a>, no Coolify, separada da página de espera.</li>
+          <li>Conta com consentimentos, onboarding, painel "Hoje", módulos com a aula interativa, questões corrigidas no servidor, flashcards com revisão espaçada.</li>
+          <li>Editorial (rascunho → revisão → publicado), privacidade (LGPD) e métricas do piloto.</li>
+          <li>Testada: segurança por aluno no banco, acessibilidade automática e carga (cerca de 230 alunos simultâneos por servidor).</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ainda não</h4>
+        <ul>
+          <li>Conteúdo revisado: o que está no ar é demonstração, com selo, até o Hugo revisar o módulo MCH.</li>
+          <li>E-mail transacional (Resend): sem ele, quem se cadastra não confirma a conta.</li>
+          <li>Tutor de IA e geração assistida de questões (a fila de revisão já existe).</li>
+          <li>Questão do dia por WhatsApp, painel do professor e PWA, que são da F2.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="st-legend"><span>✓ feito</span><span>○ em andamento</span><span>A base técnica da F1 adiantou; o critério de saída da F1 continua dependendo do conteúdo e do teste de corredor.</span></p>
   </div>
 
   <div class="now">
@@ -291,6 +326,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-si
     <div class="risks">
       <h3>Riscos e decisões em aberto</h3>
       <dl>
+        <dt>O que está no ar ainda é demonstração</dt><dd>Questões, flashcards e resumos de produção são de teste, com selo, até a revisão do Hugo entrar pelo editorial. Ninguém de fora deve usar antes disso.</dd>
         <dt>Calendário acadêmico manda no cronograma</dt><dd>Turma real só existe a partir de fevereiro. Por isso o teste de corredor em dezembro: validar o formato do módulo antes do recesso, não em março.</dd>
         <dt>Um único professor produzindo conteúdo</dt><dd>O Hugo é o gargalo da F2. Mitigação: pipeline de geração assistida por IA com fila de revisão, e um segundo revisor convidado pelo Dr. Kleber já na F1.</dd>
         <dt>Semestre-alvo da trilha</dt><dd>A aula de MCH é de fisiopatologia, não do ciclo básico puro. O Hugo define se a trilha mira o 3º–4º semestre ou se a gente recua para fisiologia e anatomia cardiovascular.</dd>
@@ -329,7 +365,7 @@ const PH=[
    K:["Escrever a tese do MVP em uma página: para quem, que dor, por que agora, o que seria sucesso em abril","Definir os critérios de go/no-go com os outros três (base: tabela de métricas abaixo)","Decidir piloto informal ou formal na Uni9 e abrir a conversa certa","Propor veículo jurídico, participações e vesting; levar ao grupo"],
    H:["Propor a trilha do MVP: sugestão é a trilha cardiovascular partindo da MCH, com 6 a 8 temas","Definir semestre-alvo e disciplinas em que a trilha encaixa","Levantar o calendário da Uni9 2027.1: início das aulas, datas de prova da disciplina","Estimar a turma piloto: quantos alunos, qual semestre, como chegar neles"],
    R:["Montar o cronograma mestre a partir deste roadmap e o ritual semanal (45 min, toda segunda)","Abrir as ferramentas do time: quadro de tarefas, Drive, grupo de WhatsApp","Levantar o que o piloto exige de termos de uso, privacidade e consentimento de pesquisa (LGPD)","Mapear custos fixos do MVP: infra, IA, ferramentas, eventual freela de revisão"],
-   F:["Confirmar Gutta no INPI (classes 41 e 42) e registrar os domínios livres: mestregutta, metodogutta, guttamind; até lá o app é Gutta Project","Definir arquitetura e stack do MVP e o que se reaproveita (aula MCH, design system, base LMS existente)","Criar o design system Gutta: gota e pedra, sem gotinha com rosto","Estimar custo de IA por aluno/mês com tutor via RAG sobre conteúdo revisado"]
+   F:["Confirmar Gutta no INPI (classes 41 e 42) e registrar os domínios livres: mestregutta, metodogutta, guttamind; até lá o app é Gutta Project",{t:"Definir arquitetura e stack do MVP e o que se reaproveita (aula MCH, design system, base LMS existente)",s:"done",n:"base nova, sem reaproveitar o ClassOS; decisões em docs/decisions"},{t:"Criar o design system Gutta: gota e pedra, sem gotinha com rosto",s:"done",n:"cores, fontes e componentes no app; visual de vidro em teste"},"Estimar custo de IA por aluno/mês com tutor via RAG sobre conteúdo revisado"]
   },
   gate:["Gutta confirmado no INPI e domínios registrados","Trilha (temas e semestre) e turma piloto definidas pelo Hugo","Cronograma e ritual aprovados","Acordo entre os quatro acertado por escrito"]},
  {id:"F1",name:"Fundação: o módulo padrão",dates:"16 nov → 18 dez · 5 semanas",c:"var(--p-k)",
@@ -339,7 +375,7 @@ const PH=[
    K:["Validar o módulo MCH do ponto de vista clínico e acadêmico","Trazer um segundo revisor de conteúdo (professor convidado) para destravar a F2","Conversas exploratórias com coordenação e ligas acadêmicas da Uni9","Definir a hipótese de freemium: o que é grátis para sempre e o que é pago"],
    H:["Revisar e aprovar as questões e flashcards do módulo MCH gerados a partir da aula","Escrever os comentários de gabarito e as rubricas que o tutor vai usar","Definir a 'voz' do tutor: o que ele responde, o que ele recusa, quando manda procurar o professor","Recrutar 10 a 15 alunos para o teste de corredor na 1ª semana de dezembro"],
    R:["Operar o teste de corredor: convite, termo de consentimento, roteiro de observação, formulário de feedback","Documentar o processo de produção de um módulo (SOP) com tempo e custo de cada etapa","Montar o painel inicial de acompanhamento (planilha de métricas e bugs)","Suporte direto aos alunos testers durante a semana de teste"],
-   F:["Base da plataforma: login, perfil (curso, instituição, semestre), catálogo de módulos, player da aula interativa","Banco de questões com revisão espaçada e flashcards","Tutor de IA com RAG sobre o conteúdo revisado e registro de cada conversa","Pipeline de geração assistida de questões e flashcards a partir do material do professor, com fila de revisão","Eventos e analytics desde o primeiro dia; landing page com lista de espera"]
+   F:[{t:"Base da plataforma: login, perfil (curso, instituição, semestre), catálogo de módulos, player da aula interativa",s:"done",n:"no ar desde 3 nov"},{t:"Banco de questões com revisão espaçada e flashcards",s:"done"},"Tutor de IA com RAG sobre o conteúdo revisado e registro de cada conversa",{t:"Pipeline de geração assistida de questões e flashcards a partir do material do professor, com fila de revisão",s:"doing",n:"fila de revisão pronta; falta a geração por IA"},{t:"Eventos e analytics desde o primeiro dia; landing page com lista de espera",s:"done",n:"métricas do piloto em /admin/metricas"}]
   },
   gate:["Módulo MCH completo rodando na plataforma","10+ alunos usaram no teste de corredor","7 em cada 10 voltaram no 2º dia ou dizem que usariam de novo","Tempo e custo para produzir um módulo conhecidos e aceitáveis"]},
  {id:"F2",name:"Trilha piloto",dates:"4 jan → 12 fev · 6 semanas (recesso de 21 dez a 1º jan)",c:"var(--p-f)",
@@ -348,7 +384,7 @@ const PH=[
    K:["Formalizar o piloto com a Uni9, ou manter informal como decisão consciente","Abrir conversa com 2 instituições ou ligas fora da Uni9 para o segundo piloto","Preparar o one-pager para parceiros e investidores, se a rota for captar","Alinhar professores convidados para a trilha seguinte"],
    H:["Produzir e curar o conteúdo dos módulos 2 a 8 da trilha (temas definidos na F0)","Revisar as questões e flashcards gerados pelo pipeline, módulo a módulo","Alinhar o calendário do piloto com as provas da disciplina em 2027.1","Confirmar a turma piloto (meta: 40 ou mais alunos) e preparar a apresentação em sala"],
    R:["Rodar o kanban de produção: rascunho → revisão do Hugo → publicado, com prazo por módulo","Onboarding do piloto: material, vídeo de 2 minutos, FAQ, canal de suporte no WhatsApp","Publicar termos de uso e política de privacidade; consentimento granular para dados de aprendizagem","Pesquisa de linha de base com a turma: como estudam hoje, que ferramentas usam, quanto gastam"],
-   F:["Aulas interativas dos módulos 2 a 8 na mesma base da MCH","Questão do dia, streak e lembretes pelo WhatsApp","Painel do professor: desempenho da turma, erros mais comuns, quem está ficando para trás","Plano de revisão pré-prova gerado pela IA a partir dos erros do aluno","PWA instalável; exportação e exclusão de dados (LGPD); correções do teste de corredor"]
+   F:["Aulas interativas dos módulos 2 a 8 na mesma base da MCH","Questão do dia, streak e lembretes pelo WhatsApp","Painel do professor: desempenho da turma, erros mais comuns, quem está ficando para trás","Plano de revisão pré-prova gerado pela IA a partir dos erros do aluno",{t:"PWA instalável; exportação e exclusão de dados (LGPD); correções do teste de corredor",s:"doing",n:"exportação e pedido de exclusão prontos"}]
   },
   gate:["6 ou mais módulos publicados e revisados","Turma piloto confirmada com 40+ alunos","Termos, privacidade e consentimento no ar","Dashboard de métricas pronto antes do primeiro aluno entrar"]},
  {id:"F3",name:"Piloto fechado na Uni9",dates:"22 fev → 9 abr · 7 semanas",c:"var(--p-h)",
@@ -372,12 +408,13 @@ const PH=[
 ];
 const NOW=[
  ["K","Marcar a reunião de kickoff dos quatro e levar a tese do MVP em uma página"],
- ["H","Rascunhar os 6 a 8 temas da trilha e o semestre-alvo; pegar o calendário 2027.1 da Uni9"],
+ ["H","Rascunhar os 6 a 8 temas da trilha e o semestre-alvo; pegar o calendário 2027.1 da Uni9; criar conta na plataforma para revisar o módulo MCH"],
  ["R","Abrir o quadro de tarefas e o grupo de WhatsApp; colocar este roadmap como cronograma mestre"],
- ["F","Pedir a busca de Gutta no INPI (classes 41 e 42) e registrar mestregutta, metodogutta e guttamind .com.br; listar o que da aula MCH já vira módulo"]
+ ["F","Pedir a busca de Gutta no INPI (classes 41 e 42) e registrar os domínios; configurar o Resend para liberar o cadastro; começar o tutor de IA"]
 ];
 
 const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const li=t=>typeof t==="string"?`<li>${esc(t)}</li>`:`<li class="${t.s}">${esc(t.t)}${t.n?`<span class="st">${esc(t.n)}</span>`:""}</li>`;
 const av=(k,cls)=>`<span class="${cls}" style="background:${P[k].color}">${P[k].ini}</span>`;
 
 // people
@@ -390,7 +427,7 @@ document.getElementById("now").innerHTML=NOW.map(([k,t])=>`<li>${av(k,"tag")}<sp
 // phase view
 const vp=document.getElementById("viewPhase");
 vp.innerHTML=PH.map((ph,i)=>{
-  const cols=Object.keys(P).map(k=>`<div class="col" data-p="${k}" style="--pc:${P[k].color}"><div class="who"><span class="av">${P[k].ini}</span><span>${esc(P[k].name.replace("Dr. Kleber Ferreira","Dr. Kleber"))}</span></div><ul class="tasks">${(ph.tasks[k]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`).join("");
+  const cols=Object.keys(P).map(k=>`<div class="col" data-p="${k}" style="--pc:${P[k].color}"><div class="who"><span class="av">${P[k].ini}</span><span>${esc(P[k].name.replace("Dr. Kleber Ferreira","Dr. Kleber"))}</span></div><ul class="tasks">${(ph.tasks[k]||[]).map(li).join("")}</ul></div>`).join("");
   const off=ph.id==="F1"?`<div class="offblock"><b>21 dez → 1º jan</b> recesso: ninguém produz conteúdo; só o build técnico continua se o Fernando quiser.</div>`:"";
   const off2=ph.id==="F2"?`<div class="offblock"><b>15 → 19 fev</b> semana de respiro: início do semestre 2027.1 logo após o Carnaval; usar para ajustes finais e apresentação em sala.</div>`:"";
   return `<article class="phase" style="--pc:${ph.c}"><div class="phase-head"><div class="phase-id"${ph.id==="F4"?' style="color:var(--bg)"':''}>${ph.id}</div><div><h3>${esc(ph.name)}</h3><div class="dates">${esc(ph.dates)}</div><p class="goal">${esc(ph.goal)}</p></div></div>${ph.defn?`<div class="defn">${ph.defn}</div>`:""}<div class="cols">${cols}</div><div class="gate"><div class="lbl">Critério de saída</div><ul>${ph.gate.map(g=>`<li>${esc(g)}</li>`).join("")}</ul></div></article>${off}${off2}`;
@@ -399,7 +436,7 @@ vp.innerHTML=PH.map((ph,i)=>{
 // person view
 const vpp=document.getElementById("viewPerson");
 vpp.innerHTML=`<div class="byp">`+Object.keys(P).map(k=>{
-  const cells=PH.map(ph=>`<div class="pph" style="border-top-color:${ph.c}"><div class="pid">${ph.id} · ${esc(ph.dates.split("·")[0].trim())}</div><h4>${esc(ph.name)}</h4><ul class="tasks" style="--pc:${P[k].color}">${(ph.tasks[k]||[]).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`).join("");
+  const cells=PH.map(ph=>`<div class="pph" style="border-top-color:${ph.c}"><div class="pid">${ph.id} · ${esc(ph.dates.split("·")[0].trim())}</div><h4>${esc(ph.name)}</h4><ul class="tasks" style="--pc:${P[k].color}">${(ph.tasks[k]||[]).map(li).join("")}</ul></div>`).join("");
   return `<div class="pcard" data-p="${k}" style="--pc:${P[k].color}"><div class="who"><span class="av">${P[k].ini}</span><div><h3>${esc(P[k].name)}</h3><div class="rl">${esc(P[k].role)}</div></div></div><p class="mission">${esc(P[k].mission)}</p><div class="pgrid">${cells}</div></div>`;
 }).join("")+`</div>`;
 
