@@ -71,6 +71,20 @@
       "when": 1793725263206,
       "tag": "0009_papel_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793725817829,
+      "tag": "0010_turmas",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793725819214,
+      "tag": "0011_rls_turmas",
+      "breakpoints": true
     }
   ]
 }

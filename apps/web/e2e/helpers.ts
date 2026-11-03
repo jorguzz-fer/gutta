@@ -57,6 +57,9 @@ export async function signIn(page: Page, email: string, password = PASSWORD, nex
 
 export async function completeOnboarding(page: Page, disciplineName = 'Fisiologia cardiovascular') {
   await expect(page).toHaveURL(/\/onboarding/);
+  // Com mais de um curso ativo (o E2E do admin cria cursos), o aluno escolhe Medicina.
+  const course = page.getByLabel('Curso', { exact: true });
+  if (await course.isVisible()) await course.selectOption({ label: 'Medicina' });
   await page.getByRole('button', { name: 'Continuar' }).click();
   await page.getByLabel('Semestre atual').selectOption('2');
   await page

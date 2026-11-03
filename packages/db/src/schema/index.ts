@@ -5,3 +5,4 @@ export * from './identity';
 export * from './ops';
 export * from './learning';
 export * from './flashcards';
+export * from './classes';
