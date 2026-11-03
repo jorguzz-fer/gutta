@@ -23,6 +23,7 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `RESEND_API_KEY` | sem ela, nenhum e-mail sai (confirmação de conta fica travada) |
    | `MAIL_FROM` | remetente verificado no Resend |
    | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
+   | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:
@@ -34,13 +35,13 @@ Nenhum dos dois publica porta no servidor (`expose`, não `ports`): o proxy do C
 
 ## Primeiro administrador
 
-Não há seed em produção (ADR 0005). Crie a conta pelo `/cadastro`, confirme o e-mail e, no terminal do serviço `db` no Coolify, rode:
+Não há seed em produção (ADR 0005).
 
-```sql
-psql -U postgres -d gutta -c "insert into role_assignments (user_id, role) select id, 'admin' from auth_users where email = 'voce@exemplo.com';"
-```
+1. Crie a conta pelo `/cadastro`.
+2. No Coolify, defina `BOOTSTRAP_ADMIN_EMAILS` com o seu e-mail (vários: separados por vírgula) e faça um redeploy.
+3. No start, logo depois das migrations, cada e-mail listado que já tem conta ganha o papel `admin` e fica com o e-mail confirmado. Isso dispensa o Resend para o primeiro acesso, e a mudança fica na auditoria (`role.granted`, `user.email_verified`).
 
-No próximo acesso a `/admin`, a plataforma pede para ativar a verificação em duas etapas.
+A variável não cria usuário nem guarda senha: a senha é a do cadastro. Pode deixá-la definida; rodar de novo não muda nada. No primeiro acesso a `/admin`, a plataforma pede para ativar a verificação em duas etapas.
 
 ## Atualizações
 
