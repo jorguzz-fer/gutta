@@ -61,6 +61,8 @@ export default defineConfig({
       MAIL_OUTBOX_FILE: OUTBOX,
       AUTH_RATE_LIMIT: 'off',
       LESSON_ORIGINS: 'https://aula.alumine.com.br',
+      // Tutor IA com o provedor de teste: sem chave, sem rede, resposta determinística.
+      AI_PROVIDER: 'fake',
     },
   },
 });

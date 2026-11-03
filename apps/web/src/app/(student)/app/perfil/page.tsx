@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { AcademicForm } from '@/components/onboarding/academic-form';
 import { LookSwitch } from '@/components/shared/look-switch';
+import { ClassesCard } from '@/components/classes/classes-card';
+import { listStudentClasses } from '@/features/classes/service';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { removeExam } from '@/features/onboarding/actions';
@@ -11,9 +13,15 @@ import { requireStudent } from '@/lib/auth/session';
 
 export const metadata: Metadata = { title: 'Perfil' };
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ turma_ok?: string; turma_erro?: string }>;
+}) {
   const user = await requireStudent('/app/perfil');
+  const sp = await searchParams;
   const data = await loadOnboardingData(user.id);
+  const classes = await listStudentClasses(user);
   const fmt = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeZone: data.timezone });
   const disciplineName = (id: string) =>
     data.disciplines.find((d) => d.id === id)?.name ?? 'Disciplina';
@@ -27,6 +35,8 @@ export default async function ProfilePage() {
       <Card>
         <AcademicForm data={data} mode="perfil" />
       </Card>
+
+      <ClassesCard classes={classes} ok={sp.turma_ok} erro={sp.turma_erro} />
 
       <Card aria-labelledby="provas">
         <h2 id="provas" className="text-xl font-bold">

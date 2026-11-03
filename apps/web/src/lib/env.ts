@@ -12,6 +12,11 @@ const schema = z.object({
   MAIL_OUTBOX_FILE: z.string().optional(),
   AUTH_RATE_LIMIT: z.enum(['on', 'off']).optional(),
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
+  // Tutor IA. Sem chave, o tutor aparece como indisponível (a não ser com AI_PROVIDER=fake).
+  ANTHROPIC_API_KEY: z.string().optional(),
+  AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),
+  TUTOR_MODEL: z.string().default('claude-opus-5-5'),
+  TUTOR_DAILY_LIMIT: z.coerce.number().int().min(0).max(500).default(20),
 });
 
 type Env = z.infer<typeof schema>;

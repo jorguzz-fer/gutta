@@ -5,7 +5,9 @@ import { notFound } from 'next/navigation';
 import { Markdown } from '@/components/shared/markdown';
 import { buttonClass } from '@/components/ui/button';
 import { Alert, Card, DemoBadge } from '@/components/ui/card';
+import { TutorChat } from '@/components/tutor/tutor-chat';
 import { embeddableLesson, getModule } from '@/features/catalog/data';
+import { getTutorState } from '@/features/tutor/service';
 import { requireStudent } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { track } from '@/lib/events';
@@ -24,6 +26,8 @@ export default async function ModulePage({
   const { discipline, module: m } = data;
   const lesson = embeddableLesson(m.lessonUrl);
   await withUser(db(), user.id, (tx) => track(tx, user.id, 'module_opened', { moduleId: m.id }));
+  const tutor = await getTutorState(user, m.id);
+  const path = `/app/disciplinas/${slug}/${modulo}`;
 
   const actions = (
     <>
@@ -135,6 +139,14 @@ export default async function ModulePage({
           <div className="grid gap-2 [&>a]:w-full">{actions}</div>
         </Card>
       </div>
+
+      <Card as="section" aria-labelledby="tutor" className="grid gap-3">
+        <h2 id="tutor" className="flex items-center gap-2 text-xl">
+          Tutor IA{' '}
+          <span className="text-xs font-semibold tracking-widest text-muted uppercase">beta</span>
+        </h2>
+        <TutorChat moduleId={m.id} path={path} {...tutor} />
+      </Card>
     </div>
   );
 }

@@ -23,6 +23,9 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `RESEND_API_KEY` | sem ela, nenhum e-mail sai (confirmação de conta fica travada) |
    | `MAIL_FROM` | remetente verificado no Resend |
    | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
+   | `ANTHROPIC_API_KEY` | chave da API da Anthropic para o tutor IA; sem ela o tutor fica desligado (ADR 0008) |
+   | `TUTOR_MODEL` | opcional; padrão `claude-opus-5-5` |
+   | `TUTOR_DAILY_LIMIT` | opcional; perguntas por aluno em 24 h (padrão 20; o admin muda em `/admin/tutor`) |
    | `SEED_CATALOG` | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005 |
    | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
 

@@ -2,7 +2,8 @@
 # arquivo /compose.yml (assim os caminhos relativos valem igual no Coolify e localmente).
 # Variáveis definidas no Coolify (nunca no repositório):
 #   APP_URL, BETTER_AUTH_SECRET, POSTGRES_PASSWORD, GUTTA_OWNER_PASSWORD, GUTTA_APP_PASSWORD,
-#   RESEND_API_KEY, MAIL_FROM, LESSON_ORIGINS, BOOTSTRAP_ADMIN_EMAILS e SEED_CATALOG (opcionais)
+#   RESEND_API_KEY, MAIL_FROM, LESSON_ORIGINS, BOOTSTRAP_ADMIN_EMAILS, SEED_CATALOG,
+#   ANTHROPIC_API_KEY, TUTOR_MODEL e TUTOR_DAILY_LIMIT (opcionais)
 name: gutta
 
 services:
@@ -26,6 +27,9 @@ services:
       LESSON_ORIGINS: ${LESSON_ORIGINS:-}
       BOOTSTRAP_ADMIN_EMAILS: ${BOOTSTRAP_ADMIN_EMAILS:-}
       SEED_CATALOG: ${SEED_CATALOG:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      TUTOR_MODEL: ${TUTOR_MODEL:-claude-opus-5-5}
+      TUTOR_DAILY_LIMIT: ${TUTOR_DAILY_LIMIT:-20}
     # Só na rede interna; o proxy do Coolify chega por ela. Nada de porta aberta no servidor.
     expose:
       - '3000'

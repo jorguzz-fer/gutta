@@ -64,6 +64,41 @@
       "when": 1793633175879,
       "tag": "0008_recomendacoes_leitura_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793725263206,
+      "tag": "0009_papel_professor",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793725817829,
+      "tag": "0010_turmas",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793725819214,
+      "tag": "0011_rls_turmas",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793726802337,
+      "tag": "0012_tutor",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793726803725,
+      "tag": "0013_rls_tutor",
+      "breakpoints": true
     }
   ]
 }

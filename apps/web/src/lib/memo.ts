@@ -17,3 +17,8 @@ export function memo<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promi
   store.set(key, { at: Date.now(), value });
   return value;
 }
+
+/** Esquece as entradas com o prefixo (ex.: depois de o admin editar o catálogo). */
+export function forget(prefix: string) {
+  for (const k of store.keys()) if (k.startsWith(prefix)) store.delete(k);
+}

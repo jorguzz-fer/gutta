@@ -27,9 +27,14 @@ export default async function StudentLayout({ children }: { children: React.Reac
             <TopNav items={items.filter((i) => i.href !== '/app/perfil')} />
           </div>
           <div className="flex items-center gap-2">
+            {hasAnyRole(user, ['teacher', 'admin']) ? (
+              <Link href="/professor" className="hidden text-sm md:inline">
+                Professor
+              </Link>
+            ) : null}
             {hasAnyRole(user, EDITORIAL_ROLES) ? (
               <Link href="/admin" className="hidden text-sm md:inline">
-                Editorial
+                {user.roles.includes('admin') ? 'Admin' : 'Editorial'}
               </Link>
             ) : null}
             <ThemeToggle />

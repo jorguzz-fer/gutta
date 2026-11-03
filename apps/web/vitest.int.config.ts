@@ -25,6 +25,7 @@ export default defineConfig({
       // Gerado a cada execução: nenhum segredo fixo no repositório.
       BETTER_AUTH_SECRET: randomBytes(32).toString('base64'),
       APP_URL: 'http://localhost:3000',
+      AI_PROVIDER: 'fake',
     },
   },
 });

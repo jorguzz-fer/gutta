@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test --pass-with-no-tests",
-    "test:int": "vitest run -c vitest.int.config.ts"
+    "test:int": "vitest run -c vitest.int.config.ts",
+    "tutor:eval": "tsx scripts/tutor-eval.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
     "@gutta/core": "workspace:*",
     "@gutta/db": "workspace:*",
     "better-auth": "^1.7.15",

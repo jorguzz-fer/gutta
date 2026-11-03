@@ -1,20 +1,22 @@
-import { BarChart3, FileQuestion, LayoutGrid, ShieldCheck } from 'lucide-react';
+import {
+  BarChart3,
+  Building2,
+  FileQuestion,
+  GraduationCap,
+  Sparkles,
+  LayoutGrid,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Wordmark } from '@/components/shared/logo';
 import { SideNav, type NavItem } from '@/components/layout/nav-links';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { Badge } from '@/components/ui/card';
+import { ROLE_LABEL } from '@/features/admin/service';
 import { EDITORIAL_ROLES, requireRole } from '@/lib/auth/session';
 
 const icon = 'size-5';
-const ROLE_LABEL = {
-  student: 'Aluno',
-  editor: 'Editor',
-  reviewer: 'Revisão',
-  admin: 'Admin',
-  moderator: 'Moderação',
-  support: 'Suporte',
-} as const;
 const items: NavItem[] = [
   {
     href: '/admin',
@@ -27,7 +29,20 @@ const items: NavItem[] = [
     label: 'Questões',
     icon: <FileQuestion className={icon} aria-hidden />,
   },
+];
+// Só admin: catálogo, pessoas, instituições e métricas da empresa.
+const adminItems: NavItem[] = [
+  { href: '/admin/cursos', label: 'Cursos', icon: <GraduationCap className={icon} aria-hidden /> },
+  { href: '/admin/usuarios', label: 'Usuários', icon: <Users className={icon} aria-hidden /> },
+  {
+    href: '/admin/instituicoes',
+    label: 'Instituições',
+    icon: <Building2 className={icon} aria-hidden />,
+  },
+  { href: '/admin/tutor', label: 'Tutor IA', icon: <Sparkles className={icon} aria-hidden /> },
   { href: '/admin/metricas', label: 'Métricas', icon: <BarChart3 className={icon} aria-hidden /> },
+];
+const tailItems: NavItem[] = [
   {
     href: '/seguranca/dois-fatores',
     label: 'Segurança',
@@ -52,7 +67,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             ))}
           </div>
         </div>
-        <SideNav items={items} />
+        <SideNav
+          items={[...items, ...(user.roles.includes('admin') ? adminItems : []), ...tailItems]}
+        />
         <div className="hidden md:block">
           <SignOutButton />
         </div>
