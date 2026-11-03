@@ -39,3 +39,11 @@ Cada item só é marcado `[x]` quando o código está escrito, os testes do item
 ## Fora deste ciclo (de propósito)
 
 Tutor IA (SPEC §19.2 manda concluir e testar a fundação antes), comunidades, identidade digital e e-mail no domínio (fora do MVP pelo roadmap), WhatsApp, painel do professor, pagamentos, PWA instalável.
+
+## Ciclo 2 (pedido do Fernando, 03/11/2026): admin da empresa, painel do professor e tutor IA
+
+Escopo vindo do roadmap (F1: tutor IA; F2: painel do professor) e do pedido de um painel de admin da empresa. Mesma regra: só marca `[x]` com código, testes e commit.
+
+- [x] 25. Admin: CRUD de cursos, disciplinas, assuntos e módulos (com o fluxo editorial do banco), instituições (aprovar as sugeridas) e usuários (papéis, confirmar e-mail, encerrar sessões). Papel `teacher` no banco. Tudo auditado e protegido pelo RLS. Testes de integração e E2E.
+- [ ] 26. Professor: turmas com código de entrada, aluno entra sabendo que o professor verá o desempenho dele, painel com desempenho por assunto, erros mais comuns e quem está ficando para trás. RLS e testes de isolamento entre turmas.
+- [ ] 27. Tutor IA (SPEC M3): `AIProvider` com implementação Anthropic e de teste, respostas só com base no conteúdo publicado do módulo, recusa de pedido clínico real, cota diária por aluno, registro de uso e custo (`ai_usage`), conversas guardadas. Admin vê uso, custo e conversas e pode desligar o tutor. Bateria de casos de avaliação.

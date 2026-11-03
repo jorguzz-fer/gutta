@@ -64,6 +64,13 @@
       "when": 1793633175879,
       "tag": "0008_recomendacoes_leitura_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793725263206,
+      "tag": "0009_papel_professor",
+      "breakpoints": true
     }
   ]
 }

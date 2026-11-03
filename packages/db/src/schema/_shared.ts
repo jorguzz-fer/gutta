@@ -17,6 +17,7 @@ export const appRole = pgEnum('app_role', [
   'admin',
   'moderator',
   'support',
+  'teacher',
 ]);
 
 // Workflow editorial da SPEC (ADM-01).
