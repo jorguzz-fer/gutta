@@ -15,3 +15,11 @@ A SPEC exige seeds com curso, disciplinas, assuntos, questões e resumos, e pro�
 
 ## Consequências
 Antes do teste de corredor, o conteúdo do módulo MCH tem que ser cadastrado pelo fluxo editorial e revisado pelo Hugo. Só esse conteúdo sai sem o selo.
+
+## Revisão (03/11/2026): catálogo de demonstração em produção
+
+O banco de produção nasce vazio, e sem curso o onboarding não avança. Por decisão do Fernando, a produção recebe o catálogo e o conteúdo de demonstração enquanto o conteúdo revisado não existe:
+
+- `SEED_CATALOG=demo` carrega, no start, curso, instituições, disciplinas, assuntos, módulos, questões e flashcards de demonstração. Tudo sai com `is_demo = true` e com o selo na interface. A carga é idempotente.
+- Os usuários de demonstração continuam fora de produção, porque têm senha conhecida. O primeiro admin entra por `BOOTSTRAP_ADMIN_EMAILS`.
+- Quando o conteúdo revisado pelo Hugo for publicado, os itens de demonstração saem: são arquivados pelo editorial, e a variável é removida.

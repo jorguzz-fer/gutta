@@ -1,9 +1,10 @@
 name: Teste de carga
 
-# Portão de desempenho (skill teste-de-carga): toda mudança passa por uma carga curta com os
-# mesmos limites do relatório. k6 sai com código ≠ 0 quando um threshold quebra, e o job falha.
+# Carga curta com os mesmos limites do relatório (skill teste-de-carga). k6 sai com código ≠ 0
+# quando um threshold quebra, e o job falha. Só roda quando alguém pede (Actions → Teste de carga
+# → Run workflow, escolhendo a branch): decisão do Fernando, 03/11/2026, para não gastar 5 min
+# em todo PR.
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       vus:

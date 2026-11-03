@@ -1,6 +1,6 @@
 # Teste de carga (k6)
 
-Responde a "a plataforma aguenta N alunos ao mesmo tempo?" com número medido, e fica instalado como portão na CI (`.github/workflows/carga.yml`).
+Responde a "a plataforma aguenta N alunos ao mesmo tempo?" com número medido, e fica instalado na CI (`.github/workflows/carga.yml`), rodando só sob pedido: Actions → Teste de carga → Run workflow, escolhendo a branch e o número de usuários.
 
 **Nunca rode contra produção.** O script recusa URLs `*.tudomudou.com.br` sem `ALLOW_REMOTE=1`. Isso só se usa com autorização explícita do Fernando, em janela combinada e com carga limitada.
 

@@ -351,7 +351,7 @@ export const DEMO_QUESTIONS: Q[] = [
 
 export async function seedQuestions(
   db: Db,
-  ctx: { topics: Record<string, string>; authorId: string; reviewerId: string },
+  ctx: { topics: Record<string, string>; authorId: string | null; reviewerId: string | null },
 ) {
   for (const q of DEMO_QUESTIONS) {
     const topicId = ctx.topics[q.topic];
@@ -444,7 +444,7 @@ export const DEMO_FLASHCARDS: { topic: string; front: string; back: string }[] =
 
 export async function seedFlashcards(
   db: Db,
-  ctx: { topics: Record<string, string>; authorId: string; reviewerId: string },
+  ctx: { topics: Record<string, string>; authorId: string | null; reviewerId: string | null },
 ) {
   for (const f of DEMO_FLASHCARDS) {
     const topicId = ctx.topics[f.topic]!;
