@@ -1,4 +1,5 @@
 import 'server-only';
+import { latestConsent } from '@/features/privacy/consent';
 import { eq, schema, withUser } from '@gutta/db';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -30,9 +31,12 @@ export const getAccess = cache(async (userId: string) => {
       where: eq(schema.studentProfiles.userId, userId),
       columns: { onboardingCompletedAt: true },
     });
+    // Versão dos termos aceita por último: se mudou, o app pede o aceite da nova.
+    const terms = await latestConsent(tx, userId, 'terms');
     return {
       roles: roles.map((r) => r.role as Role),
       onboarded: Boolean(profile?.onboardingCompletedAt),
+      acceptedPolicy: terms?.granted ? terms.version : null,
     };
   });
 });

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { promote, signUp, totp, uniqueEmail } from './helpers';
+import { becomeAdmin, signIn, signUp, uniqueEmail } from './helpers';
 
 async function scan(page: Page, name: string) {
   const res = await new AxeBuilder({ page })
@@ -14,21 +14,6 @@ async function scan(page: Page, name: string) {
         .join(' | ')}`,
   );
   expect(issues, `${name}\n${issues.join('\n')}`).toEqual([]);
-}
-
-async function becomeAdmin(page: Page) {
-  const email = uniqueEmail('adm-crud');
-  await signUp(page, 'Carla Admin', email);
-  await promote(email, 'admin');
-  await page.goto('/admin/cursos');
-  await expect(page).toHaveURL(/\/seguranca\/dois-fatores/);
-  await page.getByLabel('Confirme sua senha').fill('senha-e2e-segura-1');
-  await page.getByRole('button', { name: 'Continuar' }).click();
-  const secret = (await page.locator('code').innerText()).trim();
-  await page.getByLabel('Código de 6 dígitos do app').fill(totp(secret));
-  await page.getByRole('button', { name: 'Ativar', exact: true }).click();
-  await expect(page.getByText('Verificação em duas etapas ativa.')).toBeVisible();
-  return email;
 }
 
 test('admin cria curso, disciplina, assunto e módulo, e o módulo nasce rascunho', async ({
@@ -92,4 +77,41 @@ test('admin dá o papel de professor e cria uma instituição', async ({ page, b
   await page.getByLabel('Nome').last().fill(`Faculdade E2E ${Date.now()}`);
   await page.getByRole('button', { name: 'Criar' }).click();
   await expect(page.getByText('Instituição criada.')).toBeVisible();
+});
+
+test('admin cria conta com senha temporária e a pessoa troca a senha', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  await becomeAdmin(page);
+  await page.goto('/admin/usuarios');
+  const email = uniqueEmail('criado');
+  const name = `Beatriz ${Date.now().toString(36)}`;
+  const form = page.getByRole('region', { name: 'Novo usuário' });
+  await form.getByLabel('Nome', { exact: true }).fill(name);
+  await form.getByLabel('E-mail', { exact: true }).fill(email);
+  await form.getByLabel('Papel', { exact: true }).selectOption({ label: 'Professor' });
+  await form.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(form.getByText(/Conta criada para/)).toBeVisible();
+  const temp = (await form.locator('code').innerText()).trim();
+  expect(temp).toMatch(/^[A-Za-z0-9]{14}$/);
+  await expect(page.getByRole('link', { name })).toBeVisible();
+  await scan(page, 'usuário criado');
+
+  await form.getByLabel('E-mail', { exact: true }).fill(email);
+  await form.getByLabel('Nome', { exact: true }).fill('Beatriz Repetida');
+  await form.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(form.getByText('Já existe uma conta com esse e-mail.')).toBeVisible();
+
+  const other = await (await browser.newContext({ baseURL })).newPage();
+  await signIn(other, email, temp, '/seguranca/senha');
+  await expect(other.getByRole('heading', { name: 'Trocar senha' })).toBeVisible();
+  await other.getByLabel('Senha atual').fill(temp);
+  await other.getByLabel('Nova senha').fill('nova-senha-da-bia-1');
+  await other.getByRole('button', { name: 'Trocar senha' }).click();
+  await expect(other.getByText(/Senha trocada/)).toBeVisible();
+  await scan(other, 'trocar senha');
+  await other.goto('/professor');
+  await expect(other.getByRole('heading', { name: /turmas/i }).first()).toBeVisible();
 });

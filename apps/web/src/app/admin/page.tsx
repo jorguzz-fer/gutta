@@ -36,6 +36,12 @@ const ADMIN = [
     cta: 'Abrir tutor',
   },
   {
+    href: '/admin/privacidade',
+    title: 'Privacidade (LGPD)',
+    text: 'Pedidos dos titulares com prazo, exclusão de contas e retenção.',
+    cta: 'Abrir fila',
+  },
+  {
     href: '/admin/metricas',
     title: 'Métricas',
     text: 'Estudantes ativos na semana e uso do banco de questões.',

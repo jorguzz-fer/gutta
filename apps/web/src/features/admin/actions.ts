@@ -182,3 +182,20 @@ export async function revokeSessionsAction(form: FormData) {
   }
   back(path, { ok: `${n} ${n === 1 ? 'sessão encerrada' : 'sessões encerradas'}.` });
 }
+
+export type NewUserState =
+  | { error: string; at: number }
+  | { created: { id: string; email: string; password: string }; at: number }
+  | null;
+
+/** Com estado no cliente: a senha temporária volta para a tela uma vez e não vai para a URL. */
+export async function createUserAction(_prev: NewUserState, form: FormData): Promise<NewUserState> {
+  const user = await admin('/admin/usuarios');
+  try {
+    const created = await svc.createUser(user, obj(form));
+    revalidatePath('/admin/usuarios');
+    return { created, at: Date.now() };
+  } catch (err) {
+    return { error: message(err), at: Date.now() };
+  }
+}

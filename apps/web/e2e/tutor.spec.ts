@@ -9,6 +9,10 @@ test('aluno pergunta ao tutor no módulo e a conversa fica na tela @celular', as
   await page.goto('/app/disciplinas/fisiopatologia-cardiovascular/miocardiopatia-hipertrofica');
   await expect(page.getByRole('heading', { name: /Tutor IA/ })).toBeVisible();
   await expect(page.getByText(/não orienta casos reais/)).toBeVisible();
+  // Consentimento específico antes da primeira pergunta (transferência internacional).
+  await expect(page.getByText(/vão para a Anthropic/)).toBeVisible();
+  await expect(page.getByLabel('Sua dúvida')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Aceito usar o tutor' }).click();
   await page.getByLabel('Sua dúvida').fill('Por que a diástole é o problema principal?');
   await page.getByRole('button', { name: 'Perguntar ao tutor' }).click();
   await expect(page.getByText(/Pelo material de Miocardiopatia hipertrófica/)).toBeVisible();
@@ -25,4 +29,26 @@ test('aluno pergunta ao tutor no módulo e a conversa fica na tela @celular', as
         `${v.id}: ${v.nodes.map((n) => n.target.join(' ') + ' ' + (n.failureSummary ?? '')).join(' | ')}`,
     ),
   ).toEqual([]);
+});
+
+test('aluno retira o aceite do tutor e apaga o texto das conversas em Privacidade', async ({
+  page,
+}) => {
+  await signUp(page, 'Rita Retira', uniqueEmail('tutor-lgpd'));
+  await completeOnboarding(page, 'Fisiopatologia cardiovascular');
+  await page.goto('/app/disciplinas/fisiopatologia-cardiovascular/miocardiopatia-hipertrofica');
+  await page.getByRole('button', { name: 'Aceito usar o tutor' }).click();
+  await page.getByLabel('Sua dúvida').fill('O que piora o gradiente na via de saída?');
+  await page.getByRole('button', { name: 'Perguntar ao tutor' }).click();
+  await expect(page.getByText(/Pelo material de/)).toBeVisible();
+
+  await page.goto('/app/privacidade');
+  await page.getByRole('button', { name: 'Apagar conversas com o tutor' }).click();
+  await expect(page.getByText('Texto de 2 mensagens apagado.')).toBeVisible();
+  await page.getByRole('button', { name: 'Desligar: Tutor IA' }).click();
+  await expect(page.getByText('Autorização retirada.')).toBeVisible();
+
+  await page.goto('/app/disciplinas/fisiopatologia-cardiovascular/miocardiopatia-hipertrofica');
+  await expect(page.getByText('O que piora o gradiente na via de saída?')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Aceito usar o tutor' })).toBeVisible();
 });

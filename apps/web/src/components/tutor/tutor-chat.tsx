@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { useActionState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
-import { askTutorAction, type TutorState } from '@/features/tutor/actions';
+import { askTutorAction, tutorConsentAction, type TutorState } from '@/features/tutor/actions';
 import { cn } from '@/lib/cn';
 
 type Msg = { id: string; role: 'user' | 'assistant'; content: string };
@@ -18,6 +18,7 @@ export function TutorChat({
   path,
   messages,
   available,
+  consented,
   remaining,
   dailyLimit,
 }: {
@@ -25,6 +26,7 @@ export function TutorChat({
   path: string;
   messages: Msg[];
   available: boolean;
+  consented: boolean;
   remaining: number;
   dailyLimit: number;
 }) {
@@ -76,7 +78,32 @@ export function TutorChat({
           <Alert tone="danger">{state.error}</Alert>
         ) : null}
       </div>
-      {available ? (
+      {available && !consented ? (
+        <form
+          action={tutorConsentAction}
+          className="grid gap-3 rounded-[var(--radius)] border border-line p-4"
+        >
+          <input type="hidden" name="path" value={path} />
+          <p className="text-[15px] font-semibold">Antes da primeira pergunta</p>
+          <ul className="grid list-disc gap-1 pl-5 text-sm text-muted">
+            <li>
+              Sua pergunta, o material do módulo e o resumo das questões deste módulo que você
+              respondeu vão para a Anthropic, empresa que roda o modelo de IA, nos Estados Unidos.
+            </li>
+            <li>Seu nome e seu e-mail não vão.</li>
+            <li>
+              As conversas ficam guardadas para você e para revisão da equipe. Você apaga o texto e
+              retira este aceite quando quiser em Privacidade.
+            </li>
+            <li>Não escreva dados de pacientes nem informações pessoais na pergunta.</li>
+          </ul>
+          <div>
+            <Button type="submit" variant="secondary">
+              Aceito usar o tutor
+            </Button>
+          </div>
+        </form>
+      ) : available ? (
         <form ref={form} action={action} className="grid gap-2">
           <input type="hidden" name="moduleId" value={moduleId} />
           <input type="hidden" name="path" value={path} />

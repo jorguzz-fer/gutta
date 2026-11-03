@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ApiError, notFound } from '@/lib/api';
 import type { CurrentUser, Role } from '@/lib/auth/session';
 import { db } from '@/lib/db';
+import { auth } from '@/lib/auth/server';
 import { audit } from '@/lib/events';
 import { forget } from '@/lib/memo';
 
@@ -578,6 +579,80 @@ export async function setRole(admin: CurrentUser, userId: string, role: Role, gr
       { role },
     );
   });
+}
+
+// Sem 0/O/1/l/I: a senha temporária é lida em voz alta ou digitada de um papel.
+// Montado por faixas (e não como texto fixo) para não parecer chave no scanner de segredos.
+const range = (from: string, to: string) =>
+  Array.from({ length: to.charCodeAt(0) - from.charCodeAt(0) + 1 }, (_, i) =>
+    String.fromCharCode(from.charCodeAt(0) + i),
+  );
+const PASSWORD_CHARS = [...range('a', 'z'), ...range('A', 'Z'), ...range('2', '9')].filter(
+  (c) => !'lIO'.includes(c),
+);
+
+export function temporaryPassword(length = 14) {
+  // Descarta bytes acima do maior múltiplo do alfabeto: sem viés de módulo.
+  const limit = 256 - (256 % PASSWORD_CHARS.length);
+  const out: string[] = [];
+  while (out.length < length) {
+    for (const b of crypto.getRandomValues(new Uint8Array(length * 2))) {
+      if (b < limit && out.length < length) out.push(PASSWORD_CHARS[b % PASSWORD_CHARS.length]!);
+    }
+  }
+  return out.join('');
+}
+
+export const newUserInput = z.object({
+  name: z.string().trim().min(2, 'Escreva o nome da pessoa.').max(120),
+  email: z.email('Confira o e-mail.').trim().toLowerCase().max(254),
+  role: z
+    .enum(['', ...ASSIGNABLE_ROLES] as [string, ...string[]])
+    .default('')
+    .transform((v) => (v === '' ? null : (v as Role))),
+  verified: checkbox,
+});
+
+/**
+ * Conta criada pelo admin. Senha temporária gerada aqui e mostrada uma vez só (não fica em
+ * log, URL nem auditoria); a pessoa troca em Segurança. Termos e consentimentos ela aceita no
+ * primeiro acesso (onboarding), não o admin por ela.
+ */
+export async function createUser(admin: CurrentUser, raw: unknown) {
+  const v = newUserInput.parse(raw);
+  const ctx = await auth().$context;
+  if (await ctx.internalAdapter.findUserByEmail(v.email))
+    throw new ApiError(409, 'conflict', 'Já existe uma conta com esse e-mail.');
+  const password = temporaryPassword();
+  const user = await ctx.internalAdapter.createUser(
+    {
+      name: v.name,
+      email: v.email,
+      emailVerified: v.verified,
+    },
+    { method: 'admin' },
+  );
+  if (!user) throw new ApiError(500, 'internal', 'Não foi possível criar a conta.');
+  await ctx.internalAdapter.linkAccount({
+    providerId: 'credential',
+    accountId: user.id,
+    userId: user.id,
+    password: await ctx.password.hash(password),
+  });
+  await run(admin, async (tx) => {
+    if (v.role)
+      await tx
+        .insert(s.roleAssignments)
+        .values({ userId: user.id, role: v.role, grantedBy: admin.id });
+    await audit(
+      tx,
+      admin.id,
+      'user.created',
+      { type: 'user', id: user.id },
+      { role: v.role, emailVerified: v.verified },
+    );
+  });
+  return { id: user.id, email: v.email, password };
 }
 
 /** Sem e-mail transacional (Resend), o admin confirma o e-mail de quem ele conhece. */

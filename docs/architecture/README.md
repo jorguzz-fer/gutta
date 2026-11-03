@@ -84,8 +84,12 @@ Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o f
 - **Painel do professor** (`/professor`): turmas com código. O professor só lê agregados por funções do banco, contando o que o aluno fez depois de entrar (ADR 0008).
 - **Tutor IA** (no módulo e em `/admin/tutor`): `AIProvider` com Anthropic e uma implementação de teste. O contexto é só o resumo publicado e as questões que o aluno já respondeu. Há cota diária, registro de tokens e custo, e 30 casos de avaliação (ADR 0008).
 
+- **Usuários pelo admin**: criar conta com senha temporária (mostrada uma vez) e trocar senha em `/seguranca/senha`.
+- **LGPD** (`/app/privacidade`, `/admin/privacidade`, ADR 0009, `docs/lgpd/`): exclusão executada por `erase_user`, pedidos do titular com prazo, consentimento específico do tutor, retenção por `apply_retention` e novo aceite quando a política muda.
+
 ## Próximo passo
 
-1. Cadastrar `ANTHROPIC_API_KEY` e rodar `pnpm --filter @gutta/web tutor:eval` antes de abrir o tutor para a turma piloto.
-2. Pipeline de geração assistida de questões e flashcards, alimentando a fila editorial que já existe.
-3. Questão do dia e lembretes pelo WhatsApp, PWA instalável (F2 do roadmap).
+1. Preencher controlador e encarregado (`LEGAL_CONTROLLER_*`, `DPO_*`), criar a tarefa diária de retenção no Coolify e levar `docs/lgpd/` à revisão jurídica.
+2. Cadastrar `ANTHROPIC_API_KEY` e rodar `pnpm --filter @gutta/web tutor:eval` antes de abrir o tutor para a turma piloto.
+3. Pipeline de geração assistida de questões e flashcards, alimentando a fila editorial que já existe.
+4. Questão do dia e lembretes pelo WhatsApp, PWA instalável (F2 do roadmap).

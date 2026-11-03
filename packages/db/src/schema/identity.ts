@@ -108,6 +108,7 @@ export const consentPurpose = pgEnum('consent_purpose', [
   'privacy',
   'learning_analytics',
   'marketing',
+  'ai_tutor',
 ]);
 
 // Registro imutável: cada mudança de consentimento é uma linha nova.
@@ -129,10 +130,16 @@ export const dataRequests = pgTable(
   {
     id: pk(),
     userId: userRef('user_id'),
-    kind: text('kind', { enum: ['export', 'deletion'] }).notNull(),
+    // Direitos do titular (LGPD art. 18). Prazo de resposta: 15 dias (art. 19, II).
+    kind: text('kind', {
+      enum: ['export', 'deletion', 'correction', 'information', 'objection', 'other'],
+    }).notNull(),
     status: text('status', { enum: ['open', 'done', 'cancelled'] })
       .notNull()
       .default('open'),
+    details: text('details'),
+    response: text('response'),
+    resolvedBy: text('resolved_by').references(() => authUsers.id, { onDelete: 'set null' }),
     createdAt: createdAt(),
     resolvedAt: timestamp('resolved_at', { withTimezone: true }),
   },
