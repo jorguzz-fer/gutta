@@ -100,3 +100,18 @@ Contexto: estudante de graduação em saúde, no celular, entre uma aula e outra
 - Mostrar a prévia ao time e, no teste de corredor, deixar alguns alunos usarem o vidro.
 - O que observar: tempo para achar o próximo passo e queixas de leitura no sol.
 - Falta medir o custo do desfoque em Android de entrada. Se ficar lento, o caminho é diminuir o raio do desfoque ou desligá-lo só no celular.
+
+## Identidade visual do protótipo do Lovable (03/11/2026, ADR 0007)
+
+**O que mudou:** o tema escuro passou a ser o padrão, com o vermelho da marca, Archivo Black nos títulos e Hind no texto. Disciplinas e módulos viraram capas, a landing ganhou capa, o login ficou em tela dividida e o painel ganhou indicadores no topo.
+
+**O que foi mantido (não desfazer)**
+- *Von Restorff.* Continua havendo um único primário por tela, agora em vermelho.
+- *Personalização verificável.* Os indicadores do painel (revisões hoje, questões na semana, dias com estudo, próxima prova) são dados do aluno. Ranking e recorde do protótipo ficaram de fora, porque seriam número inventado e um streak que pune.
+- *Fitts no celular.* A barra de ação fixa e a navegação inferior continuam iguais. No módulo, as ações vêm logo abaixo do título no celular e no quadro lateral no desktop.
+- *Honestidade.* O selo "Demonstração · sem revisão" continua em todo conteúdo de demonstração.
+
+**Cuidados**
+- A cor de erro é parecida com a da marca. O erro nunca depende só da cor: sempre há ícone e texto ("Sua resposta", "Não foi dessa vez").
+- A fileira "Como funciona" da landing rola na horizontal no celular, então ela é focável pelo teclado (axe: scrollable-region-focusable).
+- O botão de tema tem nome acessível ("Ativar tema claro" ou "Ativar tema escuro").

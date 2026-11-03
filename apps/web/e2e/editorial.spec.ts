@@ -76,7 +76,7 @@ test('admin precisa de 2FA e acessa as métricas com o código do app', async ({
   await page.getByRole('button', { name: 'Continuar' }).click();
   const secret = (await page.locator('code').innerText()).trim();
   await page.getByLabel('Código de 6 dígitos do app').fill(totp(secret));
-  await page.getByRole('button', { name: 'Ativar' }).click();
+  await page.getByRole('button', { name: 'Ativar', exact: true }).click();
   await expect(page.getByText('Verificação em duas etapas ativa.')).toBeVisible();
 
   const fresh = await browser.newPage();

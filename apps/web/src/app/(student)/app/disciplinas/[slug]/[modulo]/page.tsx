@@ -25,39 +25,46 @@ export default async function ModulePage({
   const lesson = embeddableLesson(m.lessonUrl);
   await withUser(db(), user.id, (tx) => track(tx, user.id, 'module_opened', { moduleId: m.id }));
 
+  const actions = (
+    <>
+      <Link href={`/app/questoes/nova?modulo=${m.id}`} className={buttonClass('primary', 'lg')}>
+        Praticar com questões
+      </Link>
+      <Link href="/app/revisoes" className={buttonClass('secondary', 'lg')}>
+        Revisar flashcards
+      </Link>
+    </>
+  );
+
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-8">
       <nav aria-label="Trilha" className="text-sm">
         <Link href="/app/disciplinas">Estudar</Link> <span className="text-muted">/</span>{' '}
         <Link href={`/app/disciplinas/${slug}`}>{discipline.name}</Link>{' '}
         <span className="text-muted">/</span> <span aria-current="page">{m.title}</span>
       </nav>
 
-      <header className="grid gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-3xl font-bold">{m.title}</h1>
+      <header className="grid gap-3">
+        <p className="text-xs font-semibold tracking-[0.25em] text-accent uppercase">
+          {discipline.name}
+          {m.estMinutes ? ` · ~${m.estMinutes} min` : ''}
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-4xl md:text-6xl">{m.title}</h1>
           {m.isDemo ? <DemoBadge /> : null}
         </div>
-        {m.lead ? <p className="text-lg text-muted">{m.lead}</p> : null}
+        {m.lead ? <p className="max-w-[60ch] text-lg text-muted">{m.lead}</p> : null}
+        {/* No celular a ação principal vem logo no topo (Posição Serial); no desktop fica ao lado. */}
+        <div className="flex flex-wrap gap-3 pt-1 lg:hidden">{actions}</div>
       </header>
 
-      {/* Ação principal do módulo logo no topo (Posição Serial); repetida no fim. */}
-      <div className="flex flex-wrap gap-3">
-        <Link href={`/app/questoes/nova?modulo=${m.id}`} className={buttonClass('primary', 'lg')}>
-          Praticar com questões
-        </Link>
-        <Link href="/app/revisoes" className={buttonClass('secondary', 'lg')}>
-          Revisar flashcards
-        </Link>
-      </div>
-
       <section aria-labelledby="aula" className="grid gap-3">
-        <h2 id="aula" className="text-xl font-bold">
+        <h2 id="aula" className="sr-only">
           Aula interativa
         </h2>
         {lesson?.embed ? (
           <>
-            <div className="glass-card overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface">
+            <div className="glass-card overflow-hidden rounded-[var(--radius)] border border-line bg-surface shadow-card">
               <iframe
                 src={lesson.url}
                 title={`Aula interativa: ${m.title}`}
@@ -94,28 +101,39 @@ export default async function ModulePage({
         )}
       </section>
 
-      {m.summaryMd ? (
-        <Card as="section" aria-labelledby="resumo">
-          <h2 id="resumo" className="text-xl font-bold">
-            Resumo
+      <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
+        {m.summaryMd ? (
+          <section aria-labelledby="resumo" className="min-w-0">
+            <h2 id="resumo" className="text-2xl">
+              Resumo
+            </h2>
+            <div className="mt-3">
+              <Markdown source={m.summaryMd} />
+            </div>
+            <p className="mt-4 text-xs text-muted">
+              Versão {m.version}
+              {m.publishedAt
+                ? ` · publicado em ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(m.publishedAt)}`
+                : ''}
+              {m.isDemo ? ' · sem revisão editorial' : ''}
+            </p>
+          </section>
+        ) : (
+          <div />
+        )}
+        <Card
+          as="aside"
+          aria-labelledby="praticar"
+          className="grid content-start gap-3 lg:sticky lg:top-24"
+        >
+          <h2 id="praticar" className="text-lg">
+            Depois da aula
           </h2>
-          <div className="mt-3">
-            <Markdown source={m.summaryMd} />
-          </div>
-          <p className="mt-4 text-xs text-muted">
-            Versão {m.version}
-            {m.publishedAt
-              ? ` · publicado em ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium' }).format(m.publishedAt)}`
-              : ''}
-            {m.isDemo ? ' · sem revisão editorial' : ''}
+          <p className="text-sm text-muted">
+            Questões comentadas deste módulo e os flashcards do dia, no tempo que você tiver.
           </p>
+          <div className="grid gap-2 [&>a]:w-full">{actions}</div>
         </Card>
-      ) : null}
-
-      <div>
-        <Link href={`/app/questoes/nova?modulo=${m.id}`} className={buttonClass('primary', 'lg')}>
-          Praticar com questões
-        </Link>
       </div>
     </div>
   );

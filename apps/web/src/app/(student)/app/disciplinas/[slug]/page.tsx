@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { EmptyState } from '@/components/shared/states';
+import { Cover, coverHue } from '@/components/shared/cover';
 import { Card, DemoBadge } from '@/components/ui/card';
 import { getDiscipline } from '@/features/catalog/data';
 import { requireStudent } from '@/lib/auth/session';
@@ -21,16 +22,27 @@ export default async function DisciplinePage({ params }: { params: Promise<{ slu
         <Link href="/app/disciplinas">Estudar</Link> <span className="text-muted">/</span>{' '}
         <span aria-current="page">{discipline.name}</span>
       </nav>
-      <div className="grid gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-3xl font-bold">{discipline.name}</h1>
-          {discipline.isDemo ? <DemoBadge /> : null}
-        </div>
-        {discipline.description ? <p className="text-muted">{discipline.description}</p> : null}
-      </div>
+      <header
+        className="course-cover relative overflow-hidden rounded-[var(--radius)] px-6 py-10 md:px-10 md:py-14"
+        style={{ '--course-hue': coverHue(discipline.slug) } as React.CSSProperties}
+      >
+        <p className="text-xs font-semibold tracking-[0.25em] text-cover-muted uppercase">
+          {discipline.periodHint ? `${discipline.periodHint}º semestre · ` : ''}
+          {modules.length} módulo{modules.length === 1 ? '' : 's'}
+        </p>
+        <h1 className="mt-2 text-4xl text-cover-fg md:text-6xl">{discipline.name}</h1>
+        {discipline.description ? (
+          <p className="mt-3 max-w-[60ch] text-cover-muted">{discipline.description}</p>
+        ) : null}
+        {discipline.isDemo ? (
+          <div className="mt-4">
+            <DemoBadge />
+          </div>
+        ) : null}
+      </header>
 
       <section className="grid gap-3" aria-labelledby="modulos">
-        <h2 id="modulos" className="text-xl font-bold">
+        <h2 id="modulos" className="text-xl">
           Módulos
         </h2>
         {modules.length === 0 ? (
@@ -39,35 +51,38 @@ export default async function DisciplinePage({ params }: { params: Promise<{ slu
             aparecem em Questões.
           </EmptyState>
         ) : (
-          <ol className="grid gap-3">
+          <ol className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
             {modules.map((m, i) => (
-              <Card as="li" key={m.id} className="relative grid gap-1">
-                <span className="font-mono text-xs text-muted">Módulo {i + 1}</span>
-                <h3 className="text-lg font-bold">
-                  <Link
-                    href={`/app/disciplinas/${slug}/${m.slug}`}
-                    className="text-fg no-underline after:absolute after:inset-0"
-                  >
-                    {m.title}
-                  </Link>
-                </h3>
-                {m.lead ? <p className="text-[15px] text-muted">{m.lead}</p> : null}
-                <p className="font-mono text-xs text-muted">
+              <li key={m.id} className="group relative">
+                <Cover
+                  slug={`${discipline.slug}-${m.slug}`}
+                  eyebrow={`Módulo ${i + 1}${m.lessonUrl ? ' · aula interativa' : ''}`}
+                  title={
+                    <Link
+                      href={`/app/disciplinas/${slug}/${m.slug}`}
+                      className="text-cover-fg no-underline after:absolute after:inset-0 group-hover:underline"
+                    >
+                      {m.title}
+                    </Link>
+                  }
+                  className="transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+                <p className="mt-2 text-sm text-muted">
                   {m.estMinutes ? `~${m.estMinutes} min` : null}
-                  {m.lessonUrl ? ' · aula interativa' : ''}
                   {m.isDemo ? ' · demonstração' : ''}
                 </p>
-              </Card>
+                {m.lead ? <p className="mt-1 text-sm text-muted">{m.lead}</p> : null}
+              </li>
             ))}
           </ol>
         )}
       </section>
 
-      <section className="grid gap-2" aria-labelledby="assuntos">
-        <h2 id="assuntos" className="text-xl font-bold">
+      <Card as="section" className="grid gap-3" aria-labelledby="assuntos">
+        <h2 id="assuntos" className="text-xl">
           Assuntos
         </h2>
-        <ul className="grid gap-1">
+        <ul className="grid gap-1.5">
           {roots.map((t) => (
             <li key={t.id}>
               <span className="font-medium">{t.name}</span>
@@ -83,7 +98,7 @@ export default async function DisciplinePage({ params }: { params: Promise<{ slu
             </li>
           ))}
         </ul>
-      </section>
+      </Card>
     </div>
   );
 }

@@ -21,9 +21,16 @@
   --color-success-soft: var(--success-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
-  --font-display: var(--font-bricolage), 'IBM Plex Sans', system-ui, sans-serif;
-  --font-sans: var(--font-plex), system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-cover-fg: var(--cover-fg);
+  --color-cover-muted: var(--cover-muted);
+  --color-login-panel: var(--login-panel);
+  --color-login-surface: var(--login-surface);
+  --color-login-line: var(--login-line);
+  --font-display: var(--font-archivo), 'Hind', system-ui, sans-serif;
+  --font-sans: var(--font-hind), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Rótulos curtos (eyebrows, selos) usam o texto em caixa alta e espaçado, como no protótipo. */
+  --font-mono: var(--font-hind), system-ui, sans-serif;
+  --shadow-card: var(--card-shadow);
   --radius-card: var(--radius-lg);
   --radius-control: var(--radius);
 }
@@ -37,15 +44,27 @@
     color: var(--fg);
     font-family: var(--font-sans);
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    line-height: 1.15;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
     text-wrap: balance;
+  }
+  /* Archivo Black só tem um peso: sem negrito sintético nos títulos. */
+  .font-display,
+  h1,
+  h2,
+  h3 {
+    font-synthesis-weight: none;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
   :focus-visible {
     outline: 2px solid var(--focus);
@@ -66,4 +85,19 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Capa de disciplina/módulo: degradê no matiz da disciplina, como as capas do protótipo. */
+.course-cover {
+  background: linear-gradient(
+    135deg,
+    oklch(0.45 0.16 var(--course-hue, 27)),
+    oklch(0.18 0.05 var(--course-hue, 27))
+  );
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
