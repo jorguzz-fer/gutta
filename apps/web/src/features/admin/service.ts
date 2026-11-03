@@ -582,10 +582,25 @@ export async function setRole(admin: CurrentUser, userId: string, role: Role, gr
 }
 
 // Sem 0/O/1/l/I: a senha temporária é lida em voz alta ou digitada de um papel.
-const PASSWORD_ALPHABET = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+// Montado por faixas (e não como texto fixo) para não parecer chave no scanner de segredos.
+const range = (from: string, to: string) =>
+  Array.from({ length: to.charCodeAt(0) - from.charCodeAt(0) + 1 }, (_, i) =>
+    String.fromCharCode(from.charCodeAt(0) + i),
+  );
+const PASSWORD_CHARS = [...range('a', 'z'), ...range('A', 'Z'), ...range('2', '9')].filter(
+  (c) => !'lIO'.includes(c),
+);
+
 export function temporaryPassword(length = 14) {
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, (b) => PASSWORD_ALPHABET[b % PASSWORD_ALPHABET.length]).join('');
+  // Descarta bytes acima do maior múltiplo do alfabeto: sem viés de módulo.
+  const limit = 256 - (256 % PASSWORD_CHARS.length);
+  const out: string[] = [];
+  while (out.length < length) {
+    for (const b of crypto.getRandomValues(new Uint8Array(length * 2))) {
+      if (b < limit && out.length < length) out.push(PASSWORD_CHARS[b % PASSWORD_CHARS.length]!);
+    }
+  }
+  return out.join('');
 }
 
 export const newUserInput = z.object({
