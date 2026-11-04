@@ -14,12 +14,14 @@ export function TwoFactorForm({ next }: { next: string }) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const code = String(new FormData(e.currentTarget).get('code') ?? '').replace(/\s+/g, '');
+    const form = new FormData(e.currentTarget);
+    const code = String(form.get('code') ?? '').replace(/\s+/g, '');
+    const trustDevice = form.get('trust') === 'on';
     setPending(true);
     setError(null);
     const { error } = useBackup
-      ? await authClient.twoFactor.verifyBackupCode({ code })
-      : await authClient.twoFactor.verifyTotp({ code });
+      ? await authClient.twoFactor.verifyBackupCode({ code, trustDevice })
+      : await authClient.twoFactor.verifyTotp({ code, trustDevice });
     setPending(false);
     if (error) {
       setError(
@@ -55,6 +57,15 @@ export function TwoFactorForm({ next }: { next: string }) {
           />
         )}
       </Field>
+      <label className="flex min-h-11 items-center gap-3 text-[15px]">
+        <input
+          type="checkbox"
+          name="trust"
+          defaultChecked
+          className="size-5 accent-[var(--accent)]"
+        />
+        Não pedir de novo neste aparelho por 12 horas
+      </label>
       <Button type="submit" size="lg" loading={pending}>
         Confirmar
       </Button>

@@ -56,7 +56,7 @@ export default function Home() {
           className="flex h-full max-w-2xl flex-col justify-center gap-5 px-4 sm:px-6 md:px-12"
         >
           <p className="text-xs font-semibold tracking-[0.3em] text-accent uppercase">
-            Graduação em saúde · em construção
+            Seu tudo pelo curso de Medicina · em construção
           </p>
           <h1 className="text-[clamp(44px,9vw,84px)] leading-[0.95]">
             Um pouco,

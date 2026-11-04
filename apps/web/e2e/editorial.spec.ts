@@ -89,4 +89,11 @@ test('admin precisa de 2FA e acessa as métricas com o código do app', async ({
   await fresh.getByRole('button', { name: 'Confirmar' }).click();
   await expect(fresh.getByRole('heading', { name: 'Métricas' })).toBeVisible();
   await expect(fresh.getByText('Estudantes ativos na semana (WALS)')).toBeVisible();
+
+  // Aparelho confiável por 12 h: sem a sessão, mas com o cookie do aparelho, não pede o código.
+  const cookies = await fresh.context().cookies();
+  expect(cookies.some((c) => c.name.includes('trust_device'))).toBe(true);
+  await fresh.context().clearCookies({ name: /session/ });
+  await signIn(fresh, email, undefined, '/admin/metricas');
+  await expect(fresh.getByRole('heading', { name: 'Métricas' })).toBeVisible();
 });

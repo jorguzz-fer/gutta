@@ -91,7 +91,12 @@ function createAuth() {
         },
       },
     },
-    plugins: [twoFactor({ issuer: 'Gutta' }), nextCookies()],
+    plugins: [
+      // Aparelho confiável (opção marcada na tela do código): o 2FA não é pedido de novo neste
+      // navegador por 12 horas. Cookie assinado e registro no banco, renovados a cada login.
+      twoFactor({ issuer: 'Gutta', trustDeviceMaxAge: 12 * 60 * 60 }),
+      nextCookies(),
+    ],
   });
 }
 
