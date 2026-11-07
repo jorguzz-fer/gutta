@@ -103,8 +103,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-line px-4 py-6 text-xs text-muted sm:px-6 md:px-12">
-        Gutta Project · <em className="not-italic">gutta cavat lapidem</em> · 2026 ·{' '}
-        <Link href="/termos">Termos</Link> ·{' '}
+        Cognuss · 2026 · <Link href="/termos">Termos</Link> ·{' '}
         <Link href="/politica-de-privacidade">Privacidade</Link>
       </footer>
     </div>

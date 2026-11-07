@@ -1,6 +1,6 @@
-# Gutta Project: instruções para o Claude Code
+# Cognuss: instruções para o Claude Code
 
-Plataforma de estudo diário para a graduação em saúde. Nome provisório "Gutta Project" até a resposta do INPI. Base de código nova, sem reaproveitar código de outros projetos (decisão do Fernando, 02/11/2026).
+Plataforma de estudo diário para o curso de Medicina. O nome da marca é **Cognuss** desde 07/11/2026 (antes "Gutta Project"; ADR 0010). Identificadores internos (banco, pacotes `@gutta/*`, cookies, repositório) continuam `gutta`. Base de código nova, sem reaproveitar código de outros projetos (decisão do Fernando, 02/11/2026).
 
 ## Fontes de verdade
 

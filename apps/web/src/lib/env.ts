@@ -8,7 +8,7 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1),
   BETTER_AUTH_SECRET: z.string().min(32, 'BETTER_AUTH_SECRET precisa de 32+ caracteres'),
   RESEND_API_KEY: z.string().optional(),
-  MAIL_FROM: z.string().default('Gutta <nao-responda@gutta.tudomudou.com.br>'),
+  MAIL_FROM: z.string().default('Cognuss <nao-responda@gutta.tudomudou.com.br>'),
   MAIL_OUTBOX_FILE: z.string().optional(),
   AUTH_RATE_LIMIT: z.enum(['on', 'off']).optional(),
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),

@@ -22,7 +22,7 @@ function apply(look: Look) {
 }
 
 const options: { value: Look; label: string; hint: string }[] = [
-  { value: 'classic', label: 'Clássico', hint: 'O visual padrão do Gutta.' },
+  { value: 'classic', label: 'Clássico', hint: 'O visual padrão do Cognuss.' },
   { value: 'glass', label: 'Vidro', hint: 'Experimental: superfícies translúcidas.' },
 ];
 

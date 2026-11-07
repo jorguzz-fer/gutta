@@ -1,4 +1,4 @@
-# Plataforma Gutta no Coolify: build pack "Docker Compose", Base Directory /infra,
+# Plataforma Cognuss no Coolify: build pack "Docker Compose", Base Directory /infra,
 # arquivo /compose.yml (assim os caminhos relativos valem igual no Coolify e localmente).
 # Variáveis definidas no Coolify (nunca no repositório):
 #   APP_URL, BETTER_AUTH_SECRET, POSTGRES_PASSWORD, GUTTA_OWNER_PASSWORD, GUTTA_APP_PASSWORD,
@@ -24,7 +24,7 @@ services:
       DATABASE_OWNER_URL: postgres://gutta_owner:${GUTTA_OWNER_PASSWORD}@db:5432/gutta
       DB_POOL_MAX: ${DB_POOL_MAX:-10}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
-      MAIL_FROM: ${MAIL_FROM:-Gutta <nao-responda@gutta.tudomudou.com.br>}
+      MAIL_FROM: ${MAIL_FROM:-Cognuss <nao-responda@gutta.tudomudou.com.br>}
       LESSON_ORIGINS: ${LESSON_ORIGINS:-}
       BOOTSTRAP_ADMIN_EMAILS: ${BOOTSTRAP_ADMIN_EMAILS:-}
       SEED_CATALOG: ${SEED_CATALOG:-}
