@@ -42,7 +42,7 @@ export default function Home() {
 
       <section className="relative isolate h-[88vh] min-h-[560px] w-full overflow-hidden">
         <Image
-          src="/img/hero.jpg"
+          src="/img/hero-brain.jpg"
           alt=""
           fill
           priority

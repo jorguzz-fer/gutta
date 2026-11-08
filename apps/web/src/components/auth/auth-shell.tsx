@@ -44,7 +44,7 @@ export function AuthShell({
         className="relative isolate hidden overflow-hidden bg-login-panel px-12 py-14 text-cover-fg lg:flex lg:flex-col"
       >
         <Image
-          src="/img/hero.jpg"
+          src="/img/hero-brain.jpg"
           alt=""
           fill
           sizes="50vw"
