@@ -14,7 +14,7 @@ export default async function TeacherLayout({ children }: { children: React.Reac
             <Link
               href="/professor"
               className="no-underline"
-              aria-label="Gutta, painel do professor"
+              aria-label="Cognuss, painel do professor"
             >
               <Wordmark className="text-[26px]" />
             </Link>

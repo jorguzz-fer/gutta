@@ -199,8 +199,8 @@ export default async function PrivacyPolicyPage() {
 
       <h2>Idade</h2>
       <p>
-        O Gutta é para estudantes de graduação. Se você tem menos de 18 anos, use com o conhecimento
-        do seu responsável.
+        O Cognuss é para estudantes de graduação. Se você tem menos de 18 anos, use com o
+        conhecimento do seu responsável.
       </p>
 
       <h2>Mudanças nesta política</h2>

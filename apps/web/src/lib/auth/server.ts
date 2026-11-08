@@ -14,7 +14,7 @@ import { resetPasswordEmail, verificationEmail } from '../mail/templates';
 function createAuth() {
   const e = env();
   return betterAuth({
-    appName: 'Gutta',
+    appName: 'Cognuss',
     baseURL: e.APP_URL,
     secret: e.BETTER_AUTH_SECRET,
     trustedOrigins: [e.APP_URL],
@@ -94,7 +94,7 @@ function createAuth() {
     plugins: [
       // Aparelho confiável (opção marcada na tela do código): o 2FA não é pedido de novo neste
       // navegador por 12 horas. Cookie assinado e registro no banco, renovados a cada login.
-      twoFactor({ issuer: 'Gutta', trustDeviceMaxAge: 12 * 60 * 60 }),
+      twoFactor({ issuer: 'Cognuss', trustDeviceMaxAge: 12 * 60 * 60 }),
       nextCookies(),
     ],
   });

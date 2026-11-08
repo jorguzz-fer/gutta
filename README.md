@@ -1,8 +1,8 @@
-# Gutta Project
+# Cognuss
 
-Plataforma de estudo diário para a graduação em saúde. Nome provisório até a resposta do INPI.
+Plataforma de estudo diário para o curso de Medicina.
 
-*Gutta cavat lapidem, non vi, sed saepe cadendo.*
+*Um pouco, todo dia.* Antes chamado Gutta Project (ADR 0010); os nomes internos do código continuam `gutta`.
 
 Este repositório tem duas coisas que são publicadas separadamente:
 

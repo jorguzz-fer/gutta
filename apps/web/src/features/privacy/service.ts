@@ -211,8 +211,7 @@ export async function exportData(userId: string) {
     await track(tx, userId, 'data_export_requested');
     return {
       exportedAt: new Date().toISOString(),
-      notice:
-        'Seus dados no Gutta Project. Senhas não são exportadas: guardamos só uma versão cifrada.',
+      notice: 'Seus dados no Cognuss. Senhas não são exportadas: guardamos só uma versão cifrada.',
       account,
       profile: profile[0] ?? null,
       studentProfile: studentProfile[0] ?? null,

@@ -7,13 +7,13 @@ export const metadata: Metadata = { title: 'Termos de uso' };
 export default function TermsPage() {
   return (
     <LegalPage title="Termos de uso">
-      <h2>O que é o Gutta</h2>
+      <h2>O que é o Cognuss</h2>
       <p>
         Uma plataforma de estudo para estudantes de graduação em saúde. O conteúdo é educacional. Ao
         criar a conta, você concorda com estes termos e com a{' '}
         <Link href="/politica-de-privacidade">política de privacidade</Link>.
       </p>
-      <h2>O que o Gutta não é</h2>
+      <h2>O que o Cognuss não é</h2>
       <ul>
         <li>Não substitui aula, professor nem bibliografia da sua instituição.</li>
         <li>Não é serviço de saúde: não use para orientar atendimento de pacientes reais.</li>
@@ -53,7 +53,7 @@ export default function TermsPage() {
       <h2>Encerrar a conta</h2>
       <p>
         Você pede a exclusão em <Link href="/app/privacidade">Privacidade</Link>. O conteúdo
-        editorial do Gutta (questões, módulos, aulas) continua sendo do Gutta e dos autores.
+        editorial do Cognuss (questões, módulos, aulas) continua sendo do Cognuss e dos autores.
       </p>
       <h2>Mudanças</h2>
       <p>

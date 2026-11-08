@@ -1,4 +1,4 @@
-# Imagem da plataforma Gutta (app.gutta…). Build a partir da RAIZ do repositório:
+# Imagem da plataforma Cognuss (app.gutta…). Build a partir da RAIZ do repositório:
 #   docker build -f apps/web/Dockerfile -t gutta-web .
 # O site estático continua no Dockerfile da raiz.
 

@@ -102,7 +102,9 @@ export function SignUpForm() {
             name="marketing"
             className="mt-0.5 size-5 accent-[var(--accent)]"
           />
-          <span>Quero receber novidades e ofertas do Gutta (opcional, dá para mudar depois).</span>
+          <span>
+            Quero receber novidades e ofertas do Cognuss (opcional, dá para mudar depois).
+          </span>
         </label>
       </fieldset>
 

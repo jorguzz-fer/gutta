@@ -22,7 +22,7 @@ const sans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: 'Gutta Project', template: '%s · Gutta' },
+  title: { default: 'Cognuss', template: '%s · Cognuss' },
   description: 'Plataforma de estudo diário para a graduação em saúde. Um pouco, todo dia.',
   robots: { index: false },
 };

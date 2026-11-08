@@ -61,7 +61,7 @@ export function AuthShell({
             <br />
             Mais confiança.
             <br />
-            <span className="text-accent">Mais Gutta.</span>
+            <span className="text-accent">Mais Cognuss.</span>
           </p>
           <span className="h-1 w-12 bg-accent" />
           <ul className="grid gap-3">
@@ -81,7 +81,7 @@ export function AuthShell({
             ))}
           </ul>
         </div>
-        <p className="mt-10 text-sm text-cover-muted">Gutta · um pouco, todo dia.</p>
+        <p className="mt-10 text-sm text-cover-muted">Cognuss · um pouco, todo dia.</p>
       </aside>
 
       <div className="flex min-h-dvh flex-col px-4 py-6 sm:px-8">
@@ -95,7 +95,7 @@ export function AuthShell({
           id="conteudo"
           className="mx-auto grid w-full max-w-sm flex-1 content-center gap-6 py-10"
         >
-          <Link href="/" aria-label="Gutta, página inicial" className="no-underline">
+          <Link href="/" aria-label="Cognuss, página inicial" className="no-underline">
             <Wordmark className="text-4xl" dot />
           </Link>
           <div className="grid gap-2">

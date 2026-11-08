@@ -43,7 +43,7 @@ export function TwoFactorForm({ next }: { next: string }) {
         hint={
           useBackup
             ? 'Um dos códigos que você guardou ao ativar.'
-            : 'Abra o app autenticador e digite o código do Gutta.'
+            : 'Abra o app autenticador e digite o código do Cognuss.'
         }
       >
         {(p) => (
