@@ -8,22 +8,22 @@ const STEPS = [
   {
     title: 'Sonda',
     text: 'Algumas questões mostram onde você está em cada assunto.',
-    img: '/img/lesson-brain.jpg',
+    img: '/img/passo-sonda.jpg',
   },
   {
     title: 'Goteja',
     text: 'Todo dia, poucas questões e revisões, no tempo que você tem.',
-    img: '/img/lesson-heart.jpg',
+    img: '/img/passo-goteja.jpg',
   },
   {
     title: 'Cava',
     text: 'O que você erra volta na hora certa, até ficar.',
-    img: '/img/lesson-lungs.jpg',
+    img: '/img/passo-cava.jpg',
   },
 ];
 
 /*
-  Landing no layout do protótipo (ADR 0007): capa com o coração e uma fileira de capas.
+  Landing no layout do protótipo (ADR 0007): capa com o cérebro e uma fileira de capas dos passos.
   Continua com uma promessa e um único primário, "Criar conta grátis" (Hick, Von Restorff),
   e "Entrar" no canto, onde se espera (Jakob). Nada de número inventado na capa.
 */
@@ -56,7 +56,7 @@ export default function Home() {
           className="flex h-full max-w-2xl flex-col justify-center gap-5 px-4 sm:px-6 md:px-12"
         >
           <p className="text-xs font-semibold tracking-[0.3em] text-accent uppercase">
-            Seu tudo pelo curso de Medicina · em construção
+            Seu tutor pelo curso de Medicina · em construção
           </p>
           <h1 className="text-[clamp(44px,9vw,84px)] leading-[0.95]">
             Um pouco,
