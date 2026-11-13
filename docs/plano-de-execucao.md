@@ -65,7 +65,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 - [ ] 36. Experimento de extração de cronograma com 20 cronogramas reais: acerto por campo e custo médio. Experimento do visualizador com caneta no iPad e em tablet Android. Resultados em `docs/`.
   - Preparado em 13/11/2026: extração em `packages/ai` (saída validada pelo esquema), rotina `pnpm --filter @gutta/ai schedule:eval` com gabarito por arquivo (`docs/experimentos/cronogramas/README.md`) e página `/admin/lab/caneta` (`docs/experimentos/caneta.md`).
   - **Falta (depende do Fernando):** os 20 cronogramas reais com o gabarito, a `ANTHROPIC_API_KEY` para rodar, e o teste no iPad e no tablet Android. O item fecha quando os resultados estiverem registrados.
-- [ ] 37. Telas de referência adaptadas ao tema escuro e vermelho do app (D03): paleta de categorias para a grade e o calendário, nos dois temas, com contraste AA.
+- [x] 37. Telas de referência adaptadas ao tema escuro e vermelho do app (D03): paleta de categorias para a grade e o calendário, nos dois temas, com contraste AA. Feito: 8 cores em `tokens.css` (`--cat-1` a `--cat-8`, com texto e borda), cores fixas por tipo de evento em `styles/categories.ts`, teste de contraste nos dois temas e prévia em `/admin/lab/paleta`.
 
 ### Fase 1: fundação da vida acadêmica
 
