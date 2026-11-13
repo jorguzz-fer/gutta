@@ -199,3 +199,10 @@ export async function getAgendaWeek(userId: string, week: string | null) {
     return { timezone: tz, today, start, days, items: occ.map((o) => toItemDto(o, tz)) };
   });
 }
+
+/** Hoje no fuso do aluno. */
+export async function userToday(userId: string) {
+  return withUser(db(), userId, async (tx) =>
+    localDayKey(new Date(), await userTimezone(tx, userId)),
+  );
+}

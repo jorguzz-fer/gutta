@@ -468,12 +468,14 @@ export async function removeAssessment(userId: string, id: string) {
 
 /** Leitura de uma aula ou avaliação para o formulário de edição. */
 export async function getLesson(userId: string, id: string) {
-  return withUser(db(), userId, async (tx) =>
-    toLessonDto(await findLesson(tx, userId, id), await tzOf(tx, userId)),
-  );
+  await assertCalendarEnabled();
+  return withUser(db(), userId, async (tx) => ({
+    lesson: toLessonDto(await findLesson(tx, userId, id), await tzOf(tx, userId)),
+  }));
 }
 export async function getAssessment(userId: string, id: string) {
-  return withUser(db(), userId, async (tx) =>
-    toAssessmentDto(await findAssessment(tx, userId, id), await tzOf(tx, userId)),
-  );
+  await assertCalendarEnabled();
+  return withUser(db(), userId, async (tx) => ({
+    assessment: toAssessmentDto(await findAssessment(tx, userId, id), await tzOf(tx, userId)),
+  }));
 }

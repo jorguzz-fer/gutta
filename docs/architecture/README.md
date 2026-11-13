@@ -62,6 +62,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0024, 0025 | Cronograma e plano de ensino ligados à disciplina (DIS-02, DIS-03) |
 | 0026, 0027 | Aulas, avaliações, leitura do cronograma pela IA e uso de IA (DIS-05, DIS-07); provas do MVP (`exam_dates`) viram avaliações |
 | 0028, 0029 | Rotina semanal (`routine_blocks`) e preferências de planejamento (meta semanal, grade) |
+| 0030, 0031 | Compromissos do calendário com recorrência e exceções |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

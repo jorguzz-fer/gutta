@@ -149,6 +149,8 @@ export const LessonDto = z.object({
   original: z.record(z.string(), z.unknown()).nullable(),
 });
 
+export type LessonDto = z.infer<typeof LessonDto>;
+
 export const createLesson = defineRoute({
   method: 'post',
   path: '/api/v1/lessons',
@@ -205,6 +207,8 @@ export const AssessmentDto = z.object({
   original: z.record(z.string(), z.unknown()).nullable(),
 });
 
+export type AssessmentDto = z.infer<typeof AssessmentDto>;
+
 export const createAssessment = defineRoute({
   method: 'post',
   path: '/api/v1/assessments',
@@ -234,5 +238,25 @@ export const removeAssessment = defineRoute({
   tags: ['calendario'],
   params,
   response: z.object({ ok: z.literal(true) }),
+  errors: ['not_found', 'feature_disabled'],
+});
+
+export const getLesson = defineRoute({
+  method: 'get',
+  path: '/api/v1/lessons/{id}',
+  summary: 'Uma aula, com o registro original quando veio do cronograma.',
+  tags: ['calendario'],
+  params,
+  response: z.object({ lesson: LessonDto }),
+  errors: ['not_found', 'feature_disabled'],
+});
+
+export const getAssessment = defineRoute({
+  method: 'get',
+  path: '/api/v1/assessments/{id}',
+  summary: 'Uma avaliação, com o registro original quando veio do cronograma.',
+  tags: ['calendario'],
+  params,
+  response: z.object({ assessment: AssessmentDto }),
   errors: ['not_found', 'feature_disabled'],
 });
