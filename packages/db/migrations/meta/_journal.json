@@ -113,6 +113,20 @@
       "when": 1793740024810,
       "tag": "0015_rls_lgpd",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794601673117,
+      "tag": "0016_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794601673966,
+      "tag": "0017_rls_outbox",
+      "breakpoints": true
     }
   ]
 }
