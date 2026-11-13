@@ -11,6 +11,8 @@ export const topics = {
   'system.ping': z.object({ requestId: id.optional() }),
   // Varrer, conferir o tipo, converter e extrair texto e miniaturas de um arquivo (ADR 0012).
   'files.process': z.object({ fileId: z.uuid(), userId: id, requestId: id.optional() }),
+  // Ler o cronograma de uma disciplina com IA e deixar pronto para o aluno conferir (DIS-05).
+  'ai.extract_schedule': z.object({ importId: z.uuid(), userId: id }),
   // Conta excluída: apagar do bucket tudo o que estava sob u/{userId}/ (LGPD, ADR 0009).
   'maintenance.erase_user_objects': z.object({ userId: id }),
 } as const;

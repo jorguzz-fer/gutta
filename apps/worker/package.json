@@ -11,6 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
+    "@gutta/ai": "workspace:*",
     "@gutta/db": "workspace:*",
     "@gutta/jobs": "workspace:*",
     "@gutta/storage": "workspace:*",

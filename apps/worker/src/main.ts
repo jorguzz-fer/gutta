@@ -1,4 +1,6 @@
 import http from 'node:http';
+import Anthropic from '@anthropic-ai/sdk';
+import { AnthropicScheduleExtractor, FakeScheduleExtractor } from '@gutta/ai';
 import { createDb, createPool, sql } from '@gutta/db';
 import { loadConfig } from './config';
 import { storageFromEnv } from '@gutta/storage';
@@ -17,7 +19,18 @@ async function main() {
   if (!storage) logger.warn('worker.no_storage', { reason: 'STORAGE_* não configurado' });
   const scanner =
     cfg.SCANNER === 'clamd' ? new ClamdScanner(cfg.CLAMD_HOST, cfg.CLAMD_PORT) : new NoScanner();
-  const handlers = createHandlers({ storage, scanner });
+  const scheduleExtractor =
+    cfg.AI_PROVIDER === 'anthropic' && cfg.ANTHROPIC_API_KEY
+      ? new AnthropicScheduleExtractor(
+          new Anthropic({ apiKey: cfg.ANTHROPIC_API_KEY }),
+          cfg.AI_SCHEDULE_MODEL,
+          cfg.AI_SCHEDULE_EFFORT,
+        )
+      : cfg.AI_PROVIDER === 'fake'
+        ? new FakeScheduleExtractor()
+        : null;
+  if (!scheduleExtractor) logger.warn('worker.no_ai', { reason: 'ANTHROPIC_API_KEY ausente' });
+  const handlers = createHandlers({ storage, scanner, scheduleExtractor });
   const pool = createPool(cfg.DATABASE_URL, cfg.DB_POOL_MAX);
   const db = createDb(pool);
   // Uma conexão para filas e outra para os workers: comandos bloqueantes não podem segurar

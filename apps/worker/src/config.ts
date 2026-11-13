@@ -24,6 +24,12 @@ const schema = z.object({
   SCANNER: z.enum(['clamd', 'none']).default('clamd'),
   CLAMD_HOST: z.string().default('clamav'),
   CLAMD_PORT: z.coerce.number().int().positive().default(3310),
+  // IA (SPEC v2, 7.7), como no web. Sem chave, a leitura automática fica indisponível e o
+  // aluno é avisado. "fake" lê só linhas de teste e não vale em produção.
+  AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  AI_SCHEDULE_MODEL: z.string().default('claude-opus-5-5'),
+  AI_SCHEDULE_EFFORT: z.enum(['low', 'medium', 'high']).default('medium'),
 });
 
 export type Config = z.infer<typeof schema>;
@@ -36,6 +42,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   if (parsed.data.NODE_ENV === 'production' && parsed.data.SCANNER === 'none') {
     throw new Error('Configuração inválida do worker: SCANNER=none não vale em produção');
+  }
+  if (parsed.data.NODE_ENV === 'production' && parsed.data.AI_PROVIDER === 'fake') {
+    throw new Error('Configuração inválida do worker: AI_PROVIDER=fake não vale em produção');
   }
   return parsed.data;
 }

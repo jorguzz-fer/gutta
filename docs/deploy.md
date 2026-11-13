@@ -2,10 +2,10 @@
 
 São dois recursos no mesmo projeto do Coolify. O site estático continua como está.
 
-| Recurso | O que é | Build | Domínio |
-|---|---|---|---|
-| Site estático (já existe) | página de espera e `/roadmap` | `Dockerfile` da raiz | gutta.tudomudou.com.br |
-| Plataforma (novo) | app Next.js, worker, Redis e Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
+| Recurso                   | O que é                               | Build                                                           | Domínio                    |
+| ------------------------- | ------------------------------------- | --------------------------------------------------------------- | -------------------------- |
+| Site estático (já existe) | página de espera e `/roadmap`         | `Dockerfile` da raiz                                            | gutta.tudomudou.com.br     |
+| Plataforma (novo)         | app Next.js, worker, Redis e Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
 
 ## Primeira vez
 
@@ -13,29 +13,30 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    Com a base em `/infra`, os caminhos relativos do compose (`..` do `web` e `./postgres` do `db`) valem igual no Coolify e na sua máquina.
 2. Defina as variáveis (aba Environment Variables). Gere as senhas com `openssl rand -base64 32`:
 
-   | Variável | Exemplo / observação |
-   |---|---|
-   | `APP_URL` | `https://app-gutta.tudomudou.com.br` (sem barra no fim) |
-   | `BETTER_AUTH_SECRET` | 32+ caracteres aleatórios |
-   | `POSTGRES_PASSWORD` | superusuário do Postgres (só para administração) |
-   | `GUTTA_OWNER_PASSWORD` | dono do schema; usado só pelas migrations |
-   | `GUTTA_APP_PASSWORD` | papel da aplicação (sem BYPASSRLS) |
-   | `RESEND_API_KEY` | sem ela, nenhum e-mail sai (confirmação de conta fica travada) |
-   | `MAIL_FROM` | remetente verificado no Resend |
-   | `LESSON_ORIGINS` | origens das aulas interativas, ex. `https://aula.alumine.com.br` |
-   | `ANTHROPIC_API_KEY` | chave da API da Anthropic para o tutor IA; sem ela o tutor fica desligado (ADR 0008) |
-   | `TUTOR_MODEL` | opcional; padrão `claude-opus-5-5` |
-   | `TUTOR_DAILY_LIMIT` | opcional; perguntas por aluno em 24 h (padrão 20; o admin muda em `/admin/tutor`) |
-   | `SEED_CATALOG` | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005 |
-   | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
-   | `LEGAL_CONTROLLER_NAME`, `LEGAL_CONTROLLER_DOCUMENT` | LGPD: razão social e CNPJ do controlador, mostrados na política (ADR 0009). Sem valor, aparece "a definir" |
-   | `DPO_NAME`, `DPO_EMAIL` | LGPD: encarregado de dados (art. 41). Preencha antes do piloto |
-   | `REDIS_PASSWORD` | senha do Redis da fila (ADR 0013). Gere com `openssl rand -hex 32`: só letras e números, porque ela vai dentro da URL de conexão |
-   | `QUEUE_PREFIX` | opcional; prefixo das chaves da fila (padrão `cognuss`) |
+   | Variável                                                                                   | Exemplo / observação                                                                                                                                                                                                                              |
+   | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `APP_URL`                                                                                  | `https://app-gutta.tudomudou.com.br` (sem barra no fim)                                                                                                                                                                                           |
+   | `BETTER_AUTH_SECRET`                                                                       | 32+ caracteres aleatórios                                                                                                                                                                                                                         |
+   | `POSTGRES_PASSWORD`                                                                        | superusuário do Postgres (só para administração)                                                                                                                                                                                                  |
+   | `GUTTA_OWNER_PASSWORD`                                                                     | dono do schema; usado só pelas migrations                                                                                                                                                                                                         |
+   | `GUTTA_APP_PASSWORD`                                                                       | papel da aplicação (sem BYPASSRLS)                                                                                                                                                                                                                |
+   | `RESEND_API_KEY`                                                                           | sem ela, nenhum e-mail sai (confirmação de conta fica travada)                                                                                                                                                                                    |
+   | `MAIL_FROM`                                                                                | remetente verificado no Resend                                                                                                                                                                                                                    |
+   | `LESSON_ORIGINS`                                                                           | origens das aulas interativas, ex. `https://aula.alumine.com.br`                                                                                                                                                                                  |
+   | `ANTHROPIC_API_KEY`                                                                        | chave da API da Anthropic para o tutor IA (web) e a leitura de cronograma (worker); sem ela os dois ficam indisponíveis para o aluno (ADR 0008; SPEC v2, DIS-05)                                                                                  |
+   | `TUTOR_MODEL`                                                                              | opcional; padrão `claude-opus-5-5`                                                                                                                                                                                                                |
+   | `AI_SCHEDULE_MODEL`, `AI_SCHEDULE_EFFORT`                                                  | opcionais; modelo e esforço da leitura de cronograma (padrão `claude-opus-5-5` e `medium`). O custo de cada leitura fica em `ai_usage`                                                                                                            |
+   | `TUTOR_DAILY_LIMIT`                                                                        | opcional; perguntas por aluno em 24 h (padrão 20; o admin muda em `/admin/tutor`)                                                                                                                                                                 |
+   | `SEED_CATALOG`                                                                             | opcional; `demo` carrega curso, disciplinas, módulos, questões e flashcards de demonstração (com selo), sem usuários. Ver ADR 0005                                                                                                                |
+   | `BOOTSTRAP_ADMIN_EMAILS`                                                                   | opcional; e-mails que viram admin no start (ver "Primeiro administrador")                                                                                                                                                                         |
+   | `LEGAL_CONTROLLER_NAME`, `LEGAL_CONTROLLER_DOCUMENT`                                       | LGPD: razão social e CNPJ do controlador, mostrados na política (ADR 0009). Sem valor, aparece "a definir"                                                                                                                                        |
+   | `DPO_NAME`, `DPO_EMAIL`                                                                    | LGPD: encarregado de dados (art. 41). Preencha antes do piloto                                                                                                                                                                                    |
+   | `REDIS_PASSWORD`                                                                           | senha do Redis da fila (ADR 0013). Gere com `openssl rand -hex 32`: só letras e números, porque ela vai dentro da URL de conexão                                                                                                                  |
+   | `QUEUE_PREFIX`                                                                             | opcional; prefixo das chaves da fila (padrão `cognuss`)                                                                                                                                                                                           |
    | `STORAGE_ENDPOINT`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY` | Cloudflare R2 (ADR 0012). Endpoint `https://<conta>.r2.cloudflarestorage.com`, bucket privado e uma chave restrita a ele. Sem elas, o envio de arquivos fica indisponível. **Arquivo real de aluno só depois do parecer jurídico** (SPEC v2, D06) |
-   | `STORAGE_REGION` | opcional; `auto` para o R2 |
-   | `PII_ENCRYPTION_KEY`, `PII_HASH_KEY` | cadastro da v2 (CPF cifrado; SPEC v2, CAD-10). Gere cada uma com `openssl rand -base64 32` e guarde no cofre: sem a de cifra o CPF salvo não volta a ser lido, e trocar a de resumo quebra a regra de um CPF por conta |
-   | `FEATURES_ON` | opcional e só fora de produção; liga módulos da v2 sem passar por `/admin/funcionalidades` |
+   | `STORAGE_REGION`                                                                           | opcional; `auto` para o R2                                                                                                                                                                                                                        |
+   | `PII_ENCRYPTION_KEY`, `PII_HASH_KEY`                                                       | cadastro da v2 (CPF cifrado; SPEC v2, CAD-10). Gere cada uma com `openssl rand -base64 32` e guarde no cofre: sem a de cifra o CPF salvo não volta a ser lido, e trocar a de resumo quebra a regra de um CPF por conta                            |
+   | `FEATURES_ON`                                                                              | opcional e só fora de produção; liga módulos da v2 sem passar por `/admin/funcionalidades`                                                                                                                                                        |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:

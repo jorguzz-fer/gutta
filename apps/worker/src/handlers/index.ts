@@ -1,10 +1,17 @@
+import type { ScheduleExtractor } from '@gutta/ai';
 import type { ObjectStorage } from '@gutta/storage';
 import type { Scanner } from '../files/scanner';
 import { filesProcess } from './files';
 import { eraseUserObjects } from './maintenance';
+import { extractSchedule } from './schedule';
 import type { Handler, Handlers } from './types';
 
-export type HandlerDeps = { storage: ObjectStorage | null; scanner: Scanner };
+export type HandlerDeps = {
+  storage: ObjectStorage | null;
+  scanner: Scanner;
+  /** Null: sem provedor de IA configurado; a importação falha com aviso para o aluno. */
+  scheduleExtractor: ScheduleExtractor | null;
+};
 
 function unavailable<T extends 'files.process'>(): Handler<T> {
   return {
@@ -26,6 +33,10 @@ export function createHandlers(deps: HandlerDeps): Handlers {
     'files.process': deps.storage
       ? filesProcess({ storage: deps.storage, scanner: deps.scanner })
       : unavailable(),
+    'ai.extract_schedule': extractSchedule({
+      storage: deps.storage,
+      extractor: deps.scheduleExtractor,
+    }),
     'maintenance.erase_user_objects': eraseUserObjects(deps.storage),
   };
 }

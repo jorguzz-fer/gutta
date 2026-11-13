@@ -108,3 +108,46 @@ export const EXT_BY_MIME: Record<string, string> = {
   'application/vnd.oasis.opendocument.text': 'odt',
   'application/vnd.oasis.opendocument.presentation': 'odp',
 };
+
+/** Extensão de planilha para o LibreOffice. */
+export const SHEET_EXT_BY_MIME: Record<string, string> = {
+  'application/vnd.ms-excel': 'xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+  'application/vnd.oasis.opendocument.spreadsheet': 'ods',
+};
+
+/**
+ * Texto de uma planilha: cada aba vira um CSV (UTF-8, separado por vírgula), com o nome da
+ * aba antes. O último campo do filtro (-1) pede todas as abas; versões antigas do LibreOffice
+ * exportam só a primeira.
+ */
+export async function sheetText(input: Buffer, ext: string, timeoutMs = 120_000): Promise<string> {
+  return withTempDir(async (dir) => {
+    const src = path.join(dir, `planilha.${ext}`);
+    await writeFile(src, input);
+    const out = path.join(dir, 'saida');
+    await run(
+      'soffice',
+      [
+        `-env:UserInstallation=file://${dir}/perfil`,
+        '--headless',
+        '--norestore',
+        '--nolockcheck',
+        '--convert-to',
+        'csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1',
+        '--outdir',
+        out,
+        src,
+      ],
+      { timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 },
+    );
+    const parts: string[] = [];
+    for (const name of (await readdir(out)).sort()) {
+      if (!name.endsWith('.csv')) continue;
+      const sheet = name.replace(/^planilha-?/, '').replace(/\.csv$/, '') || 'Planilha';
+      const csv = (await readFile(path.join(out, name), 'utf8')).replace(/^(,*\r?\n)+/gm, '');
+      if (csv.trim()) parts.push(`## Aba: ${sheet}\n${csv.trim()}`);
+    }
+    return parts.join('\n\n');
+  });
+}

@@ -4,6 +4,7 @@ import { keys, type ObjectStorage } from '@gutta/storage';
 import { classify } from '../files/detect';
 import type { Scanner } from '../files/scanner';
 import { EXT_BY_MIME, pdfPageCount, pdfText, pdfThumbnails, toPdf } from '../files/tools';
+import { releaseScheduleImports } from './schedule';
 import type { Handler } from './types';
 
 export type FileDeps = { storage: ObjectStorage; scanner: Scanner };
@@ -35,13 +36,21 @@ export function filesProcess(deps: FileDeps): Handler<'files.process'> {
       ) {
         return;
       }
+      // Estado final (pronto, falhou, quarentena) libera quem esperava pelo arquivo, na mesma
+      // transação: a importação de cronograma, por exemplo.
       const setStatus = (patch: Partial<typeof s.files.$inferInsert>) =>
-        withUser(ctx.db, userId, (tx) =>
-          tx
+        withUser(ctx.db, userId, async (tx) => {
+          await tx
             .update(s.files)
             .set(patch)
-            .where(and(eq(s.files.id, fileId), eq(s.files.ownerId, userId))),
-        );
+            .where(and(eq(s.files.id, fileId), eq(s.files.ownerId, userId)));
+          if (
+            patch.status === 'ready' ||
+            patch.status === 'failed' ||
+            patch.status === 'quarantined'
+          )
+            await releaseScheduleImports(tx, fileId, userId);
+        });
 
       try {
         const originalKey = keys.original(userId, fileId);
@@ -141,16 +150,17 @@ export function filesProcess(deps: FileDeps): Handler<'files.process'> {
       }
     },
     onDead: async ({ fileId, userId }, ctx) => {
-      await withUser(ctx.db, userId, (tx) =>
-        tx
+      await withUser(ctx.db, userId, async (tx) => {
+        await tx
           .update(s.files)
           .set({
             status: 'failed',
             error: 'Não foi possível processar o arquivo. Tente enviar de novo.',
             processedAt: new Date(),
           })
-          .where(and(eq(s.files.id, fileId), eq(s.files.ownerId, userId))),
-      );
+          .where(and(eq(s.files.id, fileId), eq(s.files.ownerId, userId)));
+        await releaseScheduleImports(tx, fileId, userId);
+      });
     },
   };
 }

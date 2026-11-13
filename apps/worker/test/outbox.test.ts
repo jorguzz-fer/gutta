@@ -13,7 +13,7 @@ import type { Handlers } from '../src/handlers/types';
 import { createHandlers } from '../src/handlers';
 import { NoScanner } from '../src/files/scanner';
 
-const base = () => createHandlers({ storage: null, scanner: new NoScanner() });
+const base = () => createHandlers({ storage: null, scanner: new NoScanner(), scheduleExtractor: null });
 
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
