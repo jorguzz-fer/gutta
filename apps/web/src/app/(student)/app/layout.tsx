@@ -8,6 +8,7 @@ import { acceptPolicyAction } from '@/features/privacy/actions';
 import { POLICY_VERSION } from '@/features/privacy/consent';
 import { featureEnabled } from '@/features/flags/service';
 import { unreadNotifications } from '@/features/notifications/service';
+import { SearchShortcut } from '@/components/layout/search-shortcut';
 import { getAccess, hasAnyRole, EDITORIAL_ROLES, requireStudent } from '@/lib/auth/session';
 
 const icon = 'size-5';
@@ -24,8 +25,10 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const { acceptedPolicy } = await getAccess(user.id);
   // Contador de avisos não lidos (LEM-18), só com o módulo ligado.
   const notices = (await featureEnabled('lembretes')) ? await unreadNotifications(user.id) : null;
+  const materials = await featureEnabled('materiais');
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
+      {materials ? <SearchShortcut /> : null}
       <header className="glass-bar sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:px-8">
           <div className="flex items-center gap-8">

@@ -456,3 +456,47 @@ export async function search(
     };
   });
 }
+
+/** Disciplinas do semestre com docentes e temas já cadastrados (listas do MAT-05). */
+export async function disciplinesForMaterials(userId: string) {
+  return withUser(db(), userId, async (tx) => {
+    const term = await currentTermId(tx, userId);
+    if (!term) return [];
+    const discs = await tx
+      .select({ id: s.enrolledDisciplines.id, name: s.enrolledDisciplines.name })
+      .from(s.enrolledDisciplines)
+      .where(
+        and(
+          eq(s.enrolledDisciplines.ownerId, userId),
+          eq(s.enrolledDisciplines.termId, term),
+          isNull(s.enrolledDisciplines.archivedAt),
+        ),
+      )
+      .orderBy(asc(s.enrolledDisciplines.createdAt));
+    const ids = discs.map((d) => d.id);
+    const teachers = ids.length
+      ? await tx
+          .select()
+          .from(s.disciplineTeachers)
+          .where(inArray(s.disciplineTeachers.disciplineId, ids))
+      : [];
+    const topics = ids.length
+      ? await tx
+          .select()
+          .from(s.disciplineTopics)
+          .where(inArray(s.disciplineTopics.disciplineId, ids))
+      : [];
+    return discs.map((d) => ({
+      id: d.id,
+      name: d.name,
+      teachers: teachers.filter((t) => t.disciplineId === d.id).map((t) => t.name),
+      topics: topics.filter((t) => t.disciplineId === d.id).map((t) => t.name),
+    }));
+  });
+}
+
+/** Um material, para a página dele. */
+export async function getMaterial(userId: string, id: string) {
+  await assertMaterialsEnabled();
+  return withUser(db(), userId, async (tx) => ({ material: await oneDto(tx, userId, id) }));
+}
