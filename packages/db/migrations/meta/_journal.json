@@ -225,6 +225,20 @@
       "when": 1794608490307,
       "tag": "0031_rls_calendario",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794610361570,
+      "tag": "0032_lembretes",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794610362599,
+      "tag": "0033_rls_lembretes",
+      "breakpoints": true
     }
   ]
 }

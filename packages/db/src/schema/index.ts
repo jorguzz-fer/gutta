@@ -11,3 +11,4 @@ export * from './files';
 export * from './academic';
 export * from './schedule';
 export * from './routine';
+export * from './notifications';
