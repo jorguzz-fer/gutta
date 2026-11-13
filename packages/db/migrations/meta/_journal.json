@@ -197,6 +197,20 @@
       "when": 1794605088027,
       "tag": "0027_rls_cronograma",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794606457486,
+      "tag": "0028_rotina",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794606458364,
+      "tag": "0029_rls_rotina",
+      "breakpoints": true
     }
   ]
 }
