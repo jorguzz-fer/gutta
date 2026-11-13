@@ -179,6 +179,12 @@ export async function exportData(userId: string) {
       aiUsage,
       routineBlocks,
       planningPreferences,
+      calendarEvents,
+      calendarEventExceptions,
+      reminders,
+      notifications,
+      notificationDeliveries,
+      notificationPreferences,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -233,6 +239,25 @@ export async function exportData(userId: string) {
       // Rotina semanal (SPEC v2, 5.3).
       () => tx.select().from(s.routineBlocks).where(eq(s.routineBlocks.ownerId, userId)),
       () => tx.select().from(s.planningPreferences).where(eq(s.planningPreferences.userId, userId)),
+      // Calendário, lembretes e avisos (SPEC v2, CAL e LEM).
+      () => tx.select().from(s.calendarEvents).where(eq(s.calendarEvents.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.calendarEventExceptions)
+          .where(eq(s.calendarEventExceptions.ownerId, userId)),
+      () => tx.select().from(s.reminders).where(eq(s.reminders.ownerId, userId)),
+      () => tx.select().from(s.notifications).where(eq(s.notifications.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.notificationDeliveries)
+          .where(eq(s.notificationDeliveries.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.notificationPreferences)
+          .where(eq(s.notificationPreferences.userId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -270,6 +295,12 @@ export async function exportData(userId: string) {
       aiUsage,
       routineBlocks,
       planningPreferences: planningPreferences[0] ?? null,
+      calendarEvents,
+      calendarEventExceptions,
+      reminders,
+      notifications,
+      notificationDeliveries,
+      notificationPreferences: notificationPreferences[0] ?? null,
     };
   });
 }

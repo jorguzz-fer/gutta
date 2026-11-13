@@ -1,4 +1,4 @@
-import { BookOpen, Home, Layers, ListChecks, User } from 'lucide-react';
+import { Bell, BookOpen, Home, Layers, ListChecks, User } from 'lucide-react';
 import Link from 'next/link';
 import { Wordmark } from '@/components/shared/logo';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
@@ -6,6 +6,8 @@ import { BottomNav, TopNav, type NavItem } from '@/components/layout/nav-links';
 import { Button } from '@/components/ui/button';
 import { acceptPolicyAction } from '@/features/privacy/actions';
 import { POLICY_VERSION } from '@/features/privacy/consent';
+import { featureEnabled } from '@/features/flags/service';
+import { unreadNotifications } from '@/features/notifications/service';
 import { getAccess, hasAnyRole, EDITORIAL_ROLES, requireStudent } from '@/lib/auth/session';
 
 const icon = 'size-5';
@@ -20,6 +22,8 @@ const items: NavItem[] = [
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const user = await requireStudent('/app');
   const { acceptedPolicy } = await getAccess(user.id);
+  // Contador de avisos não lidos (LEM-18), só com o módulo ligado.
+  const notices = (await featureEnabled('lembretes')) ? await unreadNotifications(user.id) : null;
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
       <header className="glass-bar sticky top-0 z-20 border-b border-line bg-bg/95 backdrop-blur">
@@ -31,6 +35,27 @@ export default async function StudentLayout({ children }: { children: React.Reac
             <TopNav items={items.filter((i) => i.href !== '/app/perfil')} />
           </div>
           <div className="flex items-center gap-2">
+            {notices !== null ? (
+              <Link
+                href="/app/avisos"
+                aria-label={
+                  notices
+                    ? `Avisos, ${notices} ${notices === 1 ? 'não lido' : 'não lidos'}`
+                    : 'Avisos'
+                }
+                className="relative grid size-11 place-items-center rounded-[var(--radius)] no-underline hover:bg-surface-2"
+              >
+                <Bell className="size-5" aria-hidden />
+                {notices ? (
+                  <span
+                    aria-hidden
+                    className="absolute top-1 right-1 grid min-w-5 place-items-center rounded-full bg-accent px-1 text-xs font-bold text-accent-ink"
+                  >
+                    {notices > 9 ? '9+' : notices}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
             {hasAnyRole(user, ['teacher', 'admin']) ? (
               <Link href="/professor" className="hidden text-sm md:inline">
                 Professor

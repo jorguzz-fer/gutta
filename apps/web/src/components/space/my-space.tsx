@@ -5,6 +5,7 @@ import { buttonClass } from '@/components/ui/button';
 import { Alert, Card } from '@/components/ui/card';
 import type { Space } from '@/features/space/service';
 import { cn } from '@/lib/cn';
+import { TodayTasks } from './today-tasks';
 import { categoryClasses, type CategoryColor } from '@/styles/categories';
 
 const hours = (m: number) => {
@@ -35,7 +36,12 @@ const IMPORT_LABEL: Record<string, string> = {
   failed: 'Cronograma não lido',
 };
 
-export type SpaceLinks = { rotina: boolean; agenda: boolean; disciplinas: boolean };
+export type SpaceLinks = {
+  rotina: boolean;
+  agenda: boolean;
+  disciplinas: boolean;
+  lembretes: boolean;
+};
 
 /*
   Meu Espaço, versão inicial (SPEC v2, 5.5; tela T10). A ordem segue a tela: cabeçalho com
@@ -99,6 +105,11 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
         {links.disciplinas ? (
           <Link href="/app/minhas-disciplinas" className={buttonClass('secondary', 'md')}>
             Minhas disciplinas
+          </Link>
+        ) : null}
+        {links.lembretes ? (
+          <Link href="/app/lembretes" className={buttonClass('secondary', 'md')}>
+            Lembretes
           </Link>
         ) : null}
       </nav>
@@ -252,8 +263,17 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
               <Link href="/app/rotina">marque na rotina os horários em que quer estudar</Link>.
             </p>
           ) : null}
-          <h3 className="text-base font-semibold">Tarefas de hoje</h3>
-          <p className="text-sm text-muted">Nenhuma tarefa para hoje.</p>
+          {space.tasks.length ? (
+            <TodayTasks tasks={space.tasks} />
+          ) : (
+            <>
+              <h3 className="text-base font-semibold">Tarefas de hoje</h3>
+              <p className="text-sm text-muted">
+                Nenhuma tarefa para hoje.{' '}
+                {links.lembretes ? <Link href="/app/lembretes">Criar um lembrete</Link> : null}
+              </p>
+            </>
+          )}
         </Card>
 
         <Card aria-labelledby="proximos" className="grid content-start gap-3">

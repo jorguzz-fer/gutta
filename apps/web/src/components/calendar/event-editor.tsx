@@ -188,7 +188,11 @@ export function EventEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (target.mode === 'edit' && target.item.source === 'routine') {
+  if (
+    target.mode === 'edit' &&
+    (target.item.source === 'routine' || target.item.source === 'reminder')
+  ) {
+    const routine = target.item.source === 'routine';
     return (
       <dialog
         ref={ref}
@@ -200,9 +204,13 @@ export function EventEditor({
           <h2 id="ev-titulo" className="text-xl font-semibold">
             {target.item.title}
           </h2>
-          <p className="text-sm text-muted">Faz parte da sua rotina semanal.</p>
+          <p className="text-sm text-muted">
+            {routine ? 'Faz parte da sua rotina semanal.' : 'Lembrete (não ocupa horário).'}
+          </p>
           <div className="flex flex-wrap gap-2">
-            <Link href="/app/rotina">Editar na rotina</Link>
+            <Link href={routine ? '/app/rotina' : '/app/lembretes'}>
+              {routine ? 'Editar na rotina' : 'Abrir em Meus lembretes'}
+            </Link>
             <Button type="button" variant="ghost" onClick={onClose}>
               Fechar
             </Button>

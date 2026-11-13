@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { currentDisciplines } from '@/features/academics/service';
 import { agendaOccurrences, toItemDto, userTimezone } from '@/features/agenda/service';
 import { loadRoutine } from '@/features/routine/service';
+import { todayReminders } from '@/features/reminders/service';
 import { MAIN_GOALS } from '@/features/signup/steps';
 
 // Meu Espaço, versão inicial (SPEC v2, ESP-01 a ESP-06, ESP-09 e ESP-13). Tudo vem de dados
@@ -38,6 +39,8 @@ export type Space = {
     sleepDailyMinutes: number | null;
   };
   upcoming: agenda.AgendaItemDto[];
+  /** Lembretes com data de hoje (ESP-03). */
+  tasks: { id: string; title: string; start: string | null; done: boolean }[];
 };
 
 export async function loadSpace(userId: string): Promise<Space> {
@@ -130,6 +133,12 @@ export async function loadSpace(userId: string): Promise<Space> {
       }),
       routine: { hasBlocks, summary: r.summary, goal: r.goal, sleepDailyMinutes },
       upcoming: upcoming.map((o) => toItemDto(o, tz)),
+      tasks: (await todayReminders(tx, userId, tz, today)).map((r) => ({
+        id: r.id,
+        title: r.title,
+        start: r.start,
+        done: r.done,
+      })),
     };
   });
 }

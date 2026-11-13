@@ -99,6 +99,9 @@ export default defineConfig({
         WORKER_RELAY_INTERVAL_MS: '300',
         SCANNER: 'none',
         AI_PROVIDER: 'fake',
+        // Avisos por e-mail: mesmo arquivo de saída que os testes leem.
+        MAIL_OUTBOX_FILE: OUTBOX,
+        WORKER_NOTIFY_INTERVAL_MS: '1000',
         ...STORAGE_ENV,
       },
     },

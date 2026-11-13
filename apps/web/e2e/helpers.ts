@@ -34,6 +34,24 @@ export async function lastMailLink(to: string): Promise<string> {
   throw new Error(`Nenhum e-mail para ${to}`);
 }
 
+/** Espera um e-mail para `to` com o assunto dado (o worker de avisos grava no mesmo arquivo). */
+export async function waitMail(to: string, subject: string, timeoutMs = 20_000) {
+  const until = Date.now() + timeoutMs;
+  while (Date.now() < until) {
+    if (existsSync(OUTBOX)) {
+      const m = readFileSync(OUTBOX, 'utf8')
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as { to: string; subject: string; text: string })
+        .find((x) => x.to === to && x.subject === subject);
+      if (m) return m;
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`Nenhum e-mail "${subject}" para ${to}`);
+}
+
 export async function signUp(page: Page, name: string, email: string) {
   await page.goto('/cadastro');
   await page.getByLabel('Como quer ser chamado(a)').fill(name);
