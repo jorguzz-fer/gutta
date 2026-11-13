@@ -111,3 +111,26 @@ export async function becomeAdmin(page: Page, name = 'Carla Admin') {
   await expect(page.getByText('Verificação em duas etapas ativa.')).toBeVisible();
   return email;
 }
+
+/** Liga só os módulos da v2 pedidos (o resto fica desligado). O servidor do E2E não guarda cache. */
+export async function setFeatures(on: string[]) {
+  const value = Object.fromEntries(on.map((k) => [k, true]));
+  await ownerDb()
+    .insert(s.appSettings)
+    .values({ key: 'features', value })
+    .onConflictDoUpdate({ target: s.appSettings.key, set: { value } });
+}
+
+/** CPF válido gerado a partir de um número (não pertence a ninguém de propósito). */
+export function fakeCpf(seed = Math.floor(Math.random() * 900_000_000)) {
+  const base = String(100_000_000 + seed)
+    .slice(-9)
+    .split('')
+    .map(Number);
+  const dv = (arr: number[]) => {
+    const r = (arr.reduce((acc, n, i) => acc + n * (arr.length + 1 - i), 0) * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  const d1 = dv(base);
+  return [...base, d1, dv([...base, d1])].join('');
+}

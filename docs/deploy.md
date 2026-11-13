@@ -34,6 +34,7 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `QUEUE_PREFIX` | opcional; prefixo das chaves da fila (padrão `cognuss`) |
    | `STORAGE_ENDPOINT`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY` | Cloudflare R2 (ADR 0012). Endpoint `https://<conta>.r2.cloudflarestorage.com`, bucket privado e uma chave restrita a ele. Sem elas, o envio de arquivos fica indisponível. **Arquivo real de aluno só depois do parecer jurídico** (SPEC v2, D06) |
    | `STORAGE_REGION` | opcional; `auto` para o R2 |
+   | `PII_ENCRYPTION_KEY`, `PII_HASH_KEY` | cadastro da v2 (CPF cifrado; SPEC v2, CAD-10). Gere cada uma com `openssl rand -base64 32` e guarde no cofre: sem a de cifra o CPF salvo não volta a ser lido, e trocar a de resumo quebra a regra de um CPF por conta |
    | `FEATURES_ON` | opcional e só fora de produção; liga módulos da v2 sem passar por `/admin/funcionalidades` |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.

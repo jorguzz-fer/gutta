@@ -5,6 +5,7 @@ import { LegalPage } from '@/components/shared/legal-page';
 import { currentRetention } from '@/features/privacy/admin';
 import { RESPONSE_DAYS } from '@/features/privacy/service';
 import { legalInfo } from '@/lib/legal';
+import { featureEnabled } from '@/features/flags/service';
 
 export const metadata: Metadata = { title: 'Política de privacidade' };
 
@@ -19,6 +20,9 @@ export default async function PrivacyPolicyPage() {
   await connection();
   const legal = legalInfo();
   const r = await currentRetention();
+  // O cadastro da v2 coleta CPF e telefone (SPEC v2, D04); a política só fala deles quando
+  // ele está ligado, para descrever o que de fato é coletado.
+  const signupV2 = await featureEnabled('cadastro');
   const lessonHosts = (process.env.LESSON_ORIGINS ?? '')
     .split(/[\s,]+/)
     .filter(Boolean)
@@ -43,6 +47,12 @@ export default async function PrivacyPolicyPage() {
       <h2>O que coletamos</h2>
       <ul>
         <li>Conta: nome, e-mail e senha (guardamos só uma versão cifrada, nunca a senha).</li>
+        {signupV2 ? (
+          <li>
+            Dados pessoais: nome completo, CPF e telefone. O CPF fica guardado cifrado e só é usado
+            para emitir nota fiscal; o telefone serve para falar com você sobre a sua conta.
+          </li>
+        ) : null}
         <li>
           Perfil acadêmico: curso, instituição, semestre, disciplinas e datas de prova que você
           informar.
@@ -73,6 +83,21 @@ export default async function PrivacyPolicyPage() {
             <td>Conta, login, segurança e comunicação essencial (confirmação, senha)</td>
             <td>Execução do contrato com você (V)</td>
           </tr>
+          {signupV2 ? (
+            <>
+              <tr>
+                <td>Emitir nota fiscal (CPF)</td>
+                <td>
+                  Cumprimento de obrigação legal ou regulatória (II), a confirmar na revisão
+                  jurídica
+                </td>
+              </tr>
+              <tr>
+                <td>Falar com você sobre a sua conta (telefone)</td>
+                <td>Execução do contrato com você (V)</td>
+              </tr>
+            </>
+          ) : null}
           <tr>
             <td>Personalizar o estudo: próximo passo, revisões, domínio dos assuntos</td>
             <td>Execução do contrato com você (V)</td>

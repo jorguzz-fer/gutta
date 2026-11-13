@@ -16,6 +16,11 @@ const schema = z.object({
   REDIS_URL: z.string().optional(),
   // Liga módulos da v2 sem passar pelo admin (desenvolvimento e E2E): lista ou "all".
   FEATURES_ON: z.string().optional(),
+  // Validade do cache das chaves de funcionalidade. O E2E usa 0 para ligar e desligar na hora.
+  FLAGS_CACHE_MS: z.coerce.number().int().min(0).default(30_000),
+  // Chaves para dado pessoal cifrado (CPF; SPEC v2, CAD-10). 32 bytes em base64 cada.
+  PII_ENCRYPTION_KEY: z.string().optional(),
+  PII_HASH_KEY: z.string().optional(),
   // Tutor IA. Sem chave, o tutor aparece como indisponível (a não ser com AI_PROVIDER=fake).
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),

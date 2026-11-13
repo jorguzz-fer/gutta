@@ -2,7 +2,7 @@ import { getSessionCookie } from 'better-auth/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildCsp } from './lib/csp';
 
-const PROTECTED = ['/app', '/admin', '/professor', '/onboarding', '/seguranca'];
+const PROTECTED = ['/app', '/admin', '/professor', '/onboarding', '/comecar', '/seguranca'];
 
 /*
   Roda em toda requisição de página e API:

@@ -90,9 +90,15 @@ export function safeNext(next: string | null | undefined, fallback = '/app') {
   return next;
 }
 
-/** Aluno com onboarding concluído. Sem perfil acadêmico, vai para /onboarding. */
+/**
+ * Aluno com cadastro concluído. Sem ele, vai para o cadastro da v2 (/comecar) quando a chave
+ * "cadastro" está ligada, ou para o onboarding do MVP.
+ */
 export async function requireStudent(next = '/app'): Promise<CurrentUser> {
   const user = await requireUser(next);
-  if (!(await getAccess(user.id)).onboarded) redirect('/onboarding');
+  if (!(await getAccess(user.id)).onboarded) {
+    const { featureEnabled } = await import('@/features/flags/service');
+    redirect((await featureEnabled('cadastro')) ? '/comecar' : '/onboarding');
+  }
   return user;
 }

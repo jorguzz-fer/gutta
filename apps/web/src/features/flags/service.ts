@@ -12,9 +12,9 @@ import { FEATURE_KEYS, resolveFlags, type FeatureKey, type Flags } from './catal
 const SETTINGS_KEY = 'features';
 const CACHE_KEY = 'flags:';
 
-/** Estado das chaves, igual para todos. Cache de 30 s por processo (ADR 0006). */
+/** Estado das chaves, igual para todos. Cache curto por processo (30 s; ADR 0006). */
 export function flags(): Promise<Flags> {
-  return memo(CACHE_KEY, 30_000, async () => {
+  return memo(CACHE_KEY, env().FLAGS_CACHE_MS, async () => {
     const row = await withAnonymous(db(), (tx) =>
       tx.query.appSettings.findFirst({ where: eq(s.appSettings.key, SETTINGS_KEY) }),
     );

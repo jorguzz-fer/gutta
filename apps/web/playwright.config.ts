@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -63,6 +64,11 @@ export default defineConfig({
       LESSON_ORIGINS: 'https://aula.alumine.com.br',
       // Tutor IA com o provedor de teste: sem chave, sem rede, resposta determinística.
       AI_PROVIDER: 'fake',
+      // Chaves de funcionalidade sem cache: cada teste liga e desliga módulos da v2 na hora.
+      FLAGS_CACHE_MS: '0',
+      // CPF cifrado do cadastro da v2: chaves novas a cada execução.
+      PII_ENCRYPTION_KEY: process.env.PII_ENCRYPTION_KEY || randomBytes(32).toString('base64'),
+      PII_HASH_KEY: process.env.PII_HASH_KEY || randomBytes(32).toString('base64'),
     },
   },
 });

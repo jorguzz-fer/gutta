@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, eq, isNull, schema as s, withUser, inSequence } from '@gutta/db';
+import { and, asc, eq, isNull, schema as s, sql, withUser, inSequence } from '@gutta/db';
 import { db } from '@/lib/db';
 
 export type OnboardingData = Awaited<ReturnType<typeof loadOnboardingData>>;
@@ -13,7 +13,14 @@ export async function loadOnboardingData(userId: string) {
           tx
             .select({ id: s.courses.id, name: s.courses.name, isDemo: s.courses.isDemo })
             .from(s.courses)
-            .where(eq(s.courses.active, true))
+            // O onboarding do MVP só oferece curso com disciplina no catálogo; os demais
+            // cursos da saúde entram pelo cadastro da v2.
+            .where(
+              and(
+                eq(s.courses.active, true),
+                sql`exists (select 1 from disciplines d where d.course_id = ${s.courses.id} and d.active)`,
+              ),
+            )
             .orderBy(asc(s.courses.name)),
         () =>
           tx

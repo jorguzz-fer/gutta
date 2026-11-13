@@ -4,10 +4,13 @@ import { Wordmark } from '@/components/shared/logo';
 import { AcademicForm } from '@/components/onboarding/academic-form';
 import { loadOnboardingData } from '@/features/onboarding/data';
 import { requireUser } from '@/lib/auth/session';
+import { featureEnabled } from '@/features/flags/service';
 
 export const metadata: Metadata = { title: 'Primeiros passos' };
 
 export default async function OnboardingPage() {
+  // Com o cadastro da v2 ligado, o onboarding do MVP não é mais usado.
+  if (await featureEnabled('cadastro')) redirect('/comecar');
   const user = await requireUser('/onboarding');
   const data = await loadOnboardingData(user.id);
   if (data.profile?.onboardingCompletedAt) redirect('/app');
