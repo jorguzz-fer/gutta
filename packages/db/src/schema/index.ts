@@ -12,3 +12,4 @@ export * from './academic';
 export * from './schedule';
 export * from './routine';
 export * from './notifications';
+export * from './attendance';

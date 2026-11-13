@@ -239,6 +239,20 @@
       "when": 1794610362599,
       "tag": "0033_rls_lembretes",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794611380391,
+      "tag": "0034_faltas",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794611381396,
+      "tag": "0035_rls_faltas",
+      "breakpoints": true
     }
   ]
 }
