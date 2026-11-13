@@ -127,6 +127,20 @@
       "when": 1794601673966,
       "tag": "0017_rls_outbox",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794602785804,
+      "tag": "0018_arquivos",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794602786625,
+      "tag": "0019_rls_arquivos",
+      "breakpoints": true
     }
   ]
 }
