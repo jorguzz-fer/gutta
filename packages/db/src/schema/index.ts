@@ -13,3 +13,4 @@ export * from './schedule';
 export * from './routine';
 export * from './notifications';
 export * from './attendance';
+export * from './materials';

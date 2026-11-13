@@ -1,4 +1,4 @@
-import { pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { customType, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Timestamps sempre em UTC (timestamptz). A apresentação usa o fuso do aluno.
 export const createdAt = () =>
@@ -28,3 +28,6 @@ export const contentStatus = pgEnum('content_status', [
   'published',
   'archived',
 ]);
+
+/** Vetor de busca do Postgres (ADR 0014). Sempre coluna gerada, com a configuração cognuss_pt. */
+export const tsvector = customType<{ data: string }>({ dataType: () => 'tsvector' });

@@ -13,7 +13,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { createdAt, pk, updatedAt } from './_shared';
+import { createdAt, pk, tsvector, updatedAt } from './_shared';
 import { authUsers } from './auth';
 
 // Arquivos enviados pelo aluno (ADR 0012; SPEC v2, 7.4). O conteúdo fica no bucket, na chave
@@ -76,7 +76,15 @@ export const filePages = pgTable(
     page: integer('page').notNull(),
     text: text('text').notNull().default(''),
     hasThumbnail: boolean('has_thumbnail').notNull().default(false),
+    // Busca por palavra no conteúdo (ADR 0014), em português e sem acento.
+    search: tsvector('search').generatedAlwaysAs(
+      sql`to_tsvector('cognuss_pt'::regconfig, coalesce(text, ''))`,
+    ),
     createdAt: createdAt(),
   },
-  (t) => [primaryKey({ columns: [t.fileId, t.page] }), index('file_pages_owner_idx').on(t.ownerId)],
+  (t) => [
+    primaryKey({ columns: [t.fileId, t.page] }),
+    index('file_pages_owner_idx').on(t.ownerId),
+    index('file_pages_search_idx').using('gin', t.search),
+  ],
 );

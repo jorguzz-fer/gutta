@@ -267,6 +267,20 @@
       "when": 1794611979841,
       "tag": "0037_rls_notas",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794613190973,
+      "tag": "0038_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794613191977,
+      "tag": "0039_rls_materiais",
+      "breakpoints": true
     }
   ]
 }

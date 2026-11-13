@@ -60,6 +60,12 @@ async function main() {
     try {
       const n = await pruneOutbox(db, cfg.OUTBOX_RETENTION_DAYS);
       if (n > 0) logger.info('outbox.pruned', { rows: n });
+      // Lixeira do material de estudo: 30 dias (MAT-21).
+      const purged = await db.transaction((tx) =>
+        tx.execute<{ n: number }>(sql`select materials_purge(30) as n`),
+      );
+      const m = Number(purged.rows[0]?.n ?? 0);
+      if (m > 0) logger.info('materials.purged', { rows: m });
     } catch (err) {
       logger.error('outbox.prune_failed', { error: String(err) });
     }
