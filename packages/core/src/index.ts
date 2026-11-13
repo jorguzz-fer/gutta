@@ -12,3 +12,4 @@ export * from './routine';
 export * from './tone';
 export * from './notify';
 export * from './attendance';
+export * from './grades';
