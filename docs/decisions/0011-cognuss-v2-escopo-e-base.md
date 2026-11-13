@@ -26,11 +26,11 @@ Opção 3.
 - Enquanto o roadmap público não for atualizado, em conflito de escopo vale a SPEC v2. Isso substitui a regra do ADR 0004. `public/` só muda a pedido.
 - O que o MVP construiu é a fundação da v2 (SPEC v2, 7.1). Onboarding, painel "Hoje", `student_disciplines` e `exam_dates` são substituídos; o catálogo editorial vira o acervo de material complementar.
 - Cada componente novo de infraestrutura (armazenamento, fila, busca, anotações, notificações, offline, áudio, contrato) ganha um ADR próprio, do 0012 ao 0019, antes de ser construído.
-- Nada da v2 começa antes de fecharem as decisões D01 a D07 da SPEC v2.
+- Nada da v2 começa antes de fecharem as decisões que bloqueiam o início na SPEC v2 (seção 14). Em 13/11/2026 o Fernando fechou D03, D04, D05 e D07; faltam D01, D02 e D06.
 
 ## Consequências
 
-- Os ADRs 0001, 0002, 0003, 0005, 0006, 0008 e 0009 seguem valendo. O 0004 fica substituído neste ponto quando este ADR for aceito. O 0007 e o 0010 dependem da decisão D03 (identidade visual).
+- Os ADRs 0001, 0002, 0003, 0005, 0006, 0008 e 0009 seguem valendo. O 0004 fica substituído neste ponto quando este ADR for aceito. O 0007 e o 0010 seguem valendo: o app continua escuro e vermelho (decisão D03, Fernando, 13/11/2026). O recorte de um curso só, do 0004, cai: a v2 atende qualquer curso da saúde (D05).
 - O repositório ganha um processo `worker`, Redis e um bucket de arquivos. A operação fica maior: backup e exclusão LGPD passam a cobrir arquivos.
 - O custo por aluno deixa de ser só o do tutor: extração, geração e busca usam IA. Precisa ser medido antes de fixar limites.
 - O documento de origem é a Parte I. Menu principal, simulados e outras áreas ficam abertos até a Parte II.

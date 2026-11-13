@@ -1,6 +1,6 @@
 # SPEC DE PRODUTO E ENGENHARIA: Cognuss v2
 
-- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026.
+- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. Decisões D03, D04, D05 e D07 registradas no mesmo dia (seção 14.1).
 - **Status:** proposta. Só vira fonte de verdade depois da aprovação do Fernando, do Dr. Hugo e do Dr. Rafael e do fechamento das decisões da seção 14.
 - **Documento de origem:** _COGNUSS: Proposta de Interface e Especificação Funcional. Plataforma de Apoio ao Estudante de Graduação. Parte I_ (Dr. Hugo e Dr. Rafael, 12/11/2026, 56 páginas, 42 figuras). O arquivo `.doc` original não está no repositório (8 MB); as telas foram extraídas para `docs/spec/cognuss-v2/telas/` (Anexo A).
 - **Relação com a SPEC v1:** a v1 (`SPEC_Plataforma_Integrada_Estudantes_Saude_v1.md`) descreve o MVP Gutta, já construído. Esta v2 muda o centro do produto e passa a valer para **escopo e produto**. A v1 e o `Engineering_Blueprint.md` continuam valendo para **padrão de engenharia** (RLS, idempotência, testes, definição de pronto).
@@ -74,6 +74,8 @@ Horas estudadas **não** viram métrica de sucesso nem meta de produto (P2). Ind
 ## 2. Escopo
 
 ### 2.1 Dentro desta spec (Parte I do documento)
+
+**Público:** alunos de qualquer curso de graduação da área da saúde (decisão D05). A disciplina é cadastrada pelo próprio aluno, então nada depende de a plataforma ter conteúdo do curso dele. O material complementar (AJU-07) só aparece onde o acervo Cognuss tiver conteúdo revisado.
 
 Cadastro inicial, disciplinas e cronogramas, rotina semanal (Meu Tempo), motor Equilíbrio, Meu Espaço e o ambiente da disciplina com nove módulos: Acompanhar Aula (com Áudio Inteligente), Calendário, Material de Estudo, Alertas e Lembretes, Faltas, Notas, Calculadora de Média Final e Ajuda Cognuss.
 
@@ -189,8 +191,8 @@ A conta (e-mail, senha, aceite dos termos, confirmação do e-mail) continua sen
 
 | ID | Requisito | Pri. |
 |---|---|---|
-| CAD-01 | Dados pessoais: nome completo e e-mail (vem da conta). Telefone com DDI. CPF aparece como obrigatório em T02. **[PEND D04]**: a recomendação é não pedir CPF enquanto não houver finalidade (LGPD, necessidade) e deixar o telefone opcional até o aluno ligar o WhatsApp. | E |
-| CAD-02 | Perfil acadêmico: curso de graduação, semestre, instituição, campus (opcional), turma (opcional, texto livre como "XIIA"). | E |
+| CAD-01 | Dados pessoais: nome completo, e-mail (vem da conta), **CPF obrigatório** (decisão D04) e telefone com DDI. O CPF é validado pelos dígitos verificadores e é único: um CPF, uma conta. O telefone é opcional até o aluno ligar o WhatsApp **[PEND D04]**: falta confirmar se ele também é obrigatório. | E |
+| CAD-02 | Perfil acadêmico: curso de graduação, semestre, instituição, campus (opcional), turma (opcional, texto livre como "XIIA"). O curso vem de uma lista de cursos da saúde mantida pelo admin, com a opção "outro" (decisão D05). | E |
 | CAD-03 | Objetivo principal, escolha única: reforçar disciplinas, preparar-me para provas, organizar minha rotina, desenvolver meu currículo. Editável depois no Meu Espaço ("Alterar objetivo"). | E |
 | CAD-04 | Passo de disciplinas: ver DIS-01 a DIS-06. Exige ao menos uma disciplina para continuar. | E |
 | CAD-05 | Passo de rotina: ver ROT. O aluno pode avançar sem atingir a meta de horas. | E |
@@ -198,6 +200,7 @@ A conta (e-mail, senha, aceite dos termos, confirmação do e-mail) continua sen
 | CAD-07 | O cadastro é retomável: sair no meio e voltar continua de onde parou. Repetir um passo não duplica dados. **[ENG]** | E |
 | CAD-08 | Tudo o que foi informado é editável depois, em Perfil e em Minhas Disciplinas. | E |
 | CAD-09 | Indicador de etapas com a etapa atual, as concluídas e "Voltar" sem perda de dados. | E |
+| CAD-10 | Proteção do CPF **[ENG]**: guardado cifrado, com um resumo com chave só para garantir a unicidade; mostrado mascarado (`***.***.***-00`); fora de registros, eventos, fila e de qualquer contexto de IA; lido só pelo dono e, com auditoria, pelo admin; incluído na exportação e apagado na exclusão da conta. A tela diz para que o CPF é usado. | E |
 
 **Aceite:** um aluno novo chega ao Meu Espaço com as disciplinas, os eventos confirmados do cronograma e a rotina visíveis; se pulou cronograma ou rotina, o Meu Espaço mostra o que falta, sem bloquear.
 
@@ -706,7 +709,7 @@ A v2 continua sendo o monólito modular do ADR 0001, sobre a mesma base de códi
 | Banco de questões, sessão, tentativa com chave idempotente, correção por trigger | Recebe as questões geradas a partir do material do aluno (privadas, do dono). |
 | Catálogo editorial (cursos, disciplinas, assuntos, módulos, questões publicadas) e fluxo de publicação | Vira o **acervo Cognuss**, fonte do material complementar (AJU-07) e dos acessos rápidos. |
 | Admin, auditoria, eventos de produto, métricas | Igual, com eventos novos e visão de custo de IA e de armazenamento. |
-| Design system (tokens, componentes base), E2E com axe, teste de carga, CI | Igual. A identidade visual depende de D03. |
+| Design system (tokens, componentes base), E2E com axe, teste de carga, CI | Igual. A identidade visual continua a do app: tema escuro e vermelho (decisão D03; ADR 0007 e 0010). |
 | `MailProvider` | Vira um dos canais do motor de notificações (7.9). |
 | Onboarding (ONB-01), painel "Hoje", `student_disciplines`, `exam_dates` | **Substituídos** por CAD, Meu Espaço, `enrolled_disciplines` e `assessments`. Migração na Fase 1. |
 | Turmas e painel do professor | Ficam como estão, fora desta entrega (D16). |
@@ -824,14 +827,15 @@ Recorrência: regra simples (diária, semanal, mensal, datas específicas) com t
 | Motivo de uma sessão | Códigos de motivo do motor | Uma frase | Pode ser texto fixo por código; a IA é opcional. |
 
 **Regras de engenharia:**
-- Tudo passa pelo `AIProvider`; nenhuma chamada direta a provedor fora dele. Modelo por tarefa definido em configuração (D07).
+- Tudo passa pelo `AIProvider`; nenhuma chamada direta a provedor fora dele. Modelo por tarefa definido em configuração. O provedor continua o do MVP; transcrição, voz e vetores de busca são escolhidos na fase de cada um (D07).
 - Saída sempre em formato validado por esquema; saída inválida é refeita ou descartada, nunca mostrada.
 - O conteúdo dos arquivos entra como **dado**, em bloco separado das instruções. Um arquivo que diga "ignore as regras" é tratado como texto (IA-9).
 - Recuperação de trechos roda dentro de `withUser()`: a busca por conceito nunca enxerga material de outro aluno.
-- Cada chamada grava modelo, tokens, custo e recurso em `ai_usage`. Cota por aluno e por recurso; o admin vê e ajusta.
+- Cada chamada grava modelo, tokens, custo e recurso em `ai_usage`, por aluno. O mecanismo de cota por aluno e por recurso existe desde o início, mas **fica sem teto durante o período de QA** (decisão D07). Os tetos são definidos depois, com o consumo medido.
+- Rede de proteção enquanto não há teto **[ENG]**: o admin vê o gasto total e por recurso, recebe alerta ao passar de um valor configurável e pode desligar cada recurso de IA na hora. Alerta não bloqueia aluno; serve para um defeito não gastar sem ninguém ver.
 - Trabalhos longos (gerar, extrair) rodam na fila, com estado visível e cancelamento.
 - A bateria de avaliação do tutor ganha casos novos: fidelidade ao material, citação de página, recusa do que não está no material, injeção por documento. Roda antes de abrir cada recurso e a cada troca de modelo ou de instrução.
-- O custo por aluno é desconhecido hoje. Medir na Fase 0 com documentos reais antes de fixar cotas (D07, D18).
+- O custo por aluno é desconhecido hoje. Ele é medido durante o QA, e os tetos saem desses números (D07, D18).
 
 ### 7.8 Anotações e sincronização
 
@@ -877,7 +881,7 @@ Modelo lógico. Toda tabela abaixo tem `id uuid`, `owner_id` (o aluno), `created
 
 | Tabela | Campos essenciais | Regras |
 |---|---|---|
-| `student_profiles` (estender) | `phone?`, `campus?`, `class_group?`, `main_goal`, `onboarding_step` | CPF só se D04 decidir. |
+| `student_profiles` (estender) | `cpf_encrypted`, `cpf_hash` (único), `phone?`, `campus?`, `class_group?`, `main_goal`, `onboarding_step` | CPF obrigatório (D04), nunca em claro no banco (CAD-10). |
 | `student_terms` | `label` ("2026.2"), `starts_on`, `ends_on`, `is_current` | Um atual por aluno. |
 | `enrolled_disciplines` | `term_id`, `name`, `short_name`, `color`, `icon`, `catalog_discipline_id?`, `workload_hours?`, `archived_at?` | Substitui `student_disciplines`. |
 | `discipline_teachers` | `discipline_id`, `name` | Texto livre; alimenta as listas de seleção. |
@@ -991,6 +995,7 @@ Simulações de nota e resumos de falta são cálculo puro: a mesma função de 
 
 | Tema | O que muda |
 |---|---|
+| CPF | Obrigatório por decisão de produto (D04). A política pública e o RIPD precisam declarar a finalidade e a base legal; sem isso o campo não vai para produção. Proteções em CAD-10. |
 | Dados novos | Telefone, rotina pessoal (horários de sono, trabalho, lazer), faltas, notas, arquivos, anotações. A rotina revela hábitos: é dado pessoal e fica só com o aluno. |
 | Finalidades e consentimentos novos | Processamento dos materiais por IA (estende `ai_tutor`); captura de áudio; WhatsApp; aprendizagem de padrões de uso (EQU-19); anexos sensíveis. Cada um separado, revogável em Privacidade. |
 | Operadores novos | Armazenamento, transcrição, voz sintética, vetores de busca, mensageria. Contrato de tratamento com cada um, e a política pública lista todos. |
@@ -1045,7 +1050,7 @@ Além disso, "só a fala do professor é processada" não é uma garantia técni
 | Acessibilidade | WCAG 2.2 AA, com axe no E2E. As ferramentas de desenho têm alternativa por teclado para navegar, marcar selo e anotar em texto |
 | Aparelhos | Celular (consulta e lembretes), notebook e tablet com caneta (Acompanhar Aula). Navegadores atuais, incluindo Safari no iPad |
 | Idioma e fuso | Português do Brasil; textos centralizados; fuso do aluno |
-| Limites iniciais | Cronograma até 10 MB (do documento). Demais arquivos e cota por aluno a definir em D06 |
+| Limites iniciais | Cronograma até 10 MB (do documento). Demais arquivos e espaço por aluno a definir em D06 |
 | Escala | Refazer o teste de carga com upload, fila e agenda antes do piloto; rever o ADR 0006 |
 
 ---
@@ -1056,13 +1061,13 @@ A ordem segue as dependências: a agenda vem antes do planejamento; o repositór
 
 ### Fase 0: preparação
 
-- Aprovar esta spec e fechar as decisões que bloqueiam (D01 a D07).
+- Aprovar esta spec e fechar as decisões que ainda bloqueiam (D01, D02 e D06).
 - ADRs 0012 a 0019 (7.3).
 - Infraestrutura: bucket, Redis, `worker`, `pgvector`, chaves de funcionalidade, OpenAPI gerado.
 - Experimentos curtos: extração de cronograma com 20 cronogramas reais (medir acerto e custo); visualizador com caneta no iPad e em tablet Android.
-- Tokens visuais conforme D03.
+- Adaptar as telas de referência ao tema escuro e vermelho do app (D03): paleta de categorias para a grade e o calendário (disciplinas e tipos de evento), nos temas escuro e claro, com contraste AA.
 
-**Saída:** um arquivo sobe, é processado e fica pesquisável por um aluno e invisível para outro, com teste; o custo médio de extração é conhecido.
+**Saída:** um arquivo sobe, é processado e fica pesquisável por um aluno e invisível para outro, com teste; o consumo de IA já é registrado por aluno e por recurso.
 
 ### Fase 1: fundação da vida acadêmica
 
@@ -1134,19 +1139,27 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 
 ---
 
-## 14. Decisões pendentes
+## 14. Decisões
 
-As sete primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
+### 14.1 Decididas
+
+| # | Decisão | Resposta | Quem e quando |
+|---|---|---|---|
+| D03 | Identidade visual: as telas do documento são claras e roxas; o app é escuro e vermelho | **Escuro e vermelho permanece.** Os ADRs 0007 e 0010 seguem valendo. As telas do documento servem de referência de estrutura, não de cor. | Fernando, 13/11/2026 |
+| D04 | CPF no cadastro | **CPF obrigatório.** Proteções em CAD-10. Ficam dois pontos abertos: a finalidade a declarar na política (10.1) e se o telefone também é obrigatório. | Fernando, 13/11/2026 |
+| D05 | Público: qualquer curso de graduação da saúde ou só Medicina | **Qualquer curso da saúde.** Substitui o recorte de um curso do ADR 0004. | Fernando, 13/11/2026 |
+| D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
+
+### 14.2 Abertas
+
+As três primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 
 | # | Decisão | Recomendação | Bloqueia |
 |---|---|---|---|
 | D01 | Evoluir este repositório ou começar outro | Evoluir este. A fundação (auth, RLS, LGPD, IA, CI) está pronta e testada. | Tudo |
 | D02 | Destino do conteúdo curado do MVP | Virar o acervo Cognuss e alimentar o material complementar. | Fase 1 |
-| D03 | Identidade visual: as telas do documento são claras e roxas; o app é escuro e vermelho (ADR 0007 e 0010, de 03 e 07/11) | Decidir antes de desenhar telas novas. As telas do documento foram geradas como ilustração; não tomar a cor delas como decisão sem confirmar. | Fase 0 |
-| D04 | CPF e telefone obrigatórios no cadastro | Não pedir CPF sem finalidade; telefone opcional até ligar o WhatsApp. | Fase 1 |
-| D05 | Público: qualquer curso de graduação da saúde ou só Medicina | Disciplina livre já permite qualquer curso; o acervo complementar continua só onde houver conteúdo revisado. | Fase 1 |
-| D06 | Armazenamento (R2, MinIO próprio ou outro), cota por aluno e limite por arquivo | Seguir o padrão do blueprint, confirmando a residência dos dados. | Fase 0 |
-| D07 | Provedores e modelos de IA por tarefa, vetores de busca, e teto de custo por aluno | Medir na Fase 0 e decidir com número na mão. | Fase 0 |
+| D06 | **Onde ficam os arquivos que os alunos enviam** (slides, provas, cronogramas) e **quanto cada aluno pode enviar**. Hoje a plataforma não guarda arquivos; a v2 passa a guardar muitos. Duas escolhas: (a) no próprio servidor, sem custo extra, mas o disco e o backup ficam por nossa conta; (b) num serviço de armazenamento em nuvem, pago por uso, que cuida de espaço e cópia, com os dados possivelmente fora do Brasil. | Serviço em nuvem, que é o padrão do blueprint, confirmando antes em que região os dados ficam. Espaço por aluno sem teto durante o QA, como na D07, com limite só por arquivo (sugestão: 50 MB). | Fase 0 |
+| D04 (resto) | Finalidade do CPF, para constar na política; telefone obrigatório ou opcional | Telefone opcional até o aluno ligar o WhatsApp. | Fase 1 |
 | D08 | WhatsApp: provedor, número, modelos de mensagem | | Fase 6 |
 | D09 | Planilha Google: só link público ou login com Google | Começar por link compartilhado "qualquer pessoa com o link". | Fase 6 |
 | D10 | Áudio: parecer jurídico (10.3) | Não construir antes. | Fase 7 |
@@ -1157,7 +1170,7 @@ As sete primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 | D15 | Parâmetros iniciais do Equilíbrio (6.4) | As propostas de 6.4, ajustadas depois do piloto. | Fase 4 |
 | D16 | Papel do professor e da instituição na v2 | Manter o painel do MVP como está; decidir na Parte II. | Não bloqueia |
 | D17 | Parte II: Aprender, Organizar, Conectar, Evoluir, simulados, lâminas | Aguardar o documento. | Menu principal |
-| D18 | Modelo comercial e limites do plano gratuito para IA e armazenamento | | Fase 5 |
+| D18 | Modelo comercial e limites do plano gratuito para IA e armazenamento | Definir junto com os tetos da D07, depois do QA. | Fase 5 |
 | D19 | Calendário, corte do piloto e atualização do roadmap público | | Planejamento |
 | D20 | Compartilhar materiais e anotações entre colegas | Fora da primeira versão (direitos autorais e provas sigilosas). | Não bloqueia |
 
@@ -1187,7 +1200,7 @@ As sete primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 
 ## Anexo A: telas de referência
 
-Em `docs/spec/cognuss-v2/telas/`. São ilustrações do documento de origem: valem pela estrutura e pelo conteúdo, não pela cor nem pelos dados, que são fictícios.
+Em `docs/spec/cognuss-v2/telas/`. São ilustrações do documento de origem: valem pela estrutura e pelo conteúdo. A cor, o logotipo e as ilustrações delas **não** são adotados (decisão D03: o app continua escuro e vermelho), e os dados são fictícios.
 
 | Tela | Arquivo | Usada em |
 |---|---|---|
