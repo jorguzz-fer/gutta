@@ -253,6 +253,20 @@
       "when": 1794611381396,
       "tag": "0035_rls_faltas",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794611978851,
+      "tag": "0036_notas",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794611979841,
+      "tag": "0037_rls_notas",
+      "breakpoints": true
     }
   ]
 }

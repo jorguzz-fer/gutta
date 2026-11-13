@@ -98,3 +98,20 @@ describe('faltas', () => {
     expect(rows.find((r) => r.date === '2026-08-10')?.lessonId).toBeNull();
   });
 });
+
+describe('forma de cálculo das notas', () => {
+  it('só do dono e com nota mínima de 0 a 10', async () => {
+    await withUser(app, ana, (tx) =>
+      tx.insert(s.gradingSchemes).values({ ownerId: ana, disciplineId: disc, minGrade: '6' }),
+    );
+    expect(await withUser(app, beto, (tx) => tx.select().from(s.gradingSchemes))).toEqual([]);
+    const err = await withUser(app, beto, (tx) =>
+      tx.insert(s.gradingSchemes).values({ ownerId: beto, disciplineId: disc }),
+    ).catch((e) => e);
+    expect(pgCode(err)).toBe('42501');
+    const bad = await withUser(app, ana, (tx) =>
+      tx.update(s.gradingSchemes).set({ minGrade: '11' }),
+    ).catch((e) => e);
+    expect(pgCode(bad)).toBe('23514');
+  });
+});

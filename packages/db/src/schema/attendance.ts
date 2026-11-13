@@ -4,6 +4,7 @@ import {
   date,
   index,
   numeric,
+  pgEnum,
   pgTable,
   smallint,
   text,
@@ -82,5 +83,28 @@ export const absences = pgTable(
       .on(t.disciplineId, t.date)
       .where(sql`${t.lessonId} is null`),
     check('absences_hours_ck', sql`${t.classHours} > 0`),
+  ],
+);
+
+// Forma de calcular a média da disciplina (SPEC v2, NOT-01 a NOT-05; 8.6). Uma por disciplina;
+// quem configura é o aluno (lacuna L4). Escala de 0 a 10.
+export const gradingMethod = pgEnum('grading_method', ['simples', 'pesos', 'percentual']);
+
+export const gradingSchemes = pgTable(
+  'grading_schemes',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    disciplineId: uuid('discipline_id')
+      .notNull()
+      .references(() => enrolledDisciplines.id, { onDelete: 'cascade' }),
+    method: gradingMethod('method').notNull().default('pesos'),
+    minGrade: numeric('min_grade', { precision: 4, scale: 2 }).notNull().default('7'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('grading_schemes_discipline_uq').on(t.disciplineId),
+    check('grading_min_ck', sql`${t.minGrade} between 0 and 10`),
   ],
 );
