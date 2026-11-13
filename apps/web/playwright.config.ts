@@ -91,6 +91,8 @@ export default defineConfig({
       timeout: 60_000,
       env: {
         DATABASE_URL: E2E_DB,
+        // As URLs assinadas do armazenamento em disco apontam para o app.
+        APP_URL: BASE,
         REDIS_URL: process.env.REDIS_URL ?? 'redis://localhost:6379',
         QUEUE_PREFIX: `e2e${PORT}`,
         WORKER_HEALTH_PORT: String(PORT + 1),

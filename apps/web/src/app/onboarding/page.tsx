@@ -9,9 +9,10 @@ import { featureEnabled } from '@/features/flags/service';
 export const metadata: Metadata = { title: 'Primeiros passos' };
 
 export default async function OnboardingPage() {
+  // A sessão primeiro: lê os cookies e deixa a página por requisição (a chave vem do banco).
+  const user = await requireUser('/onboarding');
   // Com o cadastro da v2 ligado, o onboarding do MVP não é mais usado.
   if (await featureEnabled('cadastro')) redirect('/comecar');
-  const user = await requireUser('/onboarding');
   const data = await loadOnboardingData(user.id);
   if (data.profile?.onboardingCompletedAt) redirect('/app');
   return (
