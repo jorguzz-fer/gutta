@@ -176,3 +176,44 @@ describe('migração do MVP', () => {
     expect(rows[0]!.dueAt?.toISOString()).toBe(examAt.toISOString());
   });
 });
+
+describe('calendário', () => {
+  it('compromisso e exceção só do dono; exceção não aponta para evento de outro', async () => {
+    const id = await withUser(app, ana, async (tx) => {
+      const [e] = await tx
+        .insert(s.calendarEvents)
+        .values({
+          ownerId: ana,
+          title: 'Monitoria',
+          startDate: '2026-08-04',
+          startMinute: 600,
+          recurrence: { freq: 'weekly', weekdays: [2] },
+        })
+        .returning();
+      await tx
+        .insert(s.calendarEventExceptions)
+        .values({ eventId: e!.id, ownerId: ana, occurrenceDate: '2026-08-11', cancelled: true });
+      return e!.id;
+    });
+    const seen = await withUser(app, beto, async (tx) => ({
+      events: await tx.select().from(s.calendarEvents),
+      ex: await tx.select().from(s.calendarEventExceptions),
+    }));
+    expect(seen).toEqual({ events: [], ex: [] });
+    const err = await withUser(app, beto, (tx) =>
+      tx
+        .insert(s.calendarEventExceptions)
+        .values({ eventId: id, ownerId: beto, occurrenceDate: '2026-08-18', cancelled: true }),
+    ).catch((e) => e);
+    expect(pgCode(err)).toBe('42501');
+    const disc = await withUser(app, beto, (tx) =>
+      tx.insert(s.calendarEvents).values({
+        ownerId: beto,
+        title: 'X',
+        startDate: '2026-08-04',
+        disciplineId: anaDisc,
+      }),
+    ).catch((e) => e);
+    expect(pgCode(disc)).toBe('42501');
+  });
+});

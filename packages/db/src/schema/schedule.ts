@@ -3,12 +3,14 @@ import {
   bigserial,
   boolean,
   check,
+  date,
   index,
   integer,
   jsonb,
   numeric,
   pgEnum,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -151,4 +153,68 @@ export const aiUsage = pgTable(
     index('ai_usage_owner_idx').on(t.ownerId, t.createdAt),
     index('ai_usage_feature_idx').on(t.feature, t.createdAt),
   ],
+);
+
+// Compromissos do aluno no calendário (SPEC v2, CAL-02 a CAL-05; 8.2). Série em horário local
+// (data, minuto do dia e duração) com regra de @gutta/core/recurrence; cada ocorrência mudada
+// fica em calendar_event_exceptions (só esta). Aula e avaliação não ficam aqui: têm tabela
+// própria, e a agenda lê todas (CAL-16).
+export const calendarEventKind = pgEnum('calendar_event_kind', [
+  'compromisso',
+  'estudo',
+  'revisao',
+  'lazer',
+  'descanso',
+  'outro',
+]);
+
+export const calendarEvents = pgTable(
+  'calendar_events',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    disciplineId: uuid('discipline_id').references(() => enrolledDisciplines.id, {
+      onDelete: 'cascade',
+    }),
+    kind: calendarEventKind('kind').notNull().default('compromisso'),
+    title: text('title').notNull(),
+    notes: text('notes'),
+    color: smallint('color'),
+    startDate: date('start_date').notNull(),
+    // Null: dia inteiro.
+    startMinute: smallint('start_minute'),
+    durationMinutes: smallint('duration_minutes').notNull().default(60),
+    // Regra de recorrência (RecurrenceRule do core); null = evento único.
+    recurrence: jsonb('recurrence').$type<Record<string, unknown>>(),
+    // Lembrete "apenas lembrar" não ocupa horário (LEM-08).
+    blocksTime: boolean('blocks_time').notNull().default(true),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index('calendar_events_owner_idx').on(t.ownerId, t.startDate),
+    check(
+      'calendar_events_start_ck',
+      sql`${t.startMinute} is null or ${t.startMinute} between 0 and 1439`,
+    ),
+    check('calendar_events_duration_ck', sql`${t.durationMinutes} between 5 and 1440`),
+    check('calendar_events_color_ck', sql`${t.color} is null or ${t.color} between 1 and 8`),
+  ],
+);
+
+export const calendarEventExceptions = pgTable(
+  'calendar_event_exceptions',
+  {
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => calendarEvents.id, { onDelete: 'cascade' }),
+    ownerId: ownerRef(),
+    // Data original da ocorrência.
+    occurrenceDate: date('occurrence_date').notNull(),
+    cancelled: boolean('cancelled').notNull().default(false),
+    // { date?, start?, durationMinutes?, title? } (OccurrenceChange do core).
+    change: jsonb('change').$type<Record<string, unknown>>(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.occurrenceDate] })],
 );
