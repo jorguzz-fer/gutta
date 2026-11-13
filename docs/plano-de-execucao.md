@@ -61,7 +61,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 - [x] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
 - [x] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` com imagem própria (ADR 0013); `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
 - [x] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.
-- [ ] 35. Caminho de um arquivo (SPEC v2, 7.4): pedir envio, URL assinada, confirmação, varredura, conversão, texto e miniaturas por página, estado visível. Testes de isolamento e de idempotência dos trabalhos.
+- [x] 35. Caminho de um arquivo (SPEC v2, 7.4): pedir envio, URL assinada, confirmação, varredura, conversão, texto e miniaturas por página, estado visível. Testes de isolamento e de idempotência dos trabalhos.
 - [ ] 36. Experimento de extração de cronograma com 20 cronogramas reais: acerto por campo e custo médio. Experimento do visualizador com caneta no iPad e em tablet Android. Resultados em `docs/`.
 - [ ] 37. Telas de referência adaptadas ao tema escuro e vermelho do app (D03): paleta de categorias para a grade e o calendário, nos dois temas, com contraste AA.
 

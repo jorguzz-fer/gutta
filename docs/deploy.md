@@ -32,6 +32,9 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `DPO_NAME`, `DPO_EMAIL` | LGPD: encarregado de dados (art. 41). Preencha antes do piloto |
    | `REDIS_PASSWORD` | senha do Redis da fila (ADR 0013). Gere com `openssl rand -hex 32`: só letras e números, porque ela vai dentro da URL de conexão |
    | `QUEUE_PREFIX` | opcional; prefixo das chaves da fila (padrão `cognuss`) |
+   | `STORAGE_ENDPOINT`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY` | Cloudflare R2 (ADR 0012). Endpoint `https://<conta>.r2.cloudflarestorage.com`, bucket privado e uma chave restrita a ele. Sem elas, o envio de arquivos fica indisponível. **Arquivo real de aluno só depois do parecer jurídico** (SPEC v2, D06) |
+   | `STORAGE_REGION` | opcional; `auto` para o R2 |
+   | `FEATURES_ON` | opcional e só fora de produção; liga módulos da v2 sem passar por `/admin/funcionalidades` |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:
@@ -47,6 +50,13 @@ O compose tem mais dois serviços, que o Coolify sobe junto:
 
 - **`redis`**: fila de trabalhos e limite de tentativas de login compartilhado entre réplicas. Guarda os dados no volume `gutta-redis` (AOF), com senha. Não guarda dado pessoal: os trabalhos levam só identificadores.
 - **`worker`**: publica na fila os eventos que o app grava na tabela `outbox` e executa os trabalhos. Usa o mesmo papel do app (`gutta_app`, sem BYPASSRLS) e só sobe depois de o `web` estar saudável, porque é o `web` que aplica as migrations. A saúde fica em `http://worker:3001/health`, só na rede interna.
+
+### Arquivos: R2 e antivírus (ADR 0012)
+
+1. **Bucket no R2**: um por ambiente (`cognuss-qa`, `cognuss-prod`), privado, sem domínio público. Dica de localização: leste da América do Norte.
+2. **CORS do bucket**: aceitar `PUT` e `GET` só a partir de `APP_URL`, com o cabeçalho `content-type`. Sem isso, o navegador não consegue enviar direto ao bucket.
+3. **Chave de API** com permissão de leitura e escrita só nesse bucket.
+4. **Antivírus**: o serviço `clamav` do compose baixa a base no primeiro start e leva alguns minutos para ficar saudável. O `worker` espera por ele. Ele usa cerca de 1 GB de memória: confira a folga do servidor.
 
 Se o Redis cair, o app continua funcionando: o limite de login passa as requisições (e registra `auth.rate_limit_unavailable` no log) e os eventos esperam no `outbox` até o `worker` conseguir publicar. Os trabalhos que falham 5 vezes ficam 30 dias na lista de falhas do BullMQ.
 

@@ -79,3 +79,13 @@ Até lá, o ambiente de QA usa só arquivos de teste.
 - O ClamAV carrega a base de assinaturas na memória (da ordem de 1 GB) e precisa atualizá-la todo dia. O VPS precisa ter folga para isso; se não tiver, a varredura vira um serviço separado ou um processo que roda só na hora da fila.
 - O bucket precisa de CORS que aceite `PUT` só a partir de `APP_URL`.
 - Custo pela tabela do R2: US$ 0,015 por GB ao mês acima de 10 GB grátis; download sem custo.
+
+## Revisão (13/11/2026): o que mudou na implementação
+
+- **Antivírus como serviço próprio.** O ClamAV roda no serviço `clamav` do compose (imagem oficial, com o `freshclam` atualizando a base), e o `worker` fala com ele pelo protocolo INSTREAM do `clamd`. Isso tira o ClamAV da imagem do `worker`, que fica só com o LibreOffice e o Poppler. É a alternativa que este ADR já previa para o caso de falta de memória.
+- **Miniaturas em JPEG** (qualidade 70, 320 px de largura), geradas pelo `pdftoppm`. Converter para WebP pediria mais uma ferramenta, para um ganho pequeno.
+- **Original só depois do antivírus.** A coluna `files.scanned_at` marca quando o arquivo passou pela varredura; antes disso a URL de leitura é recusada.
+- **Resumo SHA-256 calculado no navegador** e conferido pelo `worker`. Ele também serve para não reenviar o mesmo arquivo do mesmo aluno.
+- **Planilhas e imagens não viram PDF.** Planilha fica para a extração de cronograma (DIS-05); imagem é mostrada como está.
+- **Exclusão da conta.** Um gatilho em `auth_users` grava no outbox o pedido de apagar o prefixo `u/{id}/`, e o `worker` apaga os objetos. Funciona tanto pelo `erase_user()` quanto por qualquer outra exclusão.
+- **Sem bucket configurado**, a API de arquivos responde 503 e o resto da plataforma segue. O `worker` mantém os trabalhos de arquivo na fila, tentando de novo.

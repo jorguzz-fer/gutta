@@ -64,8 +64,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: Ferramentas de arquivo do worker (Poppler e LibreOffice)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer-nogui fonts-dejavu-core
       - run: pnpm --filter @gutta/db test
       - run: pnpm --filter @gutta/jobs test
+      - run: pnpm --filter @gutta/storage test
       - run: pnpm --filter @gutta/worker test
       - run: pnpm --filter @gutta/web test:int
 
@@ -121,8 +126,11 @@ jobs:
           file: apps/worker/Dockerfile
           push: false
           tags: gutta-worker:ci
+          load: true
           cache-from: type=gha,scope=worker
           cache-to: type=gha,mode=max,scope=worker
+      - name: Ferramentas de arquivo na imagem do worker
+        run: docker run --rm --entrypoint sh gutta-worker:ci -c "soffice --version && pdftotext -v && pdftoppm -v"
       - name: Imagem do Postgres (com pgvector)
         uses: docker/build-push-action@v6
         with:
