@@ -177,6 +177,8 @@ export async function exportData(userId: string) {
       assessments,
       scheduleImports,
       aiUsage,
+      routineBlocks,
+      planningPreferences,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -228,6 +230,9 @@ export async function exportData(userId: string) {
       () => tx.select().from(s.assessments).where(eq(s.assessments.ownerId, userId)),
       () => tx.select().from(s.scheduleImports).where(eq(s.scheduleImports.ownerId, userId)),
       () => tx.select().from(s.aiUsage).where(eq(s.aiUsage.ownerId, userId)),
+      // Rotina semanal (SPEC v2, 5.3).
+      () => tx.select().from(s.routineBlocks).where(eq(s.routineBlocks.ownerId, userId)),
+      () => tx.select().from(s.planningPreferences).where(eq(s.planningPreferences.userId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -263,6 +268,8 @@ export async function exportData(userId: string) {
       assessments,
       scheduleImports,
       aiUsage,
+      routineBlocks,
+      planningPreferences: planningPreferences[0] ?? null,
     };
   });
 }

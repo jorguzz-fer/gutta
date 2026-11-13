@@ -81,6 +81,38 @@ test.describe('cadastro da v2', () => {
         .violations,
     ).toEqual([]);
     await page.getByRole('button', { name: 'Continuar' }).click();
+
+    // Rotina (CAD-05, ROT): estudo na segunda e na quarta; a meta não precisa ser cumprida.
+    await expect(page).toHaveURL(/\/comecar\/rotina/);
+    await expect(page.getByText(/Marque na grade os horários/)).toBeVisible();
+    await page.getByRole('button', { name: 'Adicionar em segunda, 14:00' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Adicionar atividade' });
+    await dialog.getByRole('radio', { name: 'Estudo' }).check();
+    await dialog.getByRole('checkbox', { name: 'quarta' }).check();
+    await dialog.getByRole('button', { name: 'Salvar' }).click();
+    await expect(
+      page.getByText('Sua rotina soma 2 horas de estudo. Faltam 18 horas'),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Estudo, 14:00 às 15:00, quarta, 14:00. Editar' }),
+    ).toBeVisible();
+    // Sono passa da meia-noite; outra atividade no mesmo horário é recusada com o motivo.
+    await page.getByRole('button', { name: 'Adicionar em domingo, 23:00' }).click();
+    await dialog.getByRole('radio', { name: 'Atividade pessoal' }).check();
+    await dialog.getByLabel('Atividade', { exact: true }).selectOption('sono');
+    await dialog.getByLabel('Fim').fill('07:00');
+    await dialog.getByRole('button', { name: 'Salvar' }).click();
+    await expect(dialog).toBeHidden();
+    await page.getByRole('button', { name: 'Adicionar em segunda, 15:00' }).click();
+    await dialog.getByLabel('Início').fill('14:30');
+    await dialog.getByRole('button', { name: 'Salvar' }).click();
+    await expect(dialog.getByRole('alert')).toContainText('Esse horário já tem Estudo (segunda');
+    await dialog.getByRole('button', { name: 'Cancelar' }).click();
+    expect(
+      (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze())
+        .violations,
+    ).toEqual([]);
+    await page.getByRole('button', { name: 'Concluir cadastro' }).click();
     await page.waitForURL((u) => u.pathname === '/app');
   });
 

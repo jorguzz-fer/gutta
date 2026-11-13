@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { createDb, createPool, eq, schema as s } from '@gutta/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { decryptPii } from '@/lib/pii';
-import { finishSignup, loadSignup, savePersonal, saveProfile } from './service';
+import { finishSignup, loadSignup, savePersonal, saveProfile, saveRoutineStep } from './service';
 
 // Cadastro da v2 (SPEC v2, CAD-01 a CAD-10).
 const ownerPool = createPool(
@@ -183,6 +183,11 @@ describe('perfil acadêmico e fim do cadastro', () => {
     await owner
       .insert(s.enrolledDisciplines)
       .values({ ownerId: u, termId: term!.id, name: 'Anatomia' });
+    // Rotina: segue sem exigir a meta de horas (CAD-05); repetir não muda nada.
+    expect((await loadSignup(u)).next?.key).toBe('rotina');
+    expect(await finishSignup(u)).toBe(false);
+    await saveRoutineStep(u);
+    await saveRoutineStep(u);
     expect((await loadSignup(u)).next).toBeNull();
     expect(await finishSignup(u)).toBe(true);
     const done = await owner.query.studentProfiles.findFirst({

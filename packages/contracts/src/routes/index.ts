@@ -1,5 +1,6 @@
 import * as disciplines from './disciplines';
 import * as files from './files';
+import * as routine from './routine';
 import * as schedule from './schedule';
 import * as system from './system';
 import type { RouteDef } from '../registry';
@@ -8,6 +9,6 @@ import type { RouteDef } from '../registry';
 const isRoute = (v: unknown): v is RouteDef =>
   typeof v === 'object' && v !== null && 'method' in v && 'path' in v && 'response' in v;
 
-export const routes: RouteDef[] = [system, files, disciplines, schedule].flatMap((m) =>
+export const routes: RouteDef[] = [system, files, disciplines, schedule, routine].flatMap((m) =>
   Object.values(m).filter(isRoute),
 );

@@ -69,5 +69,18 @@ test.describe('cronograma', () => {
 
     await page.getByRole('link', { name: 'Voltar para Minhas disciplinas' }).click();
     await expect(card).toContainText('Cronograma conferido e na agenda.');
+
+    // As aulas confirmadas aparecem na rotina da semana delas, protegidas (ROT-02, ROT-05).
+    await setFeatures(['disciplinas', 'rotina']);
+    await page.goto('/app/rotina?semana=2026-08-10');
+    await page
+      .getByRole('button', { name: 'Inflamação aguda, aula do cronograma, segunda, 08:00' })
+      .click();
+    await expect(page.getByRole('dialog', { name: 'Inflamação aguda' })).toContainText(
+      'Ela fica protegida na rotina',
+    );
+    await page.getByRole('button', { name: 'Fechar' }).click();
+    // Semana de 09/08: aula de 2 h na segunda e prática de 3 h na quarta.
+    await expect(page.getByRole('definition').filter({ hasText: '5h/sem' }).first()).toBeVisible();
   });
 });

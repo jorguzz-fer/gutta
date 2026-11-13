@@ -3,7 +3,14 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireUser } from '@/lib/auth/session';
 import { logger } from '@/lib/logger';
-import { finishSignup, loadSignup, savePersonal, saveProfile, SignupError } from './service';
+import {
+  finishSignup,
+  loadSignup,
+  savePersonal,
+  saveProfile,
+  saveRoutineStep,
+  SignupError,
+} from './service';
 
 // Os valores enviados voltam junto com o erro: o React limpa o formulário depois da ação, e o
 // aluno não pode perder o que digitou.
@@ -69,6 +76,20 @@ export async function continueFromDisciplinesAction(
   const { progress } = await loadSignup(user.id);
   if (!progress.disciplinas) {
     return { errors: { form: 'Adicione pelo menos uma disciplina para continuar.' } };
+  }
+  return goNext(user.id);
+}
+
+/** Passo da rotina: os blocos já foram salvos pela API; aqui marca o passo e segue. */
+export async function continueFromRoutineAction(
+  _prev: SignupFormState,
+  form: FormData,
+): Promise<SignupFormState> {
+  const user = await requireUser('/comecar/rotina');
+  try {
+    await saveRoutineStep(user.id);
+  } catch (err) {
+    return toErrors(err, form);
   }
   return goNext(user.id);
 }

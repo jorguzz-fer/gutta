@@ -7,6 +7,7 @@ import { audit, track } from '@/lib/events';
 import { encryptPii, hashPii } from '@/lib/pii';
 import { latestConsent, recordConsents } from '@/features/privacy/consent';
 import { disciplineCount } from '@/features/academics/service';
+import { confirmRoutine, routineConfirmed } from '@/features/routine/service';
 import { MAIN_GOALS, nextStep, type SignupProgress } from './steps';
 
 // Cadastro da v2 (SPEC v2, CAD-01 a CAD-10). Cada passo grava na hora: sair no meio e voltar
@@ -31,7 +32,8 @@ async function progressOf(tx: Tx, userId: string): Promise<SignupProgress> {
     columns: { mainGoal: true },
   });
   const disciplinas = (await disciplineCount(tx, userId)) > 0;
-  return { dados: Boolean(personal), perfil: Boolean(profile?.mainGoal), disciplinas };
+  const rotina = await routineConfirmed(tx, userId);
+  return { dados: Boolean(personal), perfil: Boolean(profile?.mainGoal), disciplinas, rotina };
 }
 
 export async function loadSignup(userId: string) {
@@ -221,6 +223,15 @@ export async function saveProfile(userId: string, raw: unknown) {
     if (!progress.perfil) {
       await track(tx, userId, 'signup_step_completed', { step: 'perfil', course: course.slug });
     }
+  });
+}
+
+/** Passo da rotina (CAD-05): a meta não precisa estar cumprida para seguir. */
+export async function saveRoutineStep(userId: string) {
+  return withUser(db(), userId, async (tx) => {
+    const progress = await progressOf(tx, userId);
+    if (!progress.disciplinas) throw new SignupError('form', 'Adicione suas disciplinas antes.');
+    await confirmRoutine(tx, userId);
   });
 }
 
