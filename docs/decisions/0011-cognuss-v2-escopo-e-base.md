@@ -1,6 +1,6 @@
 # ADR 0011: Cognuss v2, nova fonte de verdade de produto sobre a base do MVP
 
-- Status: proposto. A decisão de base (evoluir este repositório) foi aceita pelo Fernando em 13/11/2026; falta a aprovação da SPEC v2 pelo Dr. Hugo e pelo Dr. Rafael.
+- Status: aceito (Fernando, 13/11/2026, junto com a aprovação da SPEC v2)
 - Data: 2026-11-13
 
 ## Contexto
@@ -30,7 +30,7 @@ Opção 3.
 
 ## Consequências
 
-- Os ADRs 0001, 0002, 0003, 0005, 0006, 0008 e 0009 seguem valendo. O 0004 fica substituído neste ponto quando este ADR for aceito. O 0007 e o 0010 seguem valendo: o app continua escuro e vermelho (decisão D03, Fernando, 13/11/2026). O recorte de um curso só, do 0004, cai: a v2 atende qualquer curso da saúde (D05).
+- Os ADRs 0001, 0002, 0003, 0005, 0006, 0008 e 0009 seguem valendo. O 0004 fica substituído neste ponto. O 0007 e o 0010 seguem valendo: o app continua escuro e vermelho (decisão D03, Fernando, 13/11/2026). O recorte de um curso só, do 0004, cai: a v2 atende qualquer curso da saúde (D05).
 - O repositório ganha um processo `worker`, Redis e um bucket de arquivos. A operação fica maior: backup e exclusão LGPD passam a cobrir arquivos.
 - O custo por aluno deixa de ser só o do tutor: extração, geração e busca usam IA. Precisa ser medido antes de fixar limites.
 - O documento de origem é a Parte I. Menu principal, simulados e outras áreas ficam abertos até a Parte II.

@@ -55,11 +55,9 @@ Escopo vindo do roadmap (F1: tutor IA; F2: painel do professor) e do pedido de u
 
 Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita a partir do documento do Dr. Hugo e do Dr. Rafael (ADR 0011). O backlog completo, com as oito fases, está na seção 12 da SPEC v2. Aqui ficam só as Fases 0 e 1; as seguintes entram quando a anterior fechar.
 
-**Nada abaixo do item 31 começa antes de o item 31 estar marcado.**
-
 ### Fase 0: preparação
 
-- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões que bloqueiam o início fechadas e registradas (D01 a D07 fechadas pelo Fernando em 13/11/2026; falta a aprovação do Dr. Hugo e do Dr. Rafael); ADR 0011 passa a "aceito".
+- [x] 31. SPEC v2 aprovada pelo Fernando em 13/11/2026; decisões que bloqueavam o início (D01 a D07) fechadas e registradas; ADR 0011 aceito.
 - [ ] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
 - [ ] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` na mesma imagem; `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
 - [ ] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.

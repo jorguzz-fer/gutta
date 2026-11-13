@@ -1,7 +1,7 @@
 # SPEC DE PRODUTO E ENGENHARIA: Cognuss v2
 
-- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. As sete decisões que bloqueavam o início (D01 a D07) foram fechadas pelo Fernando no mesmo dia (seção 14.1).
-- **Status:** proposta. Só vira fonte de verdade depois da aprovação do Dr. Hugo e do Dr. Rafael. As decisões ainda abertas (seção 14.2) não bloqueiam o início.
+- **Versão:** 2.0, 13/11/2026. As sete decisões que bloqueavam o início (D01 a D07) foram fechadas pelo Fernando no mesmo dia (seção 14.1).
+- **Status:** aprovada pelo Fernando em 13/11/2026. É a fonte de verdade de produto e escopo. As decisões ainda abertas (seção 14.2) não bloqueiam o início; as lacunas do documento de origem (seção 15) seguem abertas à conferência do Dr. Hugo e do Dr. Rafael.
 - **Documento de origem:** _COGNUSS: Proposta de Interface e Especificação Funcional. Plataforma de Apoio ao Estudante de Graduação. Parte I_ (Dr. Hugo e Dr. Rafael, 12/11/2026, 56 páginas, 42 figuras). O arquivo `.doc` original não está no repositório (8 MB); as telas foram extraídas para `docs/spec/cognuss-v2/telas/` (Anexo A).
 - **Relação com a SPEC v1:** a v1 (`SPEC_Plataforma_Integrada_Estudantes_Saude_v1.md`) descreve o MVP Gutta, já construído. Esta v2 muda o centro do produto e passa a valer para **escopo e produto**. A v1 e o `Engineering_Blueprint.md` continuam valendo para **padrão de engenharia** (RLS, idempotência, testes, definição de pronto).
 
@@ -1062,7 +1062,7 @@ A ordem segue as dependências: a agenda vem antes do planejamento; o repositór
 
 ### Fase 0: preparação
 
-- Aprovar esta spec (falta o Dr. Hugo e o Dr. Rafael). As decisões que bloqueavam o início estão fechadas.
+- Spec aprovada e decisões que bloqueavam o início fechadas (13/11/2026).
 - ADRs 0012 a 0019 (7.3).
 - Infraestrutura: bucket, Redis, `worker`, `pgvector`, chaves de funcionalidade, OpenAPI gerado.
 - Experimentos curtos: extração de cronograma com 20 cronogramas reais (medir acerto e custo); visualizador com caneta no iPad e em tablet Android.

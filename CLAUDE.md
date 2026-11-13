@@ -4,7 +4,7 @@ Plataforma de estudo diário para o curso de Medicina. O nome da marca é **Cogn
 
 ## Fontes de verdade
 
-1. `docs/spec/SPEC_Cognuss_v2.md`: produto e escopo da v2, a partir do documento do Dr. Hugo e do Dr. Rafael (ADR 0011). Rascunho até a aprovação do Dr. Hugo e do Dr. Rafael; decisões tomadas e abertas na seção 14. Telas de referência em `docs/spec/cognuss-v2/telas/`.
+1. `docs/spec/SPEC_Cognuss_v2.md`: produto e escopo da v2, a partir do documento do Dr. Hugo e do Dr. Rafael (ADR 0011). Aprovada em 13/11/2026; decisões tomadas e abertas na seção 14. Telas de referência em `docs/spec/cognuss-v2/telas/`.
 2. `docs/spec/Engineering_Blueprint.md`: padrão de engenharia do time. A seção 7.2 da SPEC v2 mostra como a v2 o cumpre.
 3. `docs/spec/SPEC_Plataforma_Integrada_Estudantes_Saude_v1.md`: SPEC do MVP. Continua valendo para engenharia (RLS, idempotência, testes, definição de pronto) e para o que já foi construído.
 4. `public/roadmap/index.html`: calendário do time (roadmap v2). Ainda descreve o MVP; em conflito de **escopo**, vale a SPEC v2 até o roadmap ser atualizado.
