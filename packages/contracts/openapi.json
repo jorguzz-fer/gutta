@@ -73,6 +73,228 @@
         "security": []
       }
     },
+    "/api/v1/agenda": {
+      "get": {
+        "summary": "Ocorrências entre duas datas locais (inclusive), até 62 dias, em ordem.",
+        "tags": [
+          "agenda"
+        ],
+        "operationId": "getApiV1Agenda",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timezone": {
+                      "type": "string"
+                    },
+                    "today": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "lesson",
+                              "assessment",
+                              "routine",
+                              "event",
+                              "session"
+                            ]
+                          },
+                          "sourceId": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "aula",
+                              "pratica",
+                              "prova",
+                              "atividade",
+                              "entrega",
+                              "estudo",
+                              "revisao",
+                              "pessoal",
+                              "compromisso",
+                              "outro"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "disciplineId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "category": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "color": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "date": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          "start": {
+                            "type": "string"
+                          },
+                          "end": {
+                            "type": "string"
+                          },
+                          "startLocal": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "endLocal": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "allDay": {
+                            "type": "boolean"
+                          },
+                          "protected": {
+                            "type": "boolean"
+                          },
+                          "studyWindow": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "source",
+                          "sourceId",
+                          "kind",
+                          "title",
+                          "disciplineId",
+                          "category",
+                          "color",
+                          "date",
+                          "start",
+                          "end",
+                          "startLocal",
+                          "endLocal",
+                          "allDay",
+                          "protected",
+                          "studyWindow"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "timezone",
+                    "today",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/disciplines": {
       "get": {
         "summary": "Disciplinas do semestre atual do aluno, com docentes e documentos.",

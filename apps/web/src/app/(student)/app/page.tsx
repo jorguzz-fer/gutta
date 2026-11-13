@@ -4,7 +4,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { buttonClass } from '@/components/ui/button';
 import { Alert, Badge, Card, DemoBadge } from '@/components/ui/card';
+import { MySpace } from '@/components/space/my-space';
 import { loadDashboard } from '@/features/dashboard/data';
+import { flags } from '@/features/flags/service';
+import { loadSpace } from '@/features/space/service';
 import { requireStudent } from '@/lib/auth/session';
 import { cn } from '@/lib/cn';
 
@@ -48,10 +51,33 @@ function actionLabel(r: Recommendation) {
 export default async function TodayPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 'boas-vindas'?: string; aviso?: string }>;
+  searchParams: Promise<{ 'boas-vindas'?: string; aviso?: string; objetivo?: string }>;
 }) {
   const user = await requireStudent();
   const sp = await searchParams;
+  // Meu Espaço da v2 (SPEC v2, 5.5) substitui o painel do MVP quando a chave está ligada.
+  const on = await flags();
+  if (on.meu_espaco) {
+    const space = await loadSpace(user.id);
+    return (
+      <div className="grid gap-4">
+        {sp['boas-vindas'] ? (
+          <Alert tone="success">
+            <strong>Tudo pronto.</strong> Seu Meu Espaço já mostra suas disciplinas e sua rotina.
+          </Alert>
+        ) : null}
+        {sp.objetivo ? <Alert tone="success">Objetivo atualizado.</Alert> : null}
+        <MySpace
+          space={space}
+          links={{
+            rotina: on.rotina,
+            agenda: on.agenda,
+            disciplinas: on.disciplinas,
+          }}
+        />
+      </div>
+    );
+  }
   const d = await loadDashboard(user.id);
   const fmtDate = new Intl.DateTimeFormat('pt-BR', {
     day: 'numeric',

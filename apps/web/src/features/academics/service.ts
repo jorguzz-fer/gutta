@@ -140,6 +140,56 @@ function duplicateName(err: unknown) {
   return c?.code === '23505' && c.constraint === 'enrolled_disciplines_name_uq';
 }
 
+/**
+ * Onboarding do MVP (antes do cadastro da v2): as disciplinas escolhidas no catálogo também
+ * viram disciplinas próprias no semestre atual, como fez a migração 0021, para o Meu Espaço e
+ * a rotina já terem com o que trabalhar. Não duplica: liga pelo catálogo.
+ */
+export async function mirrorCatalogDisciplines(tx: Tx, userId: string, catalogIds: string[]) {
+  if (catalogIds.length === 0) return new Map<string, string>();
+  const term = await currentTerm(tx, userId);
+  const existing = await tx
+    .select({ id: s.enrolledDisciplines.id, catalogId: s.enrolledDisciplines.catalogDisciplineId })
+    .from(s.enrolledDisciplines)
+    .where(
+      and(
+        eq(s.enrolledDisciplines.ownerId, userId),
+        eq(s.enrolledDisciplines.termId, term.id),
+        inArray(s.enrolledDisciplines.catalogDisciplineId, catalogIds),
+        isNull(s.enrolledDisciplines.archivedAt),
+      ),
+    );
+  const out = new Map(existing.map((e) => [e.catalogId!, e.id]));
+  const missing = catalogIds.filter((id) => !out.has(id));
+  if (missing.length) {
+    const catalog = await tx
+      .select({ id: s.disciplines.id, name: s.disciplines.name })
+      .from(s.disciplines)
+      .where(inArray(s.disciplines.id, missing));
+    let n = (await disciplineCount(tx, userId)) % 8;
+    for (const c of catalog) {
+      const [row] = await tx
+        .insert(s.enrolledDisciplines)
+        .values({
+          ownerId: userId,
+          termId: term.id,
+          name: c.name,
+          color: (n++ % 8) + 1,
+          catalogDisciplineId: c.id,
+        })
+        .onConflictDoNothing()
+        .returning({ id: s.enrolledDisciplines.id });
+      if (row) out.set(c.id, row.id);
+    }
+  }
+  return out;
+}
+
+/** Disciplinas do semestre para outras telas (agenda, Meu Espaço), sem exigir a chave. */
+export async function currentDisciplines(userId: string) {
+  return withUser(db(), userId, (tx) => load(tx, userId));
+}
+
 export async function listDisciplines(userId: string) {
   await assertDisciplinesEnabled();
   return { items: await withUser(db(), userId, (tx) => load(tx, userId)) };
