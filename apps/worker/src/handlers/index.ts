@@ -1,10 +1,31 @@
-import type { Handlers } from './types';
+import type { ObjectStorage } from '@gutta/storage';
+import type { Scanner } from '../files/scanner';
+import { filesProcess } from './files';
+import { eraseUserObjects } from './maintenance';
+import type { Handler, Handlers } from './types';
+
+export type HandlerDeps = { storage: ObjectStorage | null; scanner: Scanner };
+
+function unavailable<T extends 'files.process'>(): Handler<T> {
+  return {
+    run: async () => {
+      // Sem bucket, o trabalho falha e tenta de novo: quando o armazenamento voltar, segue.
+      throw new Error('armazenamento não configurado');
+    },
+  };
+}
 
 // Um handler por tópico de @gutta/jobs. O TypeScript cobra: tópico novo sem handler não compila.
-export const handlers: Handlers = {
-  'system.ping': {
-    run: async (payload, ctx) => {
-      ctx.log.info('system.ping', { jobId: ctx.jobId, requestId: payload.requestId });
+export function createHandlers(deps: HandlerDeps): Handlers {
+  return {
+    'system.ping': {
+      run: async (payload, ctx) => {
+        ctx.log.info('system.ping', { jobId: ctx.jobId, requestId: payload.requestId });
+      },
     },
-  },
-};
+    'files.process': deps.storage
+      ? filesProcess({ storage: deps.storage, scanner: deps.scanner })
+      : unavailable(),
+    'maintenance.erase_user_objects': eraseUserObjects(deps.storage),
+  };
+}

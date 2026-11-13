@@ -1,7 +1,9 @@
 import http from 'node:http';
 import { createDb, createPool, sql } from '@gutta/db';
 import { loadConfig } from './config';
-import { handlers } from './handlers';
+import { storageFromEnv } from '@gutta/storage';
+import { ClamdScanner, NoScanner } from './files/scanner';
+import { createHandlers } from './handlers';
 import { logger } from './logger';
 import { closeQueues, createQueues } from './queues';
 import { createRedis } from './redis';
@@ -11,6 +13,11 @@ import { startWorkers } from './workers';
 // Processo worker (ADR 0013): publica o outbox na fila e executa os trabalhos.
 async function main() {
   const cfg = loadConfig();
+  const storage = storageFromEnv(process.env);
+  if (!storage) logger.warn('worker.no_storage', { reason: 'STORAGE_* não configurado' });
+  const scanner =
+    cfg.SCANNER === 'clamd' ? new ClamdScanner(cfg.CLAMD_HOST, cfg.CLAMD_PORT) : new NoScanner();
+  const handlers = createHandlers({ storage, scanner });
   const pool = createPool(cfg.DATABASE_URL, cfg.DB_POOL_MAX);
   const db = createDb(pool);
   // Uma conexão para filas e outra para os workers: comandos bloqueantes não podem segurar

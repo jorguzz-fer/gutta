@@ -10,6 +10,10 @@ import { createRedis } from '../src/redis';
 import { pruneOutbox, relayOnce } from '../src/relay';
 import { startWorkers } from '../src/workers';
 import type { Handlers } from '../src/handlers/types';
+import { createHandlers } from '../src/handlers';
+import { NoScanner } from '../src/files/scanner';
+
+const base = () => createHandlers({ storage: null, scanner: new NoScanner() });
 
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
@@ -126,7 +130,7 @@ describe('relay', () => {
 describe('worker', () => {
   it('executa o trabalho publicado pelo outbox', async () => {
     const run = vi.fn(async () => {});
-    const handlers: Handlers = { 'system.ping': { run } };
+    const handlers: Handlers = { ...base(), 'system.ping': { run } };
     const workerConn = createRedis(REDIS_URL);
     const workers = startWorkers({
       connection: workerConn,
@@ -159,6 +163,7 @@ describe('worker', () => {
   it('chama onDead quando as tentativas acabam', async () => {
     const onDead = vi.fn(async () => {});
     const handlers: Handlers = {
+      ...base(),
       'system.ping': {
         run: async () => {
           throw new Error('quebrou');
@@ -211,7 +216,7 @@ describe('worker', () => {
       prefix,
       db: app,
       log: logger,
-      handlers: { 'system.ping': { run } },
+      handlers: { ...base(), 'system.ping': { run } },
       concurrency: { system: 1, files: 1, ai: 1, notifications: 1, maintenance: 1 },
     });
     try {

@@ -1,7 +1,7 @@
 # Imagem do worker (ADR 0013). Build a partir da RAIZ do repositório:
 #   docker build -f apps/worker/Dockerfile -t gutta-worker .
-# Mesmo código do app, outro processo. Ferramentas de arquivo (ClamAV, LibreOffice) entram
-# aqui quando a fila de arquivos existir (ADR 0012).
+# Mesmo código do app, outro processo. Traz o LibreOffice (converter Office para PDF) e o
+# Poppler (texto e miniatura por página). O antivírus é o serviço clamav do compose (ADR 0012).
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
@@ -18,6 +18,7 @@ COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/jobs/package.json packages/jobs/
+COPY packages/storage/package.json packages/storage/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store --mount=type=secret,id=ca,required=false \
     if [ -f /run/secrets/ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/ca npm_config_cafile=/run/secrets/ca; fi; \
     pnpm install --frozen-lockfile --filter @gutta/worker...
@@ -29,9 +30,10 @@ COPY apps/worker apps/worker
 RUN pnpm --filter @gutta/worker build
 
 FROM node:22-alpine AS runner
-ENV NODE_ENV=production WORKER_HEALTH_PORT=3001
+ENV NODE_ENV=production WORKER_HEALTH_PORT=3001 HOME=/tmp
 WORKDIR /app
-RUN addgroup -S -g 1001 gutta && adduser -S -u 1001 -G gutta gutta
+RUN apk add --no-cache libreoffice poppler-utils font-dejavu font-noto \
+    && addgroup -S -g 1001 gutta && adduser -S -u 1001 -G gutta gutta
 COPY --from=build --chown=gutta:gutta /repo/apps/worker/dist/worker.mjs ./worker.mjs
 USER gutta
 EXPOSE 3001

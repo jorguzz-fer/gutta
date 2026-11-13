@@ -13,6 +13,7 @@
   "dependencies": {
     "@gutta/db": "workspace:*",
     "@gutta/jobs": "workspace:*",
+    "@gutta/storage": "workspace:*",
     "bullmq": "5.81.5",
     "ioredis": "5.11.1",
     "pg": "^8.23.1",
@@ -21,9 +22,9 @@
   "devDependencies": {
     "@types/node": "^22.18.0",
     "@types/pg": "^8.23.1",
-    "typescript": "5.9.3",
-    "vitest": "^4.1.12",
     "esbuild": "^0.25.12",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.12"
   }
 }
