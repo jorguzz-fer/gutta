@@ -26,7 +26,7 @@ Opção 3.
 - Enquanto o roadmap público não for atualizado, em conflito de escopo vale a SPEC v2. Isso substitui a regra do ADR 0004. `public/` só muda a pedido.
 - O que o MVP construiu é a fundação da v2 (SPEC v2, 7.1). Onboarding, painel "Hoje", `student_disciplines` e `exam_dates` são substituídos; o catálogo editorial vira o acervo de material complementar.
 - Cada componente novo de infraestrutura (armazenamento, fila, busca, anotações, notificações, offline, áudio, contrato) ganha um ADR próprio, do 0012 ao 0019, antes de ser construído.
-- Nada da v2 começa antes de fecharem as decisões que bloqueiam o início na SPEC v2 (seção 14). Em 13/11/2026 o Fernando fechou D03, D04, D05 e D07; faltam D01, D02 e D06.
+- Nada da v2 começa antes de fecharem as decisões que bloqueiam o início na SPEC v2 (seção 14). Em 13/11/2026 o Fernando fechou D02, D03, D04, D05 e D07; faltam D01 e D06.
 
 ## Consequências
 

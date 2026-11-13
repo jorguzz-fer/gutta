@@ -59,7 +59,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 
 ### Fase 0: preparação
 
-- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões que bloqueiam o início fechadas e registradas (D03, D04, D05 e D07 fechadas em 13/11/2026; faltam D01, D02 e D06); ADR 0011 passa a "aceito".
+- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões que bloqueiam o início fechadas e registradas (D02, D03, D04, D05 e D07 fechadas em 13/11/2026; faltam D01 e D06); ADR 0011 passa a "aceito".
 - [ ] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
 - [ ] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` na mesma imagem; `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
 - [ ] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.
@@ -70,7 +70,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 ### Fase 1: fundação da vida acadêmica
 
 - [ ] 38. Modelo acadêmico: `student_terms`, `enrolled_disciplines`, `discipline_teachers`, `discipline_topics`, com RLS e migração de `student_disciplines` e `exam_dates`.
-- [ ] 39. Cadastro (CAD-01 a CAD-10): dados pessoais com CPF obrigatório e protegido, perfil acadêmico (qualquer curso da saúde) e objetivo, retomável e idempotente. Substitui o onboarding do MVP.
+- [ ] 39. Cadastro (CAD-01 a CAD-10): dados pessoais com CPF (protegido) e telefone obrigatórios, perfil acadêmico (qualquer curso da saúde) e objetivo, retomável e idempotente. Substitui o onboarding do MVP.
 - [ ] 40. Disciplinas (DIS-01 a DIS-03, DIS-09, DIS-10): cadastro, docentes, upload de cronograma e de plano de ensino.
 - [ ] 41. Extração do cronograma com tela de conferência e confirmação (DIS-05, DIS-07); `lessons` e `assessments` criados só depois de confirmar.
 - [ ] 42. `packages/core/recurrence` e `packages/core/agenda`: projeção única de ocorrências, com testes unitários.

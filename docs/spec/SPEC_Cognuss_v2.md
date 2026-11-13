@@ -1,6 +1,6 @@
 # SPEC DE PRODUTO E ENGENHARIA: Cognuss v2
 
-- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. Decisões D03, D04, D05 e D07 registradas no mesmo dia (seção 14.1).
+- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. Decisões D02, D03, D04, D05 e D07 registradas no mesmo dia (seção 14.1).
 - **Status:** proposta. Só vira fonte de verdade depois da aprovação do Fernando, do Dr. Hugo e do Dr. Rafael e do fechamento das decisões da seção 14.
 - **Documento de origem:** _COGNUSS: Proposta de Interface e Especificação Funcional. Plataforma de Apoio ao Estudante de Graduação. Parte I_ (Dr. Hugo e Dr. Rafael, 12/11/2026, 56 páginas, 42 figuras). O arquivo `.doc` original não está no repositório (8 MB); as telas foram extraídas para `docs/spec/cognuss-v2/telas/` (Anexo A).
 - **Relação com a SPEC v1:** a v1 (`SPEC_Plataforma_Integrada_Estudantes_Saude_v1.md`) descreve o MVP Gutta, já construído. Esta v2 muda o centro do produto e passa a valer para **escopo e produto**. A v1 e o `Engineering_Blueprint.md` continuam valendo para **padrão de engenharia** (RLS, idempotência, testes, definição de pronto).
@@ -191,7 +191,7 @@ A conta (e-mail, senha, aceite dos termos, confirmação do e-mail) continua sen
 
 | ID | Requisito | Pri. |
 |---|---|---|
-| CAD-01 | Dados pessoais: nome completo, e-mail (vem da conta), **CPF obrigatório** (decisão D04) e telefone com DDI. O CPF é validado pelos dígitos verificadores e é único: um CPF, uma conta. O telefone é opcional até o aluno ligar o WhatsApp **[PEND D04]**: falta confirmar se ele também é obrigatório. | E |
+| CAD-01 | Dados pessoais: nome completo, e-mail (vem da conta), **CPF** e **telefone com DDI**, os dois obrigatórios (decisão D04). O CPF é validado pelos dígitos verificadores e é único: um CPF, uma conta. Ele é usado para a emissão de nota fiscal, e a tela diz isso. Ter o telefone não autoriza mensagem por WhatsApp; isso continua pedindo consentimento próprio (LEM-11). | E |
 | CAD-02 | Perfil acadêmico: curso de graduação, semestre, instituição, campus (opcional), turma (opcional, texto livre como "XIIA"). O curso vem de uma lista de cursos da saúde mantida pelo admin, com a opção "outro" (decisão D05). | E |
 | CAD-03 | Objetivo principal, escolha única: reforçar disciplinas, preparar-me para provas, organizar minha rotina, desenvolver meu currículo. Editável depois no Meu Espaço ("Alterar objetivo"). | E |
 | CAD-04 | Passo de disciplinas: ver DIS-01 a DIS-06. Exige ao menos uma disciplina para continuar. | E |
@@ -200,7 +200,7 @@ A conta (e-mail, senha, aceite dos termos, confirmação do e-mail) continua sen
 | CAD-07 | O cadastro é retomável: sair no meio e voltar continua de onde parou. Repetir um passo não duplica dados. **[ENG]** | E |
 | CAD-08 | Tudo o que foi informado é editável depois, em Perfil e em Minhas Disciplinas. | E |
 | CAD-09 | Indicador de etapas com a etapa atual, as concluídas e "Voltar" sem perda de dados. | E |
-| CAD-10 | Proteção do CPF **[ENG]**: guardado cifrado, com um resumo com chave só para garantir a unicidade; mostrado mascarado (`***.***.***-00`); fora de registros, eventos, fila e de qualquer contexto de IA; lido só pelo dono e, com auditoria, pelo admin; incluído na exportação e apagado na exclusão da conta. A tela diz para que o CPF é usado. | E |
+| CAD-10 | Proteção do CPF **[ENG]**: guardado cifrado, com um resumo com chave só para garantir a unicidade; mostrado mascarado (`***.***.***-00`); fora de registros, eventos, fila e de qualquer contexto de IA; lido só pelo dono e, com auditoria, pelo admin; incluído na exportação e apagado na exclusão da conta, salvo o que constar em nota fiscal já emitida, que segue o prazo da legislação fiscal. | E |
 
 **Aceite:** um aluno novo chega ao Meu Espaço com as disciplinas, os eventos confirmados do cronograma e a rotina visíveis; se pulou cronograma ou rotina, o Meu Espaço mostra o que falta, sem bloquear.
 
@@ -881,7 +881,7 @@ Modelo lógico. Toda tabela abaixo tem `id uuid`, `owner_id` (o aluno), `created
 
 | Tabela | Campos essenciais | Regras |
 |---|---|---|
-| `student_profiles` (estender) | `cpf_encrypted`, `cpf_hash` (único), `phone?`, `campus?`, `class_group?`, `main_goal`, `onboarding_step` | CPF obrigatório (D04), nunca em claro no banco (CAD-10). |
+| `student_profiles` (estender) | `cpf_encrypted`, `cpf_hash` (único), `phone`, `campus?`, `class_group?`, `main_goal`, `onboarding_step` | CPF e telefone obrigatórios (D04). CPF nunca em claro no banco (CAD-10). |
 | `student_terms` | `label` ("2026.2"), `starts_on`, `ends_on`, `is_current` | Um atual por aluno. |
 | `enrolled_disciplines` | `term_id`, `name`, `short_name`, `color`, `icon`, `catalog_discipline_id?`, `workload_hours?`, `archived_at?` | Substitui `student_disciplines`. |
 | `discipline_teachers` | `discipline_id`, `name` | Texto livre; alimenta as listas de seleção. |
@@ -995,8 +995,9 @@ Simulações de nota e resumos de falta são cálculo puro: a mesma função de 
 
 | Tema | O que muda |
 |---|---|
-| CPF | Obrigatório por decisão de produto (D04). A política pública e o RIPD precisam declarar a finalidade e a base legal; sem isso o campo não vai para produção. Proteções em CAD-10. |
-| Dados novos | Telefone, rotina pessoal (horários de sono, trabalho, lazer), faltas, notas, arquivos, anotações. A rotina revela hábitos: é dado pessoal e fica só com o aluno. |
+| CPF | Obrigatório (D04). Finalidade: emissão de nota fiscal. A política pública e o RIPD declaram essa finalidade e a base legal. Dois pontos para a revisão jurídica e o contador: (1) o CPF é pedido no cadastro, antes de existir cobrança, e o princípio da necessidade pode pedir que ele só seja exigido na primeira compra; (2) por quanto tempo o CPF de uma nota já emitida precisa ficar guardado depois que a conta é excluída. Proteções em CAD-10. |
+| Telefone | Obrigatório (D04). Usado para contato e, com consentimento separado, para o WhatsApp. |
+| Dados novos | Rotina pessoal (horários de sono, trabalho, lazer), faltas, notas, arquivos, anotações. A rotina revela hábitos: é dado pessoal e fica só com o aluno. |
 | Finalidades e consentimentos novos | Processamento dos materiais por IA (estende `ai_tutor`); captura de áudio; WhatsApp; aprendizagem de padrões de uso (EQU-19); anexos sensíveis. Cada um separado, revogável em Privacidade. |
 | Operadores novos | Armazenamento, transcrição, voz sintética, vetores de busca, mensageria. Contrato de tratamento com cada um, e a política pública lista todos. |
 | Transferência internacional | Vale o que o ADR 0009 já decidiu para o tutor: consentimento específico antes de qualquer envio. |
@@ -1061,7 +1062,7 @@ A ordem segue as dependências: a agenda vem antes do planejamento; o repositór
 
 ### Fase 0: preparação
 
-- Aprovar esta spec e fechar as decisões que ainda bloqueiam (D01, D02 e D06).
+- Aprovar esta spec e fechar as decisões que ainda bloqueiam (D01 e D06).
 - ADRs 0012 a 0019 (7.3).
 - Infraestrutura: bucket, Redis, `worker`, `pgvector`, chaves de funcionalidade, OpenAPI gerado.
 - Experimentos curtos: extração de cronograma com 20 cronogramas reais (medir acerto e custo); visualizador com caneta no iPad e em tablet Android.
@@ -1145,21 +1146,20 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 
 | # | Decisão | Resposta | Quem e quando |
 |---|---|---|---|
+| D02 | Destino do conteúdo curado do MVP (módulos, questões, flashcards) | **Vira o acervo Cognuss** e alimenta o material complementar (AJU-07). | Fernando, 13/11/2026 |
 | D03 | Identidade visual: as telas do documento são claras e roxas; o app é escuro e vermelho | **Escuro e vermelho permanece.** Os ADRs 0007 e 0010 seguem valendo. As telas do documento servem de referência de estrutura, não de cor. | Fernando, 13/11/2026 |
-| D04 | CPF no cadastro | **CPF obrigatório.** Proteções em CAD-10. Ficam dois pontos abertos: a finalidade a declarar na política (10.1) e se o telefone também é obrigatório. | Fernando, 13/11/2026 |
+| D04 | CPF e telefone no cadastro | **Os dois obrigatórios.** O CPF é usado para a emissão de nota fiscal. Proteções em CAD-10; pontos para a revisão jurídica em 10.1. | Fernando, 13/11/2026 |
 | D05 | Público: qualquer curso de graduação da saúde ou só Medicina | **Qualquer curso da saúde.** Substitui o recorte de um curso do ADR 0004. | Fernando, 13/11/2026 |
 | D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
 
 ### 14.2 Abertas
 
-As três primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
+As duas primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 
 | # | Decisão | Recomendação | Bloqueia |
 |---|---|---|---|
 | D01 | Evoluir este repositório ou começar outro | Evoluir este. A fundação (auth, RLS, LGPD, IA, CI) está pronta e testada. | Tudo |
-| D02 | Destino do conteúdo curado do MVP | Virar o acervo Cognuss e alimentar o material complementar. | Fase 1 |
 | D06 | **Onde ficam os arquivos que os alunos enviam** (slides, provas, cronogramas) e **quanto cada aluno pode enviar**. Hoje a plataforma não guarda arquivos; a v2 passa a guardar muitos. Duas escolhas: (a) no próprio servidor, sem custo extra, mas o disco e o backup ficam por nossa conta; (b) num serviço de armazenamento em nuvem, pago por uso, que cuida de espaço e cópia, com os dados possivelmente fora do Brasil. | Serviço em nuvem, que é o padrão do blueprint, confirmando antes em que região os dados ficam. Espaço por aluno sem teto durante o QA, como na D07, com limite só por arquivo (sugestão: 50 MB). | Fase 0 |
-| D04 (resto) | Finalidade do CPF, para constar na política; telefone obrigatório ou opcional | Telefone opcional até o aluno ligar o WhatsApp. | Fase 1 |
 | D08 | WhatsApp: provedor, número, modelos de mensagem | | Fase 6 |
 | D09 | Planilha Google: só link público ou login com Google | Começar por link compartilhado "qualquer pessoa com o link". | Fase 6 |
 | D10 | Áudio: parecer jurídico (10.3) | Não construir antes. | Fase 7 |
@@ -1170,7 +1170,7 @@ As três primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 | D15 | Parâmetros iniciais do Equilíbrio (6.4) | As propostas de 6.4, ajustadas depois do piloto. | Fase 4 |
 | D16 | Papel do professor e da instituição na v2 | Manter o painel do MVP como está; decidir na Parte II. | Não bloqueia |
 | D17 | Parte II: Aprender, Organizar, Conectar, Evoluir, simulados, lâminas | Aguardar o documento. | Menu principal |
-| D18 | Modelo comercial e limites do plano gratuito para IA e armazenamento | Definir junto com os tetos da D07, depois do QA. | Fase 5 |
+| D18 | Modelo comercial, cobrança, emissão de nota fiscal (a finalidade do CPF) e limites do plano gratuito para IA e armazenamento. Pagamento não está nesta spec (2.3). | Definir junto com os tetos da D07, depois do QA. | Fase 5 |
 | D19 | Calendário, corte do piloto e atualização do roadmap público | | Planejamento |
 | D20 | Compartilhar materiais e anotações entre colegas | Fora da primeira versão (direitos autorais e provas sigilosas). | Não bloqueia |
 
@@ -1194,7 +1194,7 @@ As três primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
 | L12 | O menu lateral varia entre as telas (com e sem a Calculadora). | Menu único em 4.2. |
 | L13 | Módulos citados sem especificação: Pulse, Minha Agenda, Tutor, Memory, e as áreas do menu principal. | Mapeados no que foi possível (2.2, 4.1); o resto fica para a Parte II. |
 | L14 | Não há perfil de professor, de instituição nem de admin no documento. | Mantidos como no MVP (seção 3). |
-| L15 | O material complementar "dentro da plataforma" pressupõe um acervo que o documento não descreve. | Ligado ao catálogo do MVP (D02). |
+| L15 | O material complementar "dentro da plataforma" pressupõe um acervo que o documento não descreve. | Ligado ao catálogo do MVP (decisão D02). |
 
 ---
 
