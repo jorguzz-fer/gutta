@@ -123,6 +123,8 @@ export const consentPurpose = pgEnum('consent_purpose', [
   'learning_analytics',
   'marketing',
   'ai_tutor',
+  // Leitura dos materiais do aluno pela IA (cronograma, resumos): SPEC v2, 10.1.
+  'ai_materials',
 ]);
 
 // Registro imutável: cada mudança de consentimento é uma linha nova.
