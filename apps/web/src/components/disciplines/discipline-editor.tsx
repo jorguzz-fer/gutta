@@ -35,11 +35,11 @@ type Pending = { kind: 'cronograma' | 'plano_ensino'; file: File };
 */
 export function DisciplineEditor({
   initial,
-  reviewable = true,
+  reviewBase = '/app/minhas-disciplinas/cronograma',
 }: {
   initial: DisciplineDto[];
-  /** Fora do cadastro, o cronograma lido leva à tela de conferência. */
-  reviewable?: boolean;
+  /** Onde fica a conferência do cronograma (no cadastro ou no app). */
+  reviewBase?: string;
 }) {
   const [items, setItems] = useState(initial);
   const [name, setName] = useState('');
@@ -324,7 +324,7 @@ export function DisciplineEditor({
                 {d.scheduleImport ? (
                   <ScheduleStatus
                     value={d.scheduleImport}
-                    reviewable={reviewable}
+                    reviewBase={reviewBase}
                     onChanged={refresh}
                   />
                 ) : null}

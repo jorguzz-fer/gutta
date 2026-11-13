@@ -13,16 +13,17 @@ export const isPending = (i: Import | null) =>
 
 /*
   Estado da leitura do cronograma no cartão da disciplina (SPEC v2, DIS-05). Sem autorização,
-  explica o que vai para a IA e pede; pronta, leva à conferência. No cadastro, a conferência
-  fica para depois (reviewable=false), para não interromper o passo.
+  explica o que vai para a IA e pede; pronta, leva à conferência (no cadastro, a conferência
+  do próprio cadastro, para as aulas já entrarem na rotina, ROT-02).
 */
 export function ScheduleStatus({
   value,
-  reviewable,
+  reviewBase,
   onChanged,
 }: {
   value: Import;
-  reviewable: boolean;
+  /** Caminho da tela de conferência; o id da leitura vai no fim. */
+  reviewBase: string;
   onChanged: () => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
@@ -64,18 +65,13 @@ export function ScheduleStatus({
       );
       break;
     case 'ready':
-      body = reviewable ? (
+      body = (
         <div className="flex flex-wrap items-center gap-2">
           <p>O cronograma foi lido.</p>
-          <Link
-            href={`/app/minhas-disciplinas/cronograma/${value.id}`}
-            className={buttonClass('primary', 'md')}
-          >
+          <Link href={`${reviewBase}/${value.id}`} className={buttonClass('primary', 'md')}>
             Conferir o cronograma
           </Link>
         </div>
-      ) : (
-        <p>O cronograma foi lido. Você confere em Minhas disciplinas, depois do cadastro.</p>
       );
       break;
     case 'confirmed':

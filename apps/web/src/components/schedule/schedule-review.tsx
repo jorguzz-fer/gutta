@@ -83,7 +83,15 @@ const pickItem = (r: Row): ScheduleItem => ({
   Quando já existe cronograma confirmado, cada item mostra se é novo ou o que mudou, e a
   lista do que sai da agenda aparece antes de confirmar. Evento que o aluno editou fica.
 */
-export function ScheduleReview({ initial }: { initial: Dto }) {
+export function ScheduleReview({
+  initial,
+  backHref = '/app/minhas-disciplinas',
+  backLabel = 'Voltar para Minhas disciplinas',
+}: {
+  initial: Dto;
+  backHref?: string;
+  backLabel?: string;
+}) {
   const router = useRouter();
   const [dto, setDto] = useState(initial);
   const [rows, setRows] = useState<Row[]>(() =>
@@ -188,7 +196,7 @@ export function ScheduleReview({ initial }: { initial: Dto }) {
     setError('');
     try {
       await api(`/schedule-imports/${dto.id}/reject`, { method: 'POST' });
-      router.push('/app/minhas-disciplinas');
+      router.push(backHref);
     } catch (err) {
       setError(err instanceof ClientApiError ? err.message : 'Algo deu errado.');
       setBusy(false);
@@ -196,8 +204,8 @@ export function ScheduleReview({ initial }: { initial: Dto }) {
   }
 
   const back = (
-    <Link href="/app/minhas-disciplinas" className="text-sm">
-      Voltar para Minhas disciplinas
+    <Link href={backHref} className="text-sm">
+      {backLabel}
     </Link>
   );
 
@@ -226,8 +234,7 @@ export function ScheduleReview({ initial }: { initial: Dto }) {
     const text: Record<string, string> = {
       waiting_file: 'O arquivo ainda está sendo preparado. A leitura começa em seguida.',
       extracting: 'Lendo o cronograma. Isso costuma levar menos de um minuto.',
-      needs_consent:
-        'A leitura precisa da sua autorização. Autorize no cartão da disciplina, em Minhas disciplinas.',
+      needs_consent: 'A leitura precisa da sua autorização. Autorize no cartão da disciplina.',
       rejected: 'Esta leitura foi descartada. Nada mudou na agenda.',
       failed: dto.error ?? 'Não foi possível ler o cronograma.',
     };
