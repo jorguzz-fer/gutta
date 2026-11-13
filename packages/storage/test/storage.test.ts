@@ -86,3 +86,40 @@ describe('configuração', () => {
     expect(s).toBeInstanceOf(S3Storage);
   });
 });
+
+describe('disco (desenvolvimento)', () => {
+  it('assina, confere e recusa adulteração ou URL vencida', async () => {
+    const { mkdtempSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { FsStorage } = await import('../src/fs');
+    const fs = new FsStorage(
+      mkdtempSync(join(tmpdir(), 'st-')),
+      'http://localhost:3000',
+      'segredo',
+    );
+    const { url } = await fs.putUrl('u/a/f/1/original', {
+      contentType: 'application/pdf',
+      contentLength: 3,
+      expiresIn: 60,
+    });
+    const u = new URL(url);
+    expect(u.pathname).toBe('/api/dev-storage/u/a/f/1/original');
+    expect(fs.verify('u/a/f/1/original', u.searchParams)).toMatchObject({ op: 'put', length: '3' });
+    expect(fs.verify('u/b/f/1/original', u.searchParams)).toBeNull();
+    u.searchParams.set('len', '999');
+    expect(fs.verify('u/a/f/1/original', u.searchParams)).toBeNull();
+    await fs.put('u/a/f/1/original', Buffer.from('abc'), 'application/pdf');
+    expect(await fs.head('u/a/f/1/original')).toEqual({ size: 3 });
+    expect(await fs.deletePrefix('u/a/')).toBe(1);
+    expect(await fs.head('u/a/f/1/original')).toBeNull();
+    await expect(fs.put('../fora', Buffer.from('x'), 'text/plain')).rejects.toThrow(
+      'chave inválida',
+    );
+  });
+
+  it('só fora de produção e com as variáveis', () => {
+    expect(() => storageFromEnv({ STORAGE_DRIVER: 'fs', NODE_ENV: 'production' })).toThrow();
+    expect(() => storageFromEnv({ STORAGE_DRIVER: 'fs' })).toThrow(/STORAGE_FS_DIR/);
+  });
+});
