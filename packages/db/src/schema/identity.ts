@@ -41,6 +41,13 @@ export const roleAssignments = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.role] })],
 );
 
+export const mainGoal = pgEnum('main_goal', [
+  'reforcar_disciplinas',
+  'preparar_provas',
+  'organizar_rotina',
+  'desenvolver_curriculo',
+]);
+
 export const studentProfiles = pgTable(
   'student_profiles',
   {
@@ -59,6 +66,13 @@ export const studentProfiles = pgTable(
       .notNull()
       .default(sql`'{1,2,3,4,5}'::smallint[]`),
     onboardingCompletedAt: timestamp('onboarding_completed_at', { withTimezone: true }),
+    // Cadastro da v2 (SPEC v2, CAD-02 e CAD-03).
+    courseOther: text('course_other'),
+    campus: text('campus'),
+    classGroup: text('class_group'),
+    mainGoal: mainGoal('main_goal'),
+    // Último passo concluído do cadastro da v2: retomar de onde parou (CAD-07).
+    signupStep: text('signup_step'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -144,4 +158,27 @@ export const dataRequests = pgTable(
     resolvedAt: timestamp('resolved_at', { withTimezone: true }),
   },
   (t) => [index('data_requests_user_idx').on(t.userId)],
+);
+
+// Dados pessoais do cadastro da v2 (SPEC v2, CAD-01 e CAD-10). Fica separado do perfil
+// acadêmico para ninguém ler o CPF por acaso. O CPF só existe cifrado (AES-256-GCM) e com um
+// resumo com chave (HMAC) para garantir um CPF por conta; a tela mostra os dois últimos dígitos.
+// Finalidade: emissão de nota fiscal (decisão D04).
+export const personalData = pgTable(
+  'personal_data',
+  {
+    userId: userRef('user_id').primaryKey(),
+    fullName: text('full_name').notNull(),
+    cpfEncrypted: text('cpf_encrypted').notNull(),
+    cpfHash: text('cpf_hash').notNull(),
+    cpfLast2: text('cpf_last2').notNull(),
+    phone: text('phone').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('personal_data_cpf_hash_uq').on(t.cpfHash),
+    check('personal_data_last2_ck', sql`${t.cpfLast2} ~ '^[0-9]{2}$'`),
+    check('personal_data_phone_ck', sql`${t.phone} ~ '^\\+[0-9]{8,15}$'`),
+  ],
 );
