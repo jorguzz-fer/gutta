@@ -1,0 +1,29 @@
+{
+  "name": "@gutta/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/worker.mjs --external:pg-native --external:@node-rs/argon2 --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@gutta/db": "workspace:*",
+    "@gutta/jobs": "workspace:*",
+    "bullmq": "5.81.5",
+    "ioredis": "5.11.1",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/pg": "^8.23.1",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.12",
+    "esbuild": "^0.25.12",
+    "tsx": "^4.23.15"
+  }
+}
