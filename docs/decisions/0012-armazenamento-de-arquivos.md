@@ -1,6 +1,6 @@
 # ADR 0012: Armazenamento e processamento de arquivos
 
-- Status: proposto
+- Status: aceito (Fernando, 13/11/2026)
 - Data: 2026-11-13
 
 ## Contexto

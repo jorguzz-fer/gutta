@@ -1,6 +1,6 @@
 # ADR 0013: Fila de trabalhos e processo `worker`
 
-- Status: proposto
+- Status: aceito (Fernando, 13/11/2026)
 - Data: 2026-11-13
 
 ## Contexto
