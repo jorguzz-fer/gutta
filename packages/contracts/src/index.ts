@@ -11,3 +11,4 @@ export * as calendar from './routes/calendar';
 export * as reminders from './routes/reminders';
 export * as attendance from './routes/attendance';
 export * as grades from './routes/grades';
+export * as materials from './routes/materials';

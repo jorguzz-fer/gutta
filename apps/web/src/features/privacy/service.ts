@@ -188,6 +188,9 @@ export async function exportData(userId: string) {
       attendanceRules,
       absences,
       gradingSchemes,
+      materials,
+      materialVersions,
+      materialLinks,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -266,6 +269,10 @@ export async function exportData(userId: string) {
       () => tx.select().from(s.absences).where(eq(s.absences.ownerId, userId)),
       // Notas: a forma de cálculo (as notas estão nas avaliações).
       () => tx.select().from(s.gradingSchemes).where(eq(s.gradingSchemes.ownerId, userId)),
+      // Material de estudo (SPEC v2, MAT). O conteúdo dos arquivos está no bucket.
+      () => tx.select().from(s.materials).where(eq(s.materials.ownerId, userId)),
+      () => tx.select().from(s.materialVersions).where(eq(s.materialVersions.ownerId, userId)),
+      () => tx.select().from(s.materialLinks).where(eq(s.materialLinks.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -312,6 +319,9 @@ export async function exportData(userId: string) {
       attendanceRules,
       absences,
       gradingSchemes,
+      materials,
+      materialVersions,
+      materialLinks,
     };
   });
 }
