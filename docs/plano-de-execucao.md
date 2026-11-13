@@ -50,3 +50,30 @@ Escopo vindo do roadmap (F1: tutor IA; F2: painel do professor) e do pedido de u
 - [x] 28. Admin cria usuário (nome, e-mail, papel, e-mail confirmado) com senha temporária mostrada uma vez; tela de trocar senha em Segurança. E2E.
 - [x] 29. Pacote LGPD (ADR 0009, `docs/lgpd/`): exclusão executada no banco (`erase_user`) com prazo de desistência e fila do admin em `/admin/privacidade`; pedidos do titular (correção, informação, oposição) com prazo de 15 dias e resposta no app; consentimento específico para o tutor IA e apagar o texto das conversas; retenção configurável (`apply_retention`) no start, em tarefa diária e por botão; novo aceite quando a política muda; política e termos completos com bases legais, operadores e prazos; controlador e encarregado por variável; logs sem e-mail. Registro das operações, RIPD e plano de incidentes em rascunho. Testes de banco, integração e E2E.
 - [x] 30. Marca Cognuss (ADR 0010): logo com o "C" no quadrado vermelho, favicon, nome em todas as telas, e-mails, termos, política, tutor, 2FA, página de espera e roadmap. Nomes internos do código seguem `gutta`.
+
+## Ciclo 3 (pedido do Fernando, 13/11/2026): Cognuss v2
+
+Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita a partir do documento do Dr. Hugo e do Dr. Rafael (ADR 0011). O backlog completo, com as oito fases, está na seção 12 da SPEC v2. Aqui ficam só as Fases 0 e 1; as seguintes entram quando a anterior fechar.
+
+**Nada abaixo do item 31 começa antes de o item 31 estar marcado.**
+
+### Fase 0: preparação
+
+- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões D01 a D07 fechadas e registradas; ADR 0011 passa a "aceito".
+- [ ] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
+- [ ] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` na mesma imagem; `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
+- [ ] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.
+- [ ] 35. Caminho de um arquivo (SPEC v2, 7.4): pedir envio, URL assinada, confirmação, varredura, conversão, texto e miniaturas por página, estado visível. Testes de isolamento e de idempotência dos trabalhos.
+- [ ] 36. Experimento de extração de cronograma com 20 cronogramas reais: acerto por campo e custo médio. Experimento do visualizador com caneta no iPad e em tablet Android. Resultados em `docs/`.
+- [ ] 37. Tokens visuais conforme a decisão D03.
+
+### Fase 1: fundação da vida acadêmica
+
+- [ ] 38. Modelo acadêmico: `student_terms`, `enrolled_disciplines`, `discipline_teachers`, `discipline_topics`, com RLS e migração de `student_disciplines` e `exam_dates`.
+- [ ] 39. Cadastro (CAD-01 a CAD-09): dados pessoais, perfil acadêmico e objetivo, retomável e idempotente. Substitui o onboarding do MVP.
+- [ ] 40. Disciplinas (DIS-01 a DIS-03, DIS-09, DIS-10): cadastro, docentes, upload de cronograma e de plano de ensino.
+- [ ] 41. Extração do cronograma com tela de conferência e confirmação (DIS-05, DIS-07); `lessons` e `assessments` criados só depois de confirmar.
+- [ ] 42. `packages/core/recurrence` e `packages/core/agenda`: projeção única de ocorrências, com testes unitários.
+- [ ] 43. Rotina semanal (ROT-01 a ROT-10, ROT-12, ROT-17): grade, categorias, recorrência, horários protegidos, meta e resumo.
+- [ ] 44. Agenda geral (CAL-14) e Meu Espaço inicial (ESP-01 a ESP-06, ESP-09, ESP-13).
+- [ ] 45. E2E: conta nova, cadastro, cronograma conferido, rotina, Meu Espaço com a semana real. Acessibilidade no fluxo. Verificação do tom de voz dos textos.
