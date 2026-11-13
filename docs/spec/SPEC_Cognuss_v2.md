@@ -722,7 +722,7 @@ A v2 continua sendo o monólito modular do ADR 0001, sobre a mesma base de códi
 | §1.6 e §8 Contrato como fonte de verdade | Os esquemas Zod de `/api/v1` passam a gerar o **OpenAPI 3.1** e os tipos do cliente. Necessário para o modo offline e para um app nativo futuro. | Hoje o MVP não tem OpenAPI (ADR 0001 já previa). Entra na Fase 0. O formato de erro do MVP (`code`, `message`, `requestId`) é mantido; a seção 8 do blueprint é opcional e não se aplica (sem terceiros). |
 | §2 Stack | TypeScript ponta a ponta, PostgreSQL, Drizzle, Tailwind com design system próprio, PWA. | Next.js no lugar de NestJS e React separados: desvio já registrado no ADR 0001. |
 | §2 Cache e fila | **Redis** entra agora: fila de trabalhos, limite de taxa compartilhado (pendência do ADR 0006) e o armazenamento efêmero do áudio. | Componente novo de infraestrutura. ADR. |
-| §2 Armazenamento | **S3 compatível**, bucket privado. Padrão do blueprint: Cloudflare R2; alternativa: MinIO próprio. | Serviço em nuvem (decisão D06). O ADR 0012 escolhe o provedor depois de confirmar em que região os dados ficam (§14). |
+| §2 Armazenamento | **Cloudflare R2** (decisão D06), bucket privado, acesso pela API compatível com S3. É o padrão do blueprint. | O R2 não tem região no Brasil: os arquivos ficam fora do país (10.1). O ADR 0012 registra a dica de localização e o mecanismo de transferência. |
 | §3 Arquitetura | Camadas `core` (domínio puro) → serviços → entradas. Efeitos colaterais por **eventos de domínio em fila**, com nova tentativa, espera crescente e fila de mortos. | O processo `worker` é novo, da mesma base e da mesma imagem. |
 | §4 Monorepo | pnpm workspaces. Pacotes novos em 7.10. | Sem `apps/api` separado (ADR 0001). |
 | §5 Deploy | Coolify, Docker, um ponto público, banco e Redis sem porta pública, migrations no start. | Backup e teste de restauração passam a incluir o bucket. Definir RPO e RTO. Ambiente de homologação igual à produção, se ainda não existir. |
@@ -754,7 +754,7 @@ flowchart LR
 
 | Componente | Proposta | ADR a escrever |
 |---|---|---|
-| Armazenamento de arquivos | S3 compatível, bucket privado, chave `u/{user_id}/{file_id}/…`, URL assinada de poucos minutos | 0012 |
+| Armazenamento de arquivos | Cloudflare R2, bucket privado, chave `u/{user_id}/{file_id}/…`, URL assinada de poucos minutos. O código fala com a API compatível com S3, sem depender de recurso exclusivo do R2, para a troca de provedor continuar possível | 0012 |
 | Fila e processo `worker` | Redis com BullMQ; o mesmo código, outro comando de entrada | 0013 |
 | Busca | Texto completo do Postgres em português, mais `pgvector` para busca por conceito | 0014 |
 | Visualizador e anotações | pdf.js para exibir; camada vetorial própria para marcações; editor de texto rico no caderno; fórmulas com KaTeX | 0015 |
@@ -1000,7 +1000,7 @@ Simulações de nota e resumos de falta são cálculo puro: a mesma função de 
 | Dados novos | Rotina pessoal (horários de sono, trabalho, lazer), faltas, notas, arquivos, anotações. A rotina revela hábitos: é dado pessoal e fica só com o aluno. |
 | Finalidades e consentimentos novos | Processamento dos materiais por IA (estende `ai_tutor`); captura de áudio; WhatsApp; aprendizagem de padrões de uso (EQU-19); anexos sensíveis. Cada um separado, revogável em Privacidade. |
 | Operadores novos | Armazenamento, transcrição, voz sintética, vetores de busca, mensageria. Contrato de tratamento com cada um, e a política pública lista todos. |
-| Transferência internacional | Vale o que o ADR 0009 já decidiu para o tutor: consentimento específico antes de qualquer envio. |
+| Transferência internacional | Vale o que o ADR 0009 já decidiu para o tutor: consentimento específico antes de qualquer envio. **Arquivos no R2:** o R2 não oferece região nem jurisdição no Brasil; as opções de localização são América do Norte, Europa, Ásia-Pacífico e Oceania, e a própria Cloudflare indica o leste da América do Norte como o mais próximo de São Paulo. Como guardar arquivos é parte do serviço, e não um recurso opcional, a base para essa transferência não deve ser o consentimento: o caminho previsto é o contrato com a Cloudflare com cláusulas aceitas pela ANPD (LGPD, art. 33). **Ponto para a revisão jurídica**, antes de o primeiro arquivo real subir. A política pública passa a citar a Cloudflare como operadora. |
 | Exclusão | `erase_user` passa a disparar a remoção dos objetos no bucket e das chaves no Redis, com confirmação registrada. Sem isso, a exclusão fica incompleta. |
 | Exportação | Inclui os arquivos e as anotações, em pacote compactado gerado na fila. |
 | Retenção | Prazos para lixeira (30 dias), histórico de anotações, arquivos de semestres antigos e criações. Configuráveis em `app_settings`, como hoje. |
@@ -1151,7 +1151,7 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 | D03 | Identidade visual: as telas do documento são claras e roxas; o app é escuro e vermelho | **Escuro e vermelho permanece.** Os ADRs 0007 e 0010 seguem valendo. As telas do documento servem de referência de estrutura, não de cor. | Fernando, 13/11/2026 |
 | D04 | CPF e telefone no cadastro | **Os dois obrigatórios.** O CPF é usado para a emissão de nota fiscal. Proteções em CAD-10; pontos para a revisão jurídica em 10.1. | Fernando, 13/11/2026 |
 | D05 | Público: qualquer curso de graduação da saúde ou só Medicina | **Qualquer curso da saúde.** Substitui o recorte de um curso do ADR 0004. | Fernando, 13/11/2026 |
-| D06 | Onde ficam os arquivos que os alunos enviam e quanto cada aluno pode enviar | **Serviço de armazenamento em nuvem**, que é o padrão do blueprint. **Sem teto de espaço por aluno durante o QA**, com limite de 50 MB por arquivo. O provedor sai no ADR 0012, depois de confirmar a região dos dados. | Fernando, 13/11/2026 |
+| D06 | Onde ficam os arquivos que os alunos enviam e quanto cada aluno pode enviar | **Cloudflare R2.** Sem teto de espaço por aluno durante o QA, com limite de 50 MB por arquivo. Dica de localização: leste da América do Norte, o mais próximo do Brasil (não há região no país; ver 10.1). | Fernando, 13/11/2026 |
 | D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
 
 ### 14.2 Abertas
