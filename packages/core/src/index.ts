@@ -10,3 +10,4 @@ export * from './recurrence';
 export * from './agenda';
 export * from './routine';
 export * from './tone';
+export * from './notify';
