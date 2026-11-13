@@ -74,6 +74,12 @@ export default async function PrivacyPage({
       toggle: 'ai_tutor',
     },
     {
+      title: 'Leitura dos seus materiais pela IA',
+      text: 'O cronograma (e, depois, os materiais) que você envia vai para a Anthropic (EUA) para a IA extrair datas e temas. Nada entra na sua agenda sem você conferir. Nome, e-mail e CPF não vão.',
+      basis: 'sua autorização',
+      toggle: 'ai_materials',
+    },
+    {
       title: 'Novidades e ofertas',
       text: 'Avisos de recursos novos e ofertas. Desligar não muda nada no seu estudo.',
       basis: 'sua autorização',

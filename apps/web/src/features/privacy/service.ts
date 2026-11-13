@@ -45,7 +45,7 @@ export async function currentConsents(userId: string) {
 }
 
 /** Finalidades que a pessoa liga e desliga sem perder o serviço essencial (art. 8º, §5º). */
-export const OPTIONAL_PURPOSES = ['marketing', 'ai_tutor'] as const;
+export const OPTIONAL_PURPOSES = ['marketing', 'ai_tutor', 'ai_materials'] as const;
 export type OptionalPurpose = (typeof OPTIONAL_PURPOSES)[number];
 
 export async function setConsent(userId: string, purpose: OptionalPurpose, granted: boolean) {
@@ -173,6 +173,10 @@ export async function exportData(userId: string) {
       topicsOwn,
       files,
       filePages,
+      lessons,
+      assessments,
+      scheduleImports,
+      aiUsage,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -219,6 +223,11 @@ export async function exportData(userId: string) {
       () => tx.select().from(s.disciplineTopics).where(eq(s.disciplineTopics.ownerId, userId)),
       () => tx.select().from(s.files).where(eq(s.files.ownerId, userId)),
       () => tx.select().from(s.filePages).where(eq(s.filePages.ownerId, userId)),
+      // Cronograma (SPEC v2, 8.2 e 8.6): aulas, avaliações, leituras pela IA e o uso de IA.
+      () => tx.select().from(s.lessons).where(eq(s.lessons.ownerId, userId)),
+      () => tx.select().from(s.assessments).where(eq(s.assessments.ownerId, userId)),
+      () => tx.select().from(s.scheduleImports).where(eq(s.scheduleImports.ownerId, userId)),
+      () => tx.select().from(s.aiUsage).where(eq(s.aiUsage.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -250,6 +259,10 @@ export async function exportData(userId: string) {
       disciplineTopics: topicsOwn,
       files,
       filePages,
+      lessons,
+      assessments,
+      scheduleImports,
+      aiUsage,
     };
   });
 }

@@ -23,6 +23,8 @@ export default async function PrivacyPolicyPage() {
   // O cadastro da v2 coleta CPF e telefone (SPEC v2, D04); a política só fala deles quando
   // ele está ligado, para descrever o que de fato é coletado.
   const signupV2 = await featureEnabled('cadastro');
+  // Leitura do cronograma pela IA (SPEC v2, DIS-05): só aparece com o módulo ligado.
+  const aiMaterials = signupV2 || (await featureEnabled('disciplinas'));
   const lessonHosts = (process.env.LESSON_ORIGINS ?? '')
     .split(/[\s,]+/)
     .filter(Boolean)
@@ -59,6 +61,12 @@ export default async function PrivacyPolicyPage() {
         </li>
         <li>Estudo: respostas, revisões, cartões e tempo de uso.</li>
         <li>Tutor IA, se você usar: suas perguntas e as respostas do tutor.</li>
+        {aiMaterials ? (
+          <li>
+            Arquivos que você envia, como o cronograma da disciplina, e o que a IA leu deles para
+            você conferir.
+          </li>
+        ) : null}
         <li>Turmas, se você entrar em uma: em qual turma está e desde quando.</li>
         <li>
           Dados técnicos: endereço IP e navegador de cada sessão, e registros de quem mudou o quê
@@ -110,6 +118,14 @@ export default async function PrivacyPolicyPage() {
             <td>Tutor IA</td>
             <td>Consentimento específico (I e art. 33, VIII), pedido antes da primeira pergunta</td>
           </tr>
+          {aiMaterials ? (
+            <tr>
+              <td>Leitura dos seus materiais pela IA (datas e temas do cronograma)</td>
+              <td>
+                Consentimento específico (I e art. 33, VIII), pedido antes da primeira leitura
+              </td>
+            </tr>
+          ) : null}
           <tr>
             <td>Novidades e ofertas</td>
             <td>Consentimento (I), opcional</td>
@@ -134,6 +150,12 @@ export default async function PrivacyPolicyPage() {
           Anthropic, nos Estados Unidos, só quando você usa o tutor: recebe a pergunta, o material
           do módulo e o resumo das suas respostas naquele módulo. Nome e e-mail não vão.
         </li>
+        {aiMaterials ? (
+          <li>
+            Anthropic, nos Estados Unidos, quando você autoriza a leitura dos seus materiais: recebe
+            o conteúdo do arquivo (o cronograma, por exemplo). Nome, e-mail e CPF não vão.
+          </li>
+        ) : null}
         <li>
           Provedor de e-mail transacional (Resend, nos Estados Unidos), quando ativo: recebe seu
           e-mail para enviar confirmação e recuperação de senha.

@@ -6,6 +6,11 @@ import { ApiError, conflict, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { toDto as fileDto } from '@/features/files/service';
 import { flags } from '@/features/flags/service';
+import {
+  cancelImportsForFile,
+  createImportForDocument,
+  latestImports,
+} from '@/features/schedule/service';
 
 type Input = z.output<typeof contract.disciplineBody>;
 type DisciplineDto = contract.DisciplineDto;
@@ -65,6 +70,7 @@ async function load(tx: Tx, userId: string, ids?: string[]): Promise<DisciplineD
     .innerJoin(s.files, eq(s.files.id, s.disciplineDocuments.fileId))
     .where(inArray(s.disciplineDocuments.disciplineId, discIds))
     .orderBy(asc(s.disciplineDocuments.createdAt));
+  const imports = await latestImports(tx, userId, discIds);
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
@@ -76,6 +82,10 @@ async function load(tx: Tx, userId: string, ids?: string[]): Promise<DisciplineD
     documents: docs
       .filter((d) => d.doc.disciplineId === r.id)
       .map((d) => ({ id: d.doc.id, kind: d.doc.kind, file: fileDto(d.file) })),
+    scheduleImport: (() => {
+      const i = imports.get(r.id);
+      return i ? { id: i.id, status: i.status, error: i.error } : null;
+    })(),
   }));
 }
 
@@ -92,19 +102,36 @@ async function findOwn(tx: Tx, userId: string, id: string) {
 }
 
 async function setTeachers(tx: Tx, userId: string, disciplineId: string, names: string[]) {
+  const key = (n: string) => n.toLocaleLowerCase('pt-BR');
   const seen = new Set<string>();
   // Mesmo nome com caixa diferente conta uma vez; vale a primeira grafia.
   const unique = names.filter((n) => {
-    const k = n.toLocaleLowerCase('pt-BR');
-    if (seen.has(k)) return false;
-    seen.add(k);
+    if (seen.has(key(n))) return false;
+    seen.add(key(n));
     return true;
   });
-  await tx.delete(s.disciplineTeachers).where(eq(s.disciplineTeachers.disciplineId, disciplineId));
-  if (unique.length) {
-    await tx
-      .insert(s.disciplineTeachers)
-      .values(unique.map((name) => ({ ownerId: userId, disciplineId, name })));
+  // Quem continua na lista mantém o id: aulas importadas apontam para ele.
+  const current = await tx
+    .select()
+    .from(s.disciplineTeachers)
+    .where(eq(s.disciplineTeachers.disciplineId, disciplineId));
+  const gone = current.filter((t) => !seen.has(key(t.name)));
+  if (gone.length)
+    await tx.delete(s.disciplineTeachers).where(
+      inArray(
+        s.disciplineTeachers.id,
+        gone.map((t) => t.id),
+      ),
+    );
+  for (const name of unique) {
+    const same = current.find((t) => key(t.name) === key(name));
+    if (!same)
+      await tx.insert(s.disciplineTeachers).values({ ownerId: userId, disciplineId, name });
+    else if (same.name !== name)
+      await tx
+        .update(s.disciplineTeachers)
+        .set({ name })
+        .where(eq(s.disciplineTeachers.id, same.id));
   }
 }
 
@@ -197,6 +224,8 @@ export async function attachDocument(
       .insert(s.disciplineDocuments)
       .values({ ownerId: userId, disciplineId: id, fileId: input.fileId, kind: input.kind })
       .onConflictDoNothing();
+    // Cronograma anexado: a IA lê e o aluno confere depois (DIS-05).
+    if (input.kind === 'cronograma') await createImportForDocument(tx, userId, id, file);
     return (await load(tx, userId, [id]))[0]!;
   });
   return { discipline };
@@ -215,8 +244,9 @@ export async function detachDocument(userId: string, id: string, documentId: str
           eq(s.disciplineDocuments.ownerId, userId),
         ),
       )
-      .returning({ id: s.disciplineDocuments.id });
+      .returning({ id: s.disciplineDocuments.id, fileId: s.disciplineDocuments.fileId });
     if (deleted.length === 0) throw notFound('Documento');
+    await cancelImportsForFile(tx, userId, id, deleted[0]!.fileId);
     return (await load(tx, userId, [id]))[0]!;
   });
   return { discipline };

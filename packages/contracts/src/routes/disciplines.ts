@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Uuid } from '../common';
 import { defineRoute } from '../registry';
 import { FileDto } from './files';
+import { ImportStatus } from './schedule';
 
 // Disciplinas do aluno (SPEC v2, DIS-01 a DIS-03 e DIS-10). Ficam no semestre atual; o
 // semestre é criado na primeira disciplina, se ainda não existir.
@@ -15,6 +16,10 @@ export const DisciplineDto = z.object({
   color: z.number().int().min(1).max(8),
   teachers: z.array(z.object({ id: Uuid, name: z.string() })),
   documents: z.array(z.object({ id: Uuid, kind: DocumentKind, file: FileDto })),
+  /** Última leitura de cronograma (a descartada não conta). */
+  scheduleImport: z
+    .object({ id: Uuid, status: ImportStatus, error: z.string().nullable() })
+    .nullable(),
 });
 export type DisciplineDto = z.infer<typeof DisciplineDto>;
 
