@@ -59,7 +59,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 
 ### Fase 0: preparação
 
-- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões que bloqueiam o início fechadas e registradas (D02, D03, D04, D05 e D07 fechadas em 13/11/2026; faltam D01 e D06); ADR 0011 passa a "aceito".
+- [ ] 31. SPEC v2 aprovada pelo Fernando, pelo Dr. Hugo e pelo Dr. Rafael; decisões que bloqueiam o início fechadas e registradas (D01 a D07 fechadas pelo Fernando em 13/11/2026; falta a aprovação do Dr. Hugo e do Dr. Rafael); ADR 0011 passa a "aceito".
 - [ ] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
 - [ ] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` na mesma imagem; `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
 - [ ] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.

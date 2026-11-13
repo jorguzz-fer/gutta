@@ -1,6 +1,6 @@
 # ADR 0011: Cognuss v2, nova fonte de verdade de produto sobre a base do MVP
 
-- Status: proposto (aguarda aprovação do Fernando, do Dr. Hugo e do Dr. Rafael)
+- Status: proposto. A decisão de base (evoluir este repositório) foi aceita pelo Fernando em 13/11/2026; falta a aprovação da SPEC v2 pelo Dr. Hugo e pelo Dr. Rafael.
 - Data: 2026-11-13
 
 ## Contexto
@@ -17,7 +17,7 @@ O ADR 0004 dizia que, em conflito de escopo, vale o roadmap público. O roadmap 
 2. **Manter a SPEC v1 e encaixar o documento como funcionalidades extras.** Contra: a v1 parte do catálogo editorial; o documento novo parte do semestre do aluno. Encaixar deixaria dois modelos de disciplina e duas telas iniciais convivendo.
 3. **Evoluir este repositório, com uma SPEC v2 como fonte de verdade de produto.**
 
-## Decisão (proposta)
+## Decisão
 
 Opção 3.
 
@@ -26,7 +26,7 @@ Opção 3.
 - Enquanto o roadmap público não for atualizado, em conflito de escopo vale a SPEC v2. Isso substitui a regra do ADR 0004. `public/` só muda a pedido.
 - O que o MVP construiu é a fundação da v2 (SPEC v2, 7.1). Onboarding, painel "Hoje", `student_disciplines` e `exam_dates` são substituídos; o catálogo editorial vira o acervo de material complementar.
 - Cada componente novo de infraestrutura (armazenamento, fila, busca, anotações, notificações, offline, áudio, contrato) ganha um ADR próprio, do 0012 ao 0019, antes de ser construído.
-- Nada da v2 começa antes de fecharem as decisões que bloqueiam o início na SPEC v2 (seção 14). Em 13/11/2026 o Fernando fechou D02, D03, D04, D05 e D07; faltam D01 e D06.
+- Nada da v2 começa antes de fecharem as decisões que bloqueiam o início na SPEC v2 (seção 14). Em 13/11/2026 o Fernando fechou as sete (D01 a D07).
 
 ## Consequências
 

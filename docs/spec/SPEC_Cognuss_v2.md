@@ -1,7 +1,7 @@
 # SPEC DE PRODUTO E ENGENHARIA: Cognuss v2
 
-- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. Decisões D02, D03, D04, D05 e D07 registradas no mesmo dia (seção 14.1).
-- **Status:** proposta. Só vira fonte de verdade depois da aprovação do Fernando, do Dr. Hugo e do Dr. Rafael e do fechamento das decisões da seção 14.
+- **Versão:** 2.0 (rascunho para aprovação), 13/11/2026. As sete decisões que bloqueavam o início (D01 a D07) foram fechadas pelo Fernando no mesmo dia (seção 14.1).
+- **Status:** proposta. Só vira fonte de verdade depois da aprovação do Dr. Hugo e do Dr. Rafael. As decisões ainda abertas (seção 14.2) não bloqueiam o início.
 - **Documento de origem:** _COGNUSS: Proposta de Interface e Especificação Funcional. Plataforma de Apoio ao Estudante de Graduação. Parte I_ (Dr. Hugo e Dr. Rafael, 12/11/2026, 56 páginas, 42 figuras). O arquivo `.doc` original não está no repositório (8 MB); as telas foram extraídas para `docs/spec/cognuss-v2/telas/` (Anexo A).
 - **Relação com a SPEC v1:** a v1 (`SPEC_Plataforma_Integrada_Estudantes_Saude_v1.md`) descreve o MVP Gutta, já construído. Esta v2 muda o centro do produto e passa a valer para **escopo e produto**. A v1 e o `Engineering_Blueprint.md` continuam valendo para **padrão de engenharia** (RLS, idempotência, testes, definição de pronto).
 
@@ -722,7 +722,7 @@ A v2 continua sendo o monólito modular do ADR 0001, sobre a mesma base de códi
 | §1.6 e §8 Contrato como fonte de verdade | Os esquemas Zod de `/api/v1` passam a gerar o **OpenAPI 3.1** e os tipos do cliente. Necessário para o modo offline e para um app nativo futuro. | Hoje o MVP não tem OpenAPI (ADR 0001 já previa). Entra na Fase 0. O formato de erro do MVP (`code`, `message`, `requestId`) é mantido; a seção 8 do blueprint é opcional e não se aplica (sem terceiros). |
 | §2 Stack | TypeScript ponta a ponta, PostgreSQL, Drizzle, Tailwind com design system próprio, PWA. | Next.js no lugar de NestJS e React separados: desvio já registrado no ADR 0001. |
 | §2 Cache e fila | **Redis** entra agora: fila de trabalhos, limite de taxa compartilhado (pendência do ADR 0006) e o armazenamento efêmero do áudio. | Componente novo de infraestrutura. ADR. |
-| §2 Armazenamento | **S3 compatível**, bucket privado. Padrão do blueprint: Cloudflare R2; alternativa: MinIO próprio. | Depende de D06 e da residência de dados (§14). ADR. |
+| §2 Armazenamento | **S3 compatível**, bucket privado. Padrão do blueprint: Cloudflare R2; alternativa: MinIO próprio. | Serviço em nuvem (decisão D06). O ADR 0012 escolhe o provedor depois de confirmar em que região os dados ficam (§14). |
 | §3 Arquitetura | Camadas `core` (domínio puro) → serviços → entradas. Efeitos colaterais por **eventos de domínio em fila**, com nova tentativa, espera crescente e fila de mortos. | O processo `worker` é novo, da mesma base e da mesma imagem. |
 | §4 Monorepo | pnpm workspaces. Pacotes novos em 7.10. | Sem `apps/api` separado (ADR 0001). |
 | §5 Deploy | Coolify, Docker, um ponto público, banco e Redis sem porta pública, migrations no start. | Backup e teste de restauração passam a incluir o bucket. Definir RPO e RTO. Ambiente de homologação igual à produção, se ainda não existir. |
@@ -1051,7 +1051,7 @@ Além disso, "só a fala do professor é processada" não é uma garantia técni
 | Acessibilidade | WCAG 2.2 AA, com axe no E2E. As ferramentas de desenho têm alternativa por teclado para navegar, marcar selo e anotar em texto |
 | Aparelhos | Celular (consulta e lembretes), notebook e tablet com caneta (Acompanhar Aula). Navegadores atuais, incluindo Safari no iPad |
 | Idioma e fuso | Português do Brasil; textos centralizados; fuso do aluno |
-| Limites iniciais | Cronograma até 10 MB (do documento). Demais arquivos e espaço por aluno a definir em D06 |
+| Limites iniciais | Cronograma até 10 MB (do documento). Demais arquivos até 50 MB cada. Espaço por aluno sem teto durante o QA, com o uso registrado para definir o teto depois (decisão D06) |
 | Escala | Refazer o teste de carga com upload, fila e agenda antes do piloto; rever o ADR 0006 |
 
 ---
@@ -1062,7 +1062,7 @@ A ordem segue as dependências: a agenda vem antes do planejamento; o repositór
 
 ### Fase 0: preparação
 
-- Aprovar esta spec e fechar as decisões que ainda bloqueiam (D01 e D06).
+- Aprovar esta spec (falta o Dr. Hugo e o Dr. Rafael). As decisões que bloqueavam o início estão fechadas.
 - ADRs 0012 a 0019 (7.3).
 - Infraestrutura: bucket, Redis, `worker`, `pgvector`, chaves de funcionalidade, OpenAPI gerado.
 - Experimentos curtos: extração de cronograma com 20 cronogramas reais (medir acerto e custo); visualizador com caneta no iPad e em tablet Android.
@@ -1146,20 +1146,20 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 
 | # | Decisão | Resposta | Quem e quando |
 |---|---|---|---|
+| D01 | Evoluir este repositório ou começar outro | **Evoluir este.** A fundação do MVP (autenticação, RLS, LGPD, IA, CI) é mantida. | Fernando, 13/11/2026 |
 | D02 | Destino do conteúdo curado do MVP (módulos, questões, flashcards) | **Vira o acervo Cognuss** e alimenta o material complementar (AJU-07). | Fernando, 13/11/2026 |
 | D03 | Identidade visual: as telas do documento são claras e roxas; o app é escuro e vermelho | **Escuro e vermelho permanece.** Os ADRs 0007 e 0010 seguem valendo. As telas do documento servem de referência de estrutura, não de cor. | Fernando, 13/11/2026 |
 | D04 | CPF e telefone no cadastro | **Os dois obrigatórios.** O CPF é usado para a emissão de nota fiscal. Proteções em CAD-10; pontos para a revisão jurídica em 10.1. | Fernando, 13/11/2026 |
 | D05 | Público: qualquer curso de graduação da saúde ou só Medicina | **Qualquer curso da saúde.** Substitui o recorte de um curso do ADR 0004. | Fernando, 13/11/2026 |
+| D06 | Onde ficam os arquivos que os alunos enviam e quanto cada aluno pode enviar | **Serviço de armazenamento em nuvem**, que é o padrão do blueprint. **Sem teto de espaço por aluno durante o QA**, com limite de 50 MB por arquivo. O provedor sai no ADR 0012, depois de confirmar a região dos dados. | Fernando, 13/11/2026 |
 | D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
 
 ### 14.2 Abertas
 
-As duas primeiras bloqueiam o início. As demais bloqueiam só a fase indicada.
+Nenhuma bloqueia o início. Cada uma bloqueia só a fase indicada.
 
 | # | Decisão | Recomendação | Bloqueia |
 |---|---|---|---|
-| D01 | Evoluir este repositório ou começar outro | Evoluir este. A fundação (auth, RLS, LGPD, IA, CI) está pronta e testada. | Tudo |
-| D06 | **Onde ficam os arquivos que os alunos enviam** (slides, provas, cronogramas) e **quanto cada aluno pode enviar**. Hoje a plataforma não guarda arquivos; a v2 passa a guardar muitos. Duas escolhas: (a) no próprio servidor, sem custo extra, mas o disco e o backup ficam por nossa conta; (b) num serviço de armazenamento em nuvem, pago por uso, que cuida de espaço e cópia, com os dados possivelmente fora do Brasil. | Serviço em nuvem, que é o padrão do blueprint, confirmando antes em que região os dados ficam. Espaço por aluno sem teto durante o QA, como na D07, com limite só por arquivo (sugestão: 50 MB). | Fase 0 |
 | D08 | WhatsApp: provedor, número, modelos de mensagem | | Fase 6 |
 | D09 | Planilha Google: só link público ou login com Google | Começar por link compartilhado "qualquer pessoa com o link". | Fase 6 |
 | D10 | Áudio: parecer jurídico (10.3) | Não construir antes. | Fase 7 |
