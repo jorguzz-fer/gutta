@@ -8,3 +8,4 @@ export * from './br';
 export * from './schedule';
 export * from './recurrence';
 export * from './agenda';
+export * from './routine';
