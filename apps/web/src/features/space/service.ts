@@ -97,6 +97,7 @@ export async function loadSpace(userId: string): Promise<Space> {
       .filter(
         (o) =>
           o.source === 'assessment' ||
+          (o.source === 'event' && o.kind === 'compromisso') ||
           (o.source === 'lesson' && (o.kind === 'pratica' || o.kind === 'outro')),
       )
       .slice(0, 6);

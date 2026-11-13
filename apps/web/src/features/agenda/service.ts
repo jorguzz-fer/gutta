@@ -2,11 +2,13 @@ import 'server-only';
 import {
   addDays,
   localDayKey,
+  minuteToHm,
   weekStart,
   projectAgenda,
   zonedTimeToUtc,
   routineSeries,
   type Occurrence,
+  type SeriesItem,
   type SingleItem,
 } from '@gutta/core';
 import type { agenda as contract } from '@gutta/contracts';
@@ -14,6 +16,7 @@ import { and, eq, gte, isNotNull, isNull, lt, or, schema as s, withUser, type Tx
 import { ApiError } from '@/lib/api';
 import { db } from '@/lib/db';
 import { flags } from '@/features/flags/service';
+import { eventSeries, eventsWithExceptions } from '@/features/calendar/service';
 
 // Agenda única (SPEC v2, 7.6 e CAL-14). Lê as tabelas donas de cada fato e projeta tudo pelo
 // mesmo serviço do core. Meu Espaço, agenda geral e rotina usam esta leitura; nada é copiado.
@@ -62,6 +65,24 @@ export async function agendaOccurrences(
       ),
     );
   const blocks = await tx.select().from(s.routineBlocks).where(eq(s.routineBlocks.ownerId, userId));
+  const { events, exceptions } = await eventsWithExceptions(tx, userId);
+  // Compromissos do calendário: lazer e descanso são pessoais (CAL-15); o que ocupa horário
+  // fica protegido do planejamento, porque o aluno já reservou o tempo.
+  const eventSeriesItems: SeriesItem[] = events.map((e) => ({
+    ...eventSeries(e, exceptions),
+    source: 'event',
+    sourceId: e.id,
+    kind: e.kind === 'lazer' || e.kind === 'descanso' ? 'pessoal' : e.kind,
+    title: e.title,
+    disciplineId: e.disciplineId,
+    category: e.kind === 'lazer' || e.kind === 'descanso' ? e.kind : null,
+    color: e.color,
+    protected: e.blocksTime,
+    studyWindow: false,
+    blocksTime: e.blocksTime,
+    startTime: e.startMinute === null ? null : minuteToHm(e.startMinute),
+    durationMinutes: e.durationMinutes,
+  }));
 
   const singles: SingleItem[] = [
     ...lessons.map((l): SingleItem => ({
@@ -94,21 +115,24 @@ export async function agendaOccurrences(
     from,
     to,
     singles,
-    series: blocks.map((b) =>
-      routineSeries({
-        id: b.id,
-        kind: b.kind,
-        category: b.category,
-        label: b.label,
-        disciplineId: b.disciplineId,
-        color: b.color,
-        weekdays: b.weekdays,
-        startMinute: b.startMinute,
-        durationMinutes: b.durationMinutes,
-        validFrom: b.validFrom,
-        validUntil: b.validUntil,
-      }),
-    ),
+    series: [
+      ...eventSeriesItems,
+      ...blocks.map((b) =>
+        routineSeries({
+          id: b.id,
+          kind: b.kind,
+          category: b.category,
+          label: b.label,
+          disciplineId: b.disciplineId,
+          color: b.color,
+          weekdays: b.weekdays,
+          startMinute: b.startMinute,
+          durationMinutes: b.durationMinutes,
+          validFrom: b.validFrom,
+          validUntil: b.validUntil,
+        }),
+      ),
+    ],
   });
 }
 

@@ -66,8 +66,9 @@ async function importedEvents(tx: Tx, userId: string, disciplineId: string) {
       and(
         eq(s.lessons.ownerId, userId),
         eq(s.lessons.disciplineId, disciplineId),
+        // Aula que o aluno tirou da agenda continua aqui como editada por ele: o próximo
+        // cronograma não a traz de volta (DIS-07).
         eq(s.lessons.origin, 'imported'),
-        isNull(s.lessons.cancelledAt),
       ),
     )
     .orderBy(asc(s.lessons.startsAt));
@@ -90,7 +91,7 @@ async function importedEvents(tx: Tx, userId: string, disciplineId: string) {
         id: l.id,
         table: 'lesson',
         original: original.data,
-        modifiedByStudent: l.modifiedByStudent,
+        modifiedByStudent: l.modifiedByStudent || l.cancelledAt !== null,
       });
   }
   for (const a of assessments) {
