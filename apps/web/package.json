@@ -19,6 +19,7 @@
     "@gutta/core": "workspace:*",
     "@gutta/db": "workspace:*",
     "@gutta/jobs": "workspace:*",
+    "@gutta/storage": "workspace:*",
     "better-auth": "^1.7.15",
     "ioredis": "5.11.1",
     "lucide-react": "^1.66.0",

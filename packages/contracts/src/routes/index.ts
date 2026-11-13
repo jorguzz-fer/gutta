@@ -1,5 +1,9 @@
+import * as files from './files';
 import * as system from './system';
 import type { RouteDef } from '../registry';
 
 // Toda rota de /api/v1 nova entra aqui (ADR 0019). As antigas migram aos poucos.
-export const routes: RouteDef[] = [...Object.values(system)];
+const isRoute = (v: unknown): v is RouteDef =>
+  typeof v === 'object' && v !== null && 'method' in v && 'path' in v && 'response' in v;
+
+export const routes: RouteDef[] = [system, files].flatMap((m) => Object.values(m).filter(isRoute));

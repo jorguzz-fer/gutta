@@ -9,6 +9,10 @@ const id = z.string().min(1).max(200);
 export const topics = {
   // Sinal de vida da fila, usado no teste ponta a ponta e no /health do worker.
   'system.ping': z.object({ requestId: id.optional() }),
+  // Varrer, conferir o tipo, converter e extrair texto e miniaturas de um arquivo (ADR 0012).
+  'files.process': z.object({ fileId: z.uuid(), userId: id, requestId: id.optional() }),
+  // Conta excluída: apagar do bucket tudo o que estava sob u/{userId}/ (LGPD, ADR 0009).
+  'maintenance.erase_user_objects': z.object({ userId: id }),
 } as const;
 
 export type Topic = keyof typeof topics;

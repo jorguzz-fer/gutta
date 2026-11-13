@@ -12,6 +12,7 @@ export type ErrorCode =
   | 'conflict'
   | 'feature_disabled'
   | 'rate_limited'
+  | 'unavailable'
   | 'internal_error';
 
 export type RouteDef = {
@@ -47,6 +48,7 @@ const STATUS_OF: Record<ErrorCode, number> = {
   conflict: 409,
   feature_disabled: 404,
   rate_limited: 429,
+  unavailable: 503,
   internal_error: 500,
 };
 

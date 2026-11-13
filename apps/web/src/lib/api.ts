@@ -31,7 +31,7 @@ export type ApiContext = { userId: string; requestId: string; req: Request };
  */
 export function apiRoute<P = Record<string, string>>(
   fn: (ctx: ApiContext & { params: P }) => Promise<unknown>,
-  opts: { public?: boolean } = {},
+  opts: { public?: boolean; status?: number } = {},
 ) {
   return async (req: Request, segment: { params: Promise<P> }) => {
     const requestId = req.headers.get('x-request-id') ?? randomUUID();
@@ -59,7 +59,7 @@ export function apiRoute<P = Record<string, string>>(
         method: req.method,
         ms: Date.now() - started,
       });
-      return Response.json(data, { headers });
+      return Response.json(data, { status: opts.status ?? 200, headers });
     } catch (caught) {
       const err =
         caught instanceof z.ZodError
