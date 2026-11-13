@@ -72,7 +72,10 @@ test.describe('cadastro da v2', () => {
     await page.getByRole('button', { name: 'Adicionar disciplina' }).click();
     const item = page.getByRole('listitem').filter({ hasText: 'Fisiopatologia · Fisiopato' });
     await expect(item).toContainText('Dra. Juliana Martins');
-    await expect(item).toContainText('Cronograma: aula.pdf · Verificando');
+    // O worker processa em segundo plano: o estado avança sozinho.
+    await expect(item).toContainText(/Cronograma: aula\.pdf · (Verificando|Processando|Pronto)/);
+    // No cadastro, a leitura do cronograma pede autorização e a conferência fica para depois.
+    await expect(item.getByRole('button', { name: 'Autorizar a leitura' })).toBeVisible();
     expect(
       (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze())
         .violations,

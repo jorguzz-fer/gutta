@@ -1,6 +1,6 @@
 'use client';
 import { FileText, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { disciplines } from '@gutta/contracts';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Field, Input } from '@/components/ui/field';
 import { api, ClientApiError } from '@/lib/client-api';
 import { cn } from '@/lib/cn';
 import { uploadFile } from '@/lib/upload';
+import { isPending, ScheduleStatus } from './schedule-status';
 import { CATEGORY_COLORS, categoryClasses, type CategoryColor } from '@/styles/categories';
 
 type DisciplineDto = disciplines.DisciplineDto;
@@ -32,7 +33,14 @@ type Pending = { kind: 'cronograma' | 'plano_ensino'; file: File };
   e os documentos. Os arquivos sobem direto para o bucket (ADR 0012); o processamento segue
   em segundo plano e o estado aparece em cada documento.
 */
-export function DisciplineEditor({ initial }: { initial: DisciplineDto[] }) {
+export function DisciplineEditor({
+  initial,
+  reviewable = true,
+}: {
+  initial: DisciplineDto[];
+  /** Fora do cadastro, o cronograma lido leva à tela de conferência. */
+  reviewable?: boolean;
+}) {
   const [items, setItems] = useState(initial);
   const [name, setName] = useState('');
   const [shortName, setShortName] = useState('');
@@ -63,6 +71,20 @@ export function DisciplineEditor({ initial }: { initial: DisciplineDto[] }) {
   };
 
   const replace = (d: DisciplineDto) => setItems((cur) => cur.map((x) => (x.id === d.id ? d : x)));
+  const refresh = async () => {
+    const res = await api<{ items: DisciplineDto[] }>('/disciplines');
+    setItems(res.items);
+  };
+
+  // Leitura do cronograma em andamento: consulta a cada 4 s até terminar.
+  const reading = items.some((d) => isPending(d.scheduleImport));
+  useEffect(() => {
+    if (!reading) return;
+    const t = setInterval(() => {
+      refresh().catch(() => {});
+    }, 4000);
+    return () => clearInterval(t);
+  }, [reading]);
 
   async function add(ev: React.FormEvent) {
     ev.preventDefault();
@@ -299,6 +321,13 @@ export function DisciplineEditor({ initial }: { initial: DisciplineDto[] }) {
                 ) : (
                   <p className="text-sm">Sem cronograma ainda.</p>
                 )}
+                {d.scheduleImport ? (
+                  <ScheduleStatus
+                    value={d.scheduleImport}
+                    reviewable={reviewable}
+                    onChanged={refresh}
+                  />
+                ) : null}
               </li>
             ))}
           </ul>

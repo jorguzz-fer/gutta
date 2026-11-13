@@ -26,7 +26,7 @@ export default async function DisciplinesStep() {
           provas na sua agenda, sempre com a sua conferência antes.
         </p>
       </div>
-      <DisciplineEditor initial={items} />
+      <DisciplineEditor initial={items} reviewable={false} />
       <ContinueForm />
       <Link href="/comecar/perfil" className="text-sm">
         Voltar para o perfil acadêmico

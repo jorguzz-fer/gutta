@@ -68,7 +68,7 @@ jobs:
       - name: Ferramentas de arquivo do worker (Poppler e LibreOffice)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer-nogui fonts-dejavu-core
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer-nogui libreoffice-calc-nogui fonts-dejavu-core
       - run: pnpm --filter @gutta/db test
       - run: pnpm --filter @gutta/jobs test
       - run: pnpm --filter @gutta/storage test
@@ -79,6 +79,9 @@ jobs:
     name: Build e E2E (Playwright)
     runs-on: ubuntu-latest
     needs: [qualidade]
+    # O worker roda junto (processa arquivos e lê o cronograma com o extrator de teste).
+    env:
+      REDIS_URL: redis://localhost:6379
     services:
       postgres:
         image: postgres:16-alpine
@@ -86,11 +89,20 @@ jobs:
         ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: pnpm }
+      - name: Poppler para o worker (texto e miniatura do PDF)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:setup
       - name: Segredo de autenticação só deste job

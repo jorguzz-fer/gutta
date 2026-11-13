@@ -60,6 +60,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0020, 0021 | Vida acadêmica do aluno: semestres, disciplinas, docentes e temas, com RLS; cópia das disciplinas do MVP (SPEC v2, 8.1) |
 | 0022, 0023 | Dados pessoais com CPF cifrado, perfil da v2 e cursos da saúde (CAD-01 a CAD-10) |
 | 0024, 0025 | Cronograma e plano de ensino ligados à disciplina (DIS-02, DIS-03) |
+| 0026, 0027 | Aulas, avaliações, leitura do cronograma pela IA e uso de IA (DIS-05, DIS-07); provas do MVP (`exam_dates`) viram avaliações |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 
