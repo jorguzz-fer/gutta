@@ -75,6 +75,7 @@ export default async function TodayPage({
             disciplinas: on.disciplinas,
             lembretes: on.lembretes,
             faltas: on.faltas,
+            notas: on.notas,
           }}
         />
       </div>

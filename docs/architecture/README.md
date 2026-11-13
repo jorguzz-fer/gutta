@@ -65,6 +65,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0030, 0031 | Compromissos do calendário com recorrência e exceções |
 | 0032, 0033 | Lembretes, avisos (um por origem), entregas e preferências de aviso; função de sistema do envio por e-mail |
 | 0034, 0035 | Faltas: regra por disciplina e registros em horas-aula |
+| 0036, 0037 | Forma de cálculo da média por disciplina |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

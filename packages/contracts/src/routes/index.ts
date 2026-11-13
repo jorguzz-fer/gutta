@@ -3,6 +3,7 @@ import * as attendance from './attendance';
 import * as calendar from './calendar';
 import * as disciplines from './disciplines';
 import * as files from './files';
+import * as grades from './grades';
 import * as reminders from './reminders';
 import * as routine from './routine';
 import * as schedule from './schedule';
@@ -23,4 +24,5 @@ export const routes: RouteDef[] = [
   calendar,
   reminders,
   attendance,
+  grades,
 ].flatMap((m) => Object.values(m).filter(isRoute));

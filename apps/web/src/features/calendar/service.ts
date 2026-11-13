@@ -30,9 +30,10 @@ type AssessmentBody = z.output<typeof contract.assessmentBody>;
 type EventRow = typeof s.calendarEvents.$inferSelect;
 type ExceptionRow = typeof s.calendarEventExceptions.$inferSelect;
 
-export async function assertCalendarEnabled() {
+export async function assertCalendarEnabled(also: 'notas' | null = null) {
   const on = await flags();
-  if (!on.agenda) {
+  // Avaliação também é cadastrada pelas Notas (é a mesma linha; CAL-16).
+  if (!on.agenda && !(also && on[also])) {
     throw new ApiError(404, 'feature_disabled', 'Este recurso ainda não está disponível.');
   }
 }
@@ -415,7 +416,7 @@ async function findAssessment(tx: Tx, userId: string, id: string) {
 }
 
 export async function createAssessment(userId: string, body: AssessmentBody) {
-  await assertCalendarEnabled();
+  await assertCalendarEnabled('notas');
   return withUser(db(), userId, async (tx) => {
     await assertDiscipline(tx, userId, body.disciplineId);
     const tz = await tzOf(tx, userId);
@@ -439,7 +440,7 @@ export async function createAssessment(userId: string, body: AssessmentBody) {
 }
 
 export async function updateAssessment(userId: string, id: string, body: AssessmentBody) {
-  await assertCalendarEnabled();
+  await assertCalendarEnabled('notas');
   return withUser(db(), userId, async (tx) => {
     const row = await findAssessment(tx, userId, id);
     await assertDiscipline(tx, userId, body.disciplineId);
@@ -464,7 +465,7 @@ export async function updateAssessment(userId: string, id: string, body: Assessm
 }
 
 export async function removeAssessment(userId: string, id: string) {
-  await assertCalendarEnabled();
+  await assertCalendarEnabled('notas');
   await withUser(db(), userId, async (tx) => {
     await findAssessment(tx, userId, id);
     await tx.delete(s.assessments).where(eq(s.assessments.id, id));
@@ -481,7 +482,7 @@ export async function getLesson(userId: string, id: string) {
   }));
 }
 export async function getAssessment(userId: string, id: string) {
-  await assertCalendarEnabled();
+  await assertCalendarEnabled('notas');
   return withUser(db(), userId, async (tx) => ({
     assessment: toAssessmentDto(await findAssessment(tx, userId, id), await tzOf(tx, userId)),
   }));

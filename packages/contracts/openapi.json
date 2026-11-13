@@ -1040,6 +1040,341 @@
         }
       }
     },
+    "/api/v1/assessments/{id}/grade": {
+      "put": {
+        "summary": "Nota (vazia = pendente), peso, porcentagem e nota máxima da avaliação (NOT-08).",
+        "tags": [
+          "notas"
+        ],
+        "operationId": "putApiV1AssessmentsIdGrade",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grades": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "scheme": {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "simples",
+                                "pesos",
+                                "percentual"
+                              ]
+                            },
+                            "minGrade": {
+                              "type": "number"
+                            },
+                            "configured": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "minGrade",
+                            "configured"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "assessments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "prova",
+                                  "atividade",
+                                  "entrega"
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "date": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "grade": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "maxGrade": {
+                                "type": "number"
+                              },
+                              "weight": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "percent": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "kind",
+                              "name",
+                              "date",
+                              "grade",
+                              "maxGrade",
+                              "weight",
+                              "percent"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "current": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "graded": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "pending": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "doneShare": {
+                              "type": "number"
+                            },
+                            "remainingShare": {
+                              "type": "number"
+                            },
+                            "percentTotal": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "current",
+                            "graded",
+                            "pending",
+                            "doneShare",
+                            "remainingShare",
+                            "percentTotal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "needed": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "garantida",
+                                "alcancavel",
+                                "inalcancavel",
+                                "sem_restantes"
+                              ]
+                            },
+                            "needed": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "needed"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "cumulative": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "scheme",
+                        "assessments",
+                        "summary",
+                        "needed",
+                        "cumulative"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "grades"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grade": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "maxGrade": {
+                    "default": 10,
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000
+                  },
+                  "weight": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "percent": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "grade"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/calendar/events": {
       "post": {
         "summary": "Cria um compromisso, único ou que se repete (CAL-02, CAL-04).",
@@ -5633,6 +5968,589 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disciplines/{id}/grades": {
+      "get": {
+        "summary": "Forma de cálculo, avaliações com notas, média atual e nota necessária.",
+        "tags": [
+          "notas"
+        ],
+        "operationId": "getApiV1DisciplinesIdGrades",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grades": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "scheme": {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "simples",
+                                "pesos",
+                                "percentual"
+                              ]
+                            },
+                            "minGrade": {
+                              "type": "number"
+                            },
+                            "configured": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "minGrade",
+                            "configured"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "assessments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "prova",
+                                  "atividade",
+                                  "entrega"
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "date": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "grade": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "maxGrade": {
+                                "type": "number"
+                              },
+                              "weight": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "percent": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "kind",
+                              "name",
+                              "date",
+                              "grade",
+                              "maxGrade",
+                              "weight",
+                              "percent"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "current": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "graded": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "pending": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "doneShare": {
+                              "type": "number"
+                            },
+                            "remainingShare": {
+                              "type": "number"
+                            },
+                            "percentTotal": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "current",
+                            "graded",
+                            "pending",
+                            "doneShare",
+                            "remainingShare",
+                            "percentTotal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "needed": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "garantida",
+                                "alcancavel",
+                                "inalcancavel",
+                                "sem_restantes"
+                              ]
+                            },
+                            "needed": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "needed"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "cumulative": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "scheme",
+                        "assessments",
+                        "summary",
+                        "needed",
+                        "cumulative"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "grades"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disciplines/{id}/grades/scheme": {
+      "put": {
+        "summary": "Forma de cálculo da média e nota mínima de aprovação (NOT-01, NOT-02, NOT-04).",
+        "tags": [
+          "notas"
+        ],
+        "operationId": "putApiV1DisciplinesIdGradesScheme",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "grades": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "scheme": {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "simples",
+                                "pesos",
+                                "percentual"
+                              ]
+                            },
+                            "minGrade": {
+                              "type": "number"
+                            },
+                            "configured": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "minGrade",
+                            "configured"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "assessments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "prova",
+                                  "atividade",
+                                  "entrega"
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "date": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "grade": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "maxGrade": {
+                                "type": "number"
+                              },
+                              "weight": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "percent": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "kind",
+                              "name",
+                              "date",
+                              "grade",
+                              "maxGrade",
+                              "weight",
+                              "percent"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "current": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "graded": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "pending": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "doneShare": {
+                              "type": "number"
+                            },
+                            "remainingShare": {
+                              "type": "number"
+                            },
+                            "percentTotal": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "current",
+                            "graded",
+                            "pending",
+                            "doneShare",
+                            "remainingShare",
+                            "percentTotal"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "needed": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "garantida",
+                                "alcancavel",
+                                "inalcancavel",
+                                "sem_restantes"
+                              ]
+                            },
+                            "needed": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "needed"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "cumulative": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "scheme",
+                        "assessments",
+                        "summary",
+                        "needed",
+                        "cumulative"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "grades"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "simples",
+                      "pesos",
+                      "percentual"
+                    ]
+                  },
+                  "minGrade": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
+                  }
+                },
+                "required": [
+                  "method",
+                  "minGrade"
+                ]
               }
             }
           }

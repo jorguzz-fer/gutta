@@ -187,6 +187,7 @@ export async function exportData(userId: string) {
       notificationPreferences,
       attendanceRules,
       absences,
+      gradingSchemes,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -263,6 +264,8 @@ export async function exportData(userId: string) {
       // Faltas (SPEC v2, FAL).
       () => tx.select().from(s.attendanceRules).where(eq(s.attendanceRules.ownerId, userId)),
       () => tx.select().from(s.absences).where(eq(s.absences.ownerId, userId)),
+      // Notas: a forma de cálculo (as notas estão nas avaliações).
+      () => tx.select().from(s.gradingSchemes).where(eq(s.gradingSchemes.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -308,6 +311,7 @@ export async function exportData(userId: string) {
       notificationPreferences: notificationPreferences[0] ?? null,
       attendanceRules,
       absences,
+      gradingSchemes,
     };
   });
 }

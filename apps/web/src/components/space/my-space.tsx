@@ -42,6 +42,7 @@ export type SpaceLinks = {
   disciplinas: boolean;
   lembretes: boolean;
   faltas: boolean;
+  notas: boolean;
 };
 
 /*
@@ -116,6 +117,11 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
         {links.faltas ? (
           <Link href="/app/faltas" className={buttonClass('secondary', 'md')}>
             Faltas
+          </Link>
+        ) : null}
+        {links.notas ? (
+          <Link href="/app/notas" className={buttonClass('secondary', 'md')}>
+            Notas
           </Link>
         ) : null}
       </nav>
