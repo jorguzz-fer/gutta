@@ -59,7 +59,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 
 - [x] 31. SPEC v2 aprovada pelo Fernando em 13/11/2026; decisões que bloqueavam o início (D01 a D07) fechadas e registradas; ADR 0011 aceito.
 - [x] 32. ADRs 0012 (armazenamento de arquivos, conversão e antivírus), 0013 (fila e `worker`), 0014 (busca), 0019 (contrato OpenAPI).
-- [ ] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` na mesma imagem; `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
+- [x] 33. Infraestrutura: Redis e bucket privado no compose e no Coolify; `apps/worker` com imagem própria (ADR 0013); `pgvector` no Postgres; limite de taxa no Redis (pendência do ADR 0006). Variáveis no `.env.example`.
 - [ ] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.
 - [ ] 35. Caminho de um arquivo (SPEC v2, 7.4): pedir envio, URL assinada, confirmação, varredura, conversão, texto e miniaturas por página, estado visível. Testes de isolamento e de idempotência dos trabalhos.
 - [ ] 36. Experimento de extração de cronograma com 20 cronogramas reais: acerto por campo e custo médio. Experimento do visualizador com caneta no iPad e em tablet Android. Resultados em `docs/`.

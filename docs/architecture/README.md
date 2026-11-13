@@ -54,6 +54,8 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0003, 0004 | Banco de questões, tentativas, domínio, recomendações |
 | 0005, 0006 | Flashcards, agendamentos e revisões |
 | 0007, 0008 | Leitura dos próprios eventos (LGPD); recomendações lidas por admin (métricas) |
+| 0009 a 0015 | Papel de professor, turmas, tutor IA e pacote LGPD |
+| 0016, 0017 | Outbox de eventos, com RLS e funções só para o worker (ADR 0013) |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

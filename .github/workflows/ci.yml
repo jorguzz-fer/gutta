@@ -41,6 +41,8 @@ jobs:
   integracao:
     name: Integração com Postgres (RLS e isolamento)
     runs-on: ubuntu-latest
+    env:
+      REDIS_URL: redis://localhost:6379
     services:
       postgres:
         image: postgres:16-alpine
@@ -48,6 +50,11 @@ jobs:
         ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -55,6 +62,8 @@ jobs:
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @gutta/db test
+      - run: pnpm --filter @gutta/jobs test
+      - run: pnpm --filter @gutta/worker test
       - run: pnpm --filter @gutta/web test:int
 
   e2e:
@@ -102,3 +111,27 @@ jobs:
           tags: gutta-web:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Imagem do worker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/worker/Dockerfile
+          push: false
+          tags: gutta-worker:ci
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,mode=max,scope=worker
+      - name: Imagem do Postgres (com pgvector)
+        uses: docker/build-push-action@v6
+        with:
+          context: infra/postgres
+          push: false
+          load: true
+          tags: gutta-db:ci
+          cache-from: type=gha,scope=db
+          cache-to: type=gha,mode=max,scope=db
+      - name: pgvector carrega na imagem
+        run: |
+          docker run -d --name db-ci -e POSTGRES_PASSWORD=ci -e GUTTA_OWNER_PASSWORD=ci -e GUTTA_APP_PASSWORD=ci gutta-db:ci
+          for i in $(seq 1 30); do docker exec db-ci pg_isready -U postgres && break; sleep 2; done
+          sleep 3
+          docker exec db-ci psql -U postgres -c "create extension vector; select '[1,2,3]'::vector;"

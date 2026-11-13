@@ -5,7 +5,7 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
 | Recurso | O que é | Build | Domínio |
 |---|---|---|---|
 | Site estático (já existe) | página de espera e `/roadmap` | `Dockerfile` da raiz | gutta.tudomudou.com.br |
-| Plataforma (novo) | app Next.js + Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
+| Plataforma (novo) | app Next.js, worker, Redis e Postgres | Docker Compose, Base Directory `/infra`, arquivo `/compose.yml` | app-gutta.tudomudou.com.br |
 
 ## Primeira vez
 
@@ -30,6 +30,8 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    | `BOOTSTRAP_ADMIN_EMAILS` | opcional; e-mails que viram admin no start (ver "Primeiro administrador") |
    | `LEGAL_CONTROLLER_NAME`, `LEGAL_CONTROLLER_DOCUMENT` | LGPD: razão social e CNPJ do controlador, mostrados na política (ADR 0009). Sem valor, aparece "a definir" |
    | `DPO_NAME`, `DPO_EMAIL` | LGPD: encarregado de dados (art. 41). Preencha antes do piloto |
+   | `REDIS_PASSWORD` | senha do Redis da fila (ADR 0013). Gere com `openssl rand -hex 32`: só letras e números, porque ela vai dentro da URL de conexão |
+   | `QUEUE_PREFIX` | opcional; prefixo das chaves da fila (padrão `cognuss`) |
 
 3. Domínio no serviço `web`, porta `3000`. DNS: registro `A` de `app-gutta` apontando para o VPS.
 4. Deploy. No primeiro start:
@@ -37,7 +39,16 @@ São dois recursos no mesmo projeto do Coolify. O site estático continua como e
    - o `web` aplica as migrations e só depois sobe o servidor.
 5. Confira `https://app-gutta.tudomudou.com.br/api/health`, que deve responder `{"status":"ok","db":"ok"}`.
 
-Nenhum dos dois publica porta no servidor (`expose`, não `ports`): o proxy do Coolify chega ao `web` pela rede interna, e só o `web` alcança o banco.
+Nenhum serviço publica porta no servidor (`expose`, não `ports`): o proxy do Coolify chega ao `web` pela rede interna, e só o `web` e o `worker` alcançam o banco e o Redis.
+
+### Worker e Redis (ADR 0013)
+
+O compose tem mais dois serviços, que o Coolify sobe junto:
+
+- **`redis`**: fila de trabalhos e limite de tentativas de login compartilhado entre réplicas. Guarda os dados no volume `gutta-redis` (AOF), com senha. Não guarda dado pessoal: os trabalhos levam só identificadores.
+- **`worker`**: publica na fila os eventos que o app grava na tabela `outbox` e executa os trabalhos. Usa o mesmo papel do app (`gutta_app`, sem BYPASSRLS) e só sobe depois de o `web` estar saudável, porque é o `web` que aplica as migrations. A saúde fica em `http://worker:3001/health`, só na rede interna.
+
+Se o Redis cair, o app continua funcionando: o limite de login passa as requisições (e registra `auth.rate_limit_unavailable` no log) e os eventos esperam no `outbox` até o `worker` conseguir publicar. Os trabalhos que falham 5 vezes ficam 30 dias na lista de falhas do BullMQ.
 
 ## Primeiro administrador
 
