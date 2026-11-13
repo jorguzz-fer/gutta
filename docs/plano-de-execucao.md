@@ -69,7 +69,7 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 
 ### Fase 1: fundação da vida acadêmica
 
-- [ ] 38. Modelo acadêmico: `student_terms`, `enrolled_disciplines`, `discipline_teachers`, `discipline_topics`, com RLS e migração de `student_disciplines` e `exam_dates`.
+- [x] 38. Modelo acadêmico: `student_terms`, `enrolled_disciplines`, `discipline_teachers`, `discipline_topics`, com RLS e migração de `student_disciplines` e `exam_dates`. Feito: migrations 0020 e 0021, com a cópia das disciplinas do MVP para o semestre atual. As tabelas antigas ficam enquanto o painel do MVP existir; `exam_dates` migra no item 41, junto com `assessments`. A exportação LGPD já leva as tabelas novas e os arquivos.
 - [ ] 39. Cadastro (CAD-01 a CAD-10): dados pessoais com CPF (protegido) e telefone obrigatórios, perfil acadêmico (qualquer curso da saúde) e objetivo, retomável e idempotente. Substitui o onboarding do MVP.
 - [ ] 40. Disciplinas (DIS-01 a DIS-03, DIS-09, DIS-10): cadastro, docentes, upload de cronograma e de plano de ensino.
 - [ ] 41. Extração do cronograma com tela de conferência e confirmação (DIS-05, DIS-07); `lessons` e `assessments` criados só depois de confirmar.

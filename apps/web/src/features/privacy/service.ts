@@ -167,6 +167,12 @@ export async function exportData(userId: string) {
       requests,
       tutorMessages,
       classes,
+      terms,
+      enrolled,
+      teachers,
+      topicsOwn,
+      files,
+      filePages,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -204,6 +210,15 @@ export async function exportData(userId: string) {
           )
           .where(eq(s.tutorMessages.studentId, userId)),
       () => tx.select().from(s.classMembers).where(eq(s.classMembers.studentId, userId)),
+      // v2 (SPEC v2, 10.1): vida acadêmica e arquivos. O conteúdo dos arquivos fica no bucket;
+      // aqui vão os metadados e o texto extraído de cada página.
+      () => tx.select().from(s.studentTerms).where(eq(s.studentTerms.ownerId, userId)),
+      () =>
+        tx.select().from(s.enrolledDisciplines).where(eq(s.enrolledDisciplines.ownerId, userId)),
+      () => tx.select().from(s.disciplineTeachers).where(eq(s.disciplineTeachers.ownerId, userId)),
+      () => tx.select().from(s.disciplineTopics).where(eq(s.disciplineTopics.ownerId, userId)),
+      () => tx.select().from(s.files).where(eq(s.files.ownerId, userId)),
+      () => tx.select().from(s.filePages).where(eq(s.filePages.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -229,6 +244,12 @@ export async function exportData(userId: string) {
       dataRequests: requests,
       tutorMessages,
       classMemberships: classes,
+      terms,
+      enrolledDisciplines: enrolled,
+      disciplineTeachers: teachers,
+      disciplineTopics: topicsOwn,
+      files,
+      filePages,
     };
   });
 }

@@ -8,3 +8,4 @@ export * from './flashcards';
 export * from './classes';
 export * from './tutor';
 export * from './files';
+export * from './academic';

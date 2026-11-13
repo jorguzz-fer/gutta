@@ -57,6 +57,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0009 a 0015 | Papel de professor, turmas, tutor IA e pacote LGPD |
 | 0016, 0017 | Outbox de eventos, com RLS e funções só para o worker (ADR 0013) |
 | 0018, 0019 | Arquivos do aluno e texto por página, com RLS; gatilho que pede a limpeza do bucket quando a conta é excluída (ADR 0012) |
+| 0020, 0021 | Vida acadêmica do aluno: semestres, disciplinas, docentes e temas, com RLS; cópia das disciplinas do MVP (SPEC v2, 8.1) |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 
