@@ -30,6 +30,12 @@ const ADMIN = [
     cta: 'Ver instituições',
   },
   {
+    href: '/admin/funcionalidades',
+    title: 'Funcionalidades',
+    text: 'Ligar e desligar cada módulo da v2 para os alunos.',
+    cta: 'Abrir chaves',
+  },
+  {
     href: '/admin/tutor',
     title: 'Tutor IA',
     text: 'Uso, custo, conversas e o botão de desligar.',

@@ -14,6 +14,8 @@ const schema = z.object({
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
   // Redis (ADR 0013): limite de taxa compartilhado. Opcional; sem ele, limite em memória.
   REDIS_URL: z.string().optional(),
+  // Liga módulos da v2 sem passar pelo admin (desenvolvimento e E2E): lista ou "all".
+  FEATURES_ON: z.string().optional(),
   // Tutor IA. Sem chave, o tutor aparece como indisponível (a não ser com AI_PROVIDER=fake).
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),
