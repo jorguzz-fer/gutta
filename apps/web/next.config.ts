@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // standalone só na imagem Docker (NEXT_OUTPUT_STANDALONE=1); localmente `next start` funciona normal.
   output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(import.meta.dirname, '../../'),
-  transpilePackages: ['@gutta/core', '@gutta/db'],
+  transpilePackages: ['@gutta/core', '@gutta/db', '@gutta/contracts', '@gutta/jobs'],
   serverExternalPackages: ['@node-rs/argon2', 'pg', 'ioredis'],
   poweredByHeader: false,
   async headers() {

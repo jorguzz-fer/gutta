@@ -1,0 +1,117 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cognuss API",
+    "version": "v1",
+    "description": "Contrato da API /api/v1 da Cognuss, gerado dos esquemas Zod de @gutta/contracts. Não edite à mão."
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Saúde do processo e do banco, para o container e o Coolify.",
+        "tags": [
+          "sistema"
+        ],
+        "operationId": "getApiHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "degraded"
+                      ]
+                    },
+                    "db": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "down"
+                      ]
+                    },
+                    "ms": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "db"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Código estável, para o cliente decidir o que fazer."
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem em português, para mostrar ao usuário."
+          },
+          "details": {},
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "requestId"
+        ],
+        "additionalProperties": false,
+        "description": "Erro padrão da API."
+      }
+    },
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "gutta.session_token"
+      }
+    }
+  },
+  "security": [
+    {
+      "session": []
+    }
+  ]
+}

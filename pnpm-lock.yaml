@@ -32,12 +32,18 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^1.4.0
         version: 1.4.0(zod@4.6.7)
+      '@gutta/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@gutta/core':
         specifier: workspace:*
         version: link:../../packages/core
       '@gutta/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@gutta/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
       better-auth:
         specifier: ^1.7.15
         version: 1.7.15(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(kysely@0.29.8)(pg@8.23.1))(next@16.4.4(@babel/core@7.29.7)(@opentelemetry/api@1.10.0)(@playwright/test@1.63.0)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(vite@7.3.7(@types/node@22.20.5)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.15)))
@@ -127,6 +133,25 @@ importers:
       esbuild:
         specifier: ^0.25.12
         version: 0.25.12
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(vite@7.3.7(@types/node@22.20.5)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.15))
+
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/node':
+        specifier: ^22.18.0
+        version: 22.20.5
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
