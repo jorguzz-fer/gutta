@@ -173,6 +173,16 @@ describe('perfil acadêmico e fim do cadastro', () => {
       semester: 3,
       mainGoal: 'organizar_rotina',
     });
+    // Falta o passo das disciplinas: não conclui ainda.
+    expect((await loadSignup(u)).next?.key).toBe('disciplinas');
+    expect(await finishSignup(u)).toBe(false);
+    const [term] = await owner
+      .insert(s.studentTerms)
+      .values({ ownerId: u, label: '2026.2' })
+      .returning();
+    await owner
+      .insert(s.enrolledDisciplines)
+      .values({ ownerId: u, termId: term!.id, name: 'Anatomia' });
     expect((await loadSignup(u)).next).toBeNull();
     expect(await finishSignup(u)).toBe(true);
     const done = await owner.query.studentProfiles.findFirst({

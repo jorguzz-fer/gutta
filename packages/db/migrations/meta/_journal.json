@@ -169,6 +169,20 @@
       "when": 1794603940455,
       "tag": "0023_rls_cadastro_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794604608432,
+      "tag": "0024_documentos_disciplina",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794604609431,
+      "tag": "0025_rls_documentos_disciplina",
+      "breakpoints": true
     }
   ]
 }

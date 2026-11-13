@@ -69,6 +69,11 @@ export default defineConfig({
       // CPF cifrado do cadastro da v2: chaves novas a cada execução.
       PII_ENCRYPTION_KEY: process.env.PII_ENCRYPTION_KEY || randomBytes(32).toString('base64'),
       PII_HASH_KEY: process.env.PII_HASH_KEY || randomBytes(32).toString('base64'),
+      // Arquivos em disco, com URL assinada para o próprio app (só no E2E; ver @gutta/storage).
+      STORAGE_DRIVER: 'fs',
+      STORAGE_FS_DIR: path.join(os.tmpdir(), `gutta-e2e-arquivos-${PORT}`),
+      STORAGE_FS_SECRET: randomBytes(16).toString('hex'),
+      E2E_ALLOW_DEV_STORAGE: '1',
     },
   },
 });

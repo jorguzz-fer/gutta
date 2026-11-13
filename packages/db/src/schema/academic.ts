@@ -4,6 +4,7 @@ import {
   check,
   date,
   index,
+  pgEnum,
   pgTable,
   smallint,
   text,
@@ -14,6 +15,7 @@ import {
 import { createdAt, pk, updatedAt } from './_shared';
 import { authUsers } from './auth';
 import { disciplines, topics } from './catalog';
+import { files } from './files';
 
 // Vida acadêmica do aluno (SPEC v2, 8.1): as disciplinas que ele cursa, com os docentes e os
 // temas dele. Diferente do catálogo editorial (disciplines), que é igual para todos: a
@@ -116,5 +118,33 @@ export const disciplineTopics = pgTable(
   (t) => [
     uniqueIndex('discipline_topics_name_uq').on(t.disciplineId, sql`lower(${t.name})`),
     index('discipline_topics_owner_idx').on(t.ownerId),
+  ],
+);
+
+// Documentos da disciplina (SPEC v2, DIS-02 e DIS-03): o cronograma e o plano de ensino enviados
+// pelo aluno. O arquivo é o mesmo do caminho de arquivos (ADR 0012); aqui fica só o vínculo.
+// A leitura do cronograma pela IA (DIS-05) usa esse vínculo.
+export const disciplineDocumentKind = pgEnum('discipline_document_kind', [
+  'cronograma',
+  'plano_ensino',
+]);
+
+export const disciplineDocuments = pgTable(
+  'discipline_documents',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    disciplineId: uuid('discipline_id')
+      .notNull()
+      .references(() => enrolledDisciplines.id, { onDelete: 'cascade' }),
+    fileId: uuid('file_id')
+      .notNull()
+      .references(() => files.id, { onDelete: 'cascade' }),
+    kind: disciplineDocumentKind('kind').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('discipline_documents_file_uq').on(t.disciplineId, t.kind, t.fileId),
+    index('discipline_documents_owner_idx').on(t.ownerId),
   ],
 );

@@ -3,6 +3,7 @@
 export const SIGNUP_STEPS = [
   { key: 'dados', path: '/comecar/dados', label: 'Dados pessoais' },
   { key: 'perfil', path: '/comecar/perfil', label: 'Perfil acadêmico' },
+  { key: 'disciplinas', path: '/comecar/disciplinas', label: 'Disciplinas' },
 ] as const;
 
 export type SignupStep = (typeof SIGNUP_STEPS)[number]['key'];

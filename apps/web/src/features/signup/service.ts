@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { audit, track } from '@/lib/events';
 import { encryptPii, hashPii } from '@/lib/pii';
 import { latestConsent, recordConsents } from '@/features/privacy/consent';
+import { disciplineCount } from '@/features/academics/service';
 import { MAIN_GOALS, nextStep, type SignupProgress } from './steps';
 
 // Cadastro da v2 (SPEC v2, CAD-01 a CAD-10). Cada passo grava na hora: sair no meio e voltar
@@ -29,7 +30,8 @@ async function progressOf(tx: Tx, userId: string): Promise<SignupProgress> {
     where: eq(s.studentProfiles.userId, userId),
     columns: { mainGoal: true },
   });
-  return { dados: Boolean(personal), perfil: Boolean(profile?.mainGoal) };
+  const disciplinas = (await disciplineCount(tx, userId)) > 0;
+  return { dados: Boolean(personal), perfil: Boolean(profile?.mainGoal), disciplinas };
 }
 
 export async function loadSignup(userId: string) {

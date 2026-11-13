@@ -59,3 +59,16 @@ export async function saveProfileAction(
   }
   return goNext(user.id);
 }
+
+/** Passo das disciplinas: elas já foram salvas pela API; aqui só confere e segue. */
+export async function continueFromDisciplinesAction(
+  _prev: SignupFormState,
+  _form: FormData,
+): Promise<SignupFormState> {
+  const user = await requireUser('/comecar/disciplinas');
+  const { progress } = await loadSignup(user.id);
+  if (!progress.disciplinas) {
+    return { errors: { form: 'Adicione pelo menos uma disciplina para continuar.' } };
+  }
+  return goNext(user.id);
+}

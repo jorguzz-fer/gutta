@@ -49,7 +49,7 @@ const FINAL = new Set(['ready', 'failed', 'quarantined']);
 export async function uploadFile(
   file: File,
   onProgress: (p: UploadProgress) => void = () => {},
-  opts: { pollMs?: number; signal?: AbortSignal } = {},
+  opts: { pollMs?: number; signal?: AbortSignal; waitProcessing?: boolean } = {},
 ): Promise<UploadedFile> {
   onProgress({ stage: 'hashing' });
   const created = await api<CreateUpload>('/files', {
@@ -64,7 +64,7 @@ export async function uploadFile(
     );
     current = (await api<FileResponse>(`/files/${current.id}/complete`, { method: 'POST' })).file;
   }
-  while (!FINAL.has(current.status)) {
+  while (opts.waitProcessing !== false && !FINAL.has(current.status)) {
     onProgress({ stage: 'processing', file: current });
     await new Promise((r) => setTimeout(r, opts.pollMs ?? 1500));
     if (opts.signal?.aborted) throw new ClientApiError(0, 'aborted', 'Envio cancelado.');
