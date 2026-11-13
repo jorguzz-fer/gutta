@@ -1,5 +1,6 @@
 'use client';
 import { FileText, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { disciplines } from '@gutta/contracts';
 import { Button } from '@/components/ui/button';
@@ -292,7 +293,11 @@ export function DisciplineEditor({
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">
-                      {d.name}
+                      {reviewBase.startsWith('/app') ? (
+                        <Link href={`/app/minhas-disciplinas/${d.id}`}>{d.name}</Link>
+                      ) : (
+                        d.name
+                      )}
                       {d.shortName ? <span className="font-normal"> · {d.shortName}</span> : null}
                     </p>
                     {d.teachers.length ? (

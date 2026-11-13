@@ -185,7 +185,15 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
                       categoryClasses(d.color as CategoryColor),
                     )}
                   >
-                    <p className="text-base font-semibold">{d.shortName || d.name}</p>
+                    <p className="text-base font-semibold">
+                      {links.disciplinas ? (
+                        <Link href={`/app/minhas-disciplinas/${d.id}`}>
+                          {d.shortName || d.name}
+                        </Link>
+                      ) : (
+                        d.shortName || d.name
+                      )}
+                    </p>
                     {d.shortName ? <p>{d.name}</p> : null}
                     {d.teachers.length ? <p>{d.teachers.map((t) => t.name).join(', ')}</p> : null}
                     <p>
