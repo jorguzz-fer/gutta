@@ -63,6 +63,8 @@ Fonte de verdade do produto neste ciclo: `docs/spec/SPEC_Cognuss_v2.md`, escrita
 - [x] 34. Chaves de funcionalidade por módulo em `app_settings`; `packages/contracts` com os esquemas Zod de `/api/v1` gerando o OpenAPI 3.1.
 - [x] 35. Caminho de um arquivo (SPEC v2, 7.4): pedir envio, URL assinada, confirmação, varredura, conversão, texto e miniaturas por página, estado visível. Testes de isolamento e de idempotência dos trabalhos.
 - [ ] 36. Experimento de extração de cronograma com 20 cronogramas reais: acerto por campo e custo médio. Experimento do visualizador com caneta no iPad e em tablet Android. Resultados em `docs/`.
+  - Preparado em 13/11/2026: extração em `packages/ai` (saída validada pelo esquema), rotina `pnpm --filter @gutta/ai schedule:eval` com gabarito por arquivo (`docs/experimentos/cronogramas/README.md`) e página `/admin/lab/caneta` (`docs/experimentos/caneta.md`).
+  - **Falta (depende do Fernando):** os 20 cronogramas reais com o gabarito, a `ANTHROPIC_API_KEY` para rodar, e o teste no iPad e no tablet Android. O item fecha quando os resultados estiverem registrados.
 - [ ] 37. Telas de referência adaptadas ao tema escuro e vermelho do app (D03): paleta de categorias para a grade e o calendário, nos dois temas, com contraste AA.
 
 ### Fase 1: fundação da vida acadêmica
