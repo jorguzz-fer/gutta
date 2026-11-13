@@ -3556,6 +3556,1437 @@
         }
       }
     },
+    "/api/v1/disciplines/{id}/absences": {
+      "post": {
+        "summary": "Registra a ausência numa aula (integral ou parcial). Registrar de novo atualiza (FAL-09).",
+        "tags": [
+          "faltas"
+        ],
+        "operationId": "postApiV1DisciplinesIdAbsences",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendance": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "rule": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "totalClassHours": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "minAttendancePct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "classHoursPerMeeting": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "weekdays": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6
+                                      }
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "alertThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                  }
+                                }
+                              },
+                              "required": [
+                                "totalClassHours",
+                                "minAttendancePct",
+                                "classHoursPerMeeting",
+                                "weekdays",
+                                "alertThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "summary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "registered": {
+                                  "type": "number"
+                                },
+                                "remaining": {
+                                  "type": "number"
+                                },
+                                "usedPct": {
+                                  "type": "number"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dentro",
+                                    "atencao",
+                                    "no_limite",
+                                    "acima"
+                                  ]
+                                },
+                                "reachedThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "limit",
+                                "registered",
+                                "remaining",
+                                "usedPct",
+                                "status",
+                                "reachedThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "classDays": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "title": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "absenceId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "date",
+                              "lessonId",
+                              "title",
+                              "classHours",
+                              "absenceId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "absences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonTitle": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "note": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "lessonId",
+                              "date",
+                              "lessonTitle",
+                              "classHours",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "rule",
+                        "summary",
+                        "month",
+                        "classDays",
+                        "absences"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "attendance"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "lessonId": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "classHours": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 24
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "date",
+                  "classHours"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disciplines/{id}/absences/{absenceId}": {
+      "delete": {
+        "summary": "Remove o registro de ausência.",
+        "tags": [
+          "faltas"
+        ],
+        "operationId": "deleteApiV1DisciplinesIdAbsencesAbsenceId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "absenceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendance": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "rule": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "totalClassHours": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "minAttendancePct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "classHoursPerMeeting": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "weekdays": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6
+                                      }
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "alertThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                  }
+                                }
+                              },
+                              "required": [
+                                "totalClassHours",
+                                "minAttendancePct",
+                                "classHoursPerMeeting",
+                                "weekdays",
+                                "alertThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "summary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "registered": {
+                                  "type": "number"
+                                },
+                                "remaining": {
+                                  "type": "number"
+                                },
+                                "usedPct": {
+                                  "type": "number"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dentro",
+                                    "atencao",
+                                    "no_limite",
+                                    "acima"
+                                  ]
+                                },
+                                "reachedThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "limit",
+                                "registered",
+                                "remaining",
+                                "usedPct",
+                                "status",
+                                "reachedThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "classDays": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "title": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "absenceId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "date",
+                              "lessonId",
+                              "title",
+                              "classHours",
+                              "absenceId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "absences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonTitle": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "note": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "lessonId",
+                              "date",
+                              "lessonTitle",
+                              "classHours",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "rule",
+                        "summary",
+                        "month",
+                        "classDays",
+                        "absences"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "attendance"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disciplines/{id}/attendance": {
+      "get": {
+        "summary": "Regra, indicadores, dias de aula do mês e histórico de faltas da disciplina.",
+        "tags": [
+          "faltas"
+        ],
+        "operationId": "getApiV1DisciplinesIdAttendance",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendance": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "rule": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "totalClassHours": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "minAttendancePct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "classHoursPerMeeting": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "weekdays": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6
+                                      }
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "alertThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                  }
+                                }
+                              },
+                              "required": [
+                                "totalClassHours",
+                                "minAttendancePct",
+                                "classHoursPerMeeting",
+                                "weekdays",
+                                "alertThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "summary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "registered": {
+                                  "type": "number"
+                                },
+                                "remaining": {
+                                  "type": "number"
+                                },
+                                "usedPct": {
+                                  "type": "number"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dentro",
+                                    "atencao",
+                                    "no_limite",
+                                    "acima"
+                                  ]
+                                },
+                                "reachedThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "limit",
+                                "registered",
+                                "remaining",
+                                "usedPct",
+                                "status",
+                                "reachedThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "classDays": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "title": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "absenceId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "date",
+                              "lessonId",
+                              "title",
+                              "classHours",
+                              "absenceId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "absences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonTitle": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "note": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "lessonId",
+                              "date",
+                              "lessonTitle",
+                              "classHours",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "rule",
+                        "summary",
+                        "month",
+                        "classDays",
+                        "absences"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "attendance"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/disciplines/{id}/attendance/rule": {
+      "put": {
+        "summary": "Configura carga horária, frequência mínima, horas-aula por encontro e avisos (FAL-01).",
+        "tags": [
+          "faltas"
+        ],
+        "operationId": "putApiV1DisciplinesIdAttendanceRule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendance": {
+                      "type": "object",
+                      "properties": {
+                        "disciplineId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "disciplineName": {
+                          "type": "string"
+                        },
+                        "rule": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "totalClassHours": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "minAttendancePct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "classHoursPerMeeting": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0
+                                },
+                                "weekdays": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6
+                                      }
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "alertThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                  }
+                                }
+                              },
+                              "required": [
+                                "totalClassHours",
+                                "minAttendancePct",
+                                "classHoursPerMeeting",
+                                "weekdays",
+                                "alertThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "summary": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "registered": {
+                                  "type": "number"
+                                },
+                                "remaining": {
+                                  "type": "number"
+                                },
+                                "usedPct": {
+                                  "type": "number"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dentro",
+                                    "atencao",
+                                    "no_limite",
+                                    "acima"
+                                  ]
+                                },
+                                "reachedThresholds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "limit",
+                                "registered",
+                                "remaining",
+                                "usedPct",
+                                "status",
+                                "reachedThresholds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "classDays": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "title": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "absenceId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "date",
+                              "lessonId",
+                              "title",
+                              "classHours",
+                              "absenceId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "absences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "lessonId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "date": {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                              },
+                              "lessonTitle": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "classHours": {
+                                "type": "number"
+                              },
+                              "note": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "lessonId",
+                              "date",
+                              "lessonTitle",
+                              "classHours",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "disciplineId",
+                        "disciplineName",
+                        "rule",
+                        "summary",
+                        "month",
+                        "classDays",
+                        "absences"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "attendance"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "email_not_verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "feature_disabled, not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "totalClassHours": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2000
+                  },
+                  "minAttendancePct": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "classHoursPerMeeting": {
+                    "default": 2,
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 24
+                  },
+                  "weekdays": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "maxItems": 7,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 6
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "alertThresholds": {
+                    "default": [
+                      50,
+                      75,
+                      90
+                    ],
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "required": [
+                  "totalClassHours",
+                  "minAttendancePct"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/disciplines/{id}/documents": {
       "post": {
         "summary": "Liga um arquivo já enviado como cronograma ou plano de ensino da disciplina.",

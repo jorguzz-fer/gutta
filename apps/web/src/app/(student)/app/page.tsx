@@ -74,6 +74,7 @@ export default async function TodayPage({
             agenda: on.agenda,
             disciplinas: on.disciplinas,
             lembretes: on.lembretes,
+            faltas: on.faltas,
           }}
         />
       </div>

@@ -185,6 +185,8 @@ export async function exportData(userId: string) {
       notifications,
       notificationDeliveries,
       notificationPreferences,
+      attendanceRules,
+      absences,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -258,6 +260,9 @@ export async function exportData(userId: string) {
           .select()
           .from(s.notificationPreferences)
           .where(eq(s.notificationPreferences.userId, userId)),
+      // Faltas (SPEC v2, FAL).
+      () => tx.select().from(s.attendanceRules).where(eq(s.attendanceRules.ownerId, userId)),
+      () => tx.select().from(s.absences).where(eq(s.absences.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -301,6 +306,8 @@ export async function exportData(userId: string) {
       notifications,
       notificationDeliveries,
       notificationPreferences: notificationPreferences[0] ?? null,
+      attendanceRules,
+      absences,
     };
   });
 }
