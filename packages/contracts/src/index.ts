@@ -8,3 +8,4 @@ export * as schedule from './routes/schedule';
 export * as routine from './routes/routine';
 export * as agenda from './routes/agenda';
 export * as calendar from './routes/calendar';
+export * as reminders from './routes/reminders';

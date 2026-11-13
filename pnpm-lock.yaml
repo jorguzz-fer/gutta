@@ -114,6 +114,9 @@ importers:
       '@gutta/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@gutta/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@gutta/db':
         specifier: workspace:*
         version: link:../../packages/db

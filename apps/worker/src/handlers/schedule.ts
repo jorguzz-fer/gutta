@@ -151,6 +151,24 @@ export function extractSchedule(deps: ScheduleDeps): Handler<'ai.extract_schedul
           .where(
             and(eq(s.scheduleImports.id, importId), eq(s.scheduleImports.status, 'extracting')),
           );
+        // Aviso: cronograma lido esperando a conferência (LEM-15). Um por leitura.
+        if (!result.refused) {
+          const disc = await tx.query.enrolledDisciplines.findFirst({
+            where: eq(s.enrolledDisciplines.id, imp.disciplineId),
+          });
+          await tx
+            .insert(s.notifications)
+            .values({
+              ownerId: userId,
+              dedupeKey: `import:${importId}`,
+              type: 'schedule_ready',
+              title: `Cronograma de ${disc?.shortName || disc?.name || 'disciplina'} lido`,
+              body: 'Confira os itens antes de irem para a agenda.',
+              link: `/app/minhas-disciplinas/cronograma/${importId}`,
+              scheduledFor: new Date(),
+            })
+            .onConflictDoNothing();
+        }
       });
       ctx.log.info('schedule.extracted', {
         importId,

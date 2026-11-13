@@ -8,7 +8,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data no formato AAAA-MM-DD.
 export const AgendaItemDto = z.object({
   /** Estável por ocorrência (fonte, id e data original). */
   id: z.string(),
-  source: z.enum(['lesson', 'assessment', 'routine', 'event', 'session']),
+  source: z.enum(['lesson', 'assessment', 'routine', 'event', 'session', 'reminder']),
   sourceId: z.string(),
   kind: z.enum([
     'aula',

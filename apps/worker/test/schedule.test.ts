@@ -153,6 +153,14 @@ describe('leitura', () => {
       ['entrega', 'Relatório de caso clínico'],
     ]);
     expect(spy.inputs[0]!.pdf).toBeUndefined();
+    // Aviso de conferência pendente, um por leitura (LEM-15).
+    const notes = await owner
+      .select()
+      .from(s.notifications)
+      .where(eq(s.notifications.dedupeKey, `import:${importId}`));
+    expect(notes).toMatchObject([
+      { type: 'schedule_ready', link: `/app/minhas-disciplinas/cronograma/${importId}` },
+    ]);
     expect(spy.inputs[0]!.referenceYear).toBe(2026);
     const usage = await owner.select().from(s.aiUsage).where(eq(s.aiUsage.ownerId, userId));
     expect(usage).toMatchObject([{ feature: 'schedule_extract', model: 'spy', refused: false }]);

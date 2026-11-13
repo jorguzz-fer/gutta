@@ -10,6 +10,8 @@ import { logger } from './logger';
 import { closeQueues, createQueues } from './queues';
 import { createRedis } from './redis';
 import { pruneOutbox, startRelay } from './relay';
+import { LogMailer, ResendMailer } from './notify/mail';
+import { startNotifier } from './notify/dispatch';
 import { startWorkers } from './workers';
 
 // Processo worker (ADR 0013): publica o outbox na fila e executa os trabalhos.
@@ -63,6 +65,18 @@ async function main() {
     }
   };
   const pruneTimer = setInterval(prune, 3600_000);
+
+  // Avisos por e-mail (LEM-11): uma volta por intervalo.
+  const mailer = cfg.RESEND_API_KEY
+    ? new ResendMailer(cfg.RESEND_API_KEY, cfg.MAIL_FROM)
+    : new LogMailer(logger, cfg.MAIL_OUTBOX_FILE);
+  const notifier = startNotifier({
+    db,
+    mailer,
+    log: logger,
+    appUrl: cfg.APP_URL,
+    intervalMs: cfg.WORKER_NOTIFY_INTERVAL_MS,
+  });
   void prune();
 
   // Saúde: banco e Redis respondendo. Só na rede interna do compose.
@@ -90,6 +104,7 @@ async function main() {
     clearInterval(pruneTimer);
     health.close();
     await relay.stop();
+    await notifier.stop();
     // close() espera os trabalhos em andamento terminarem.
     await Promise.all(workers.map((w) => w.close()));
     await closeQueues(queues);

@@ -11,7 +11,7 @@ import { localDayKey, zonedTimeToUtc } from './time';
 // mesmo formato, no fuso do aluno. Calendário da disciplina, agenda geral, visão do dia,
 // Equilíbrio e lembretes leem desta projeção, e nada é copiado (CAL-16).
 
-export type AgendaSource = 'lesson' | 'assessment' | 'routine' | 'event' | 'session';
+export type AgendaSource = 'lesson' | 'assessment' | 'routine' | 'event' | 'session' | 'reminder';
 
 /** Tipo exibido (CAL-03). A cor vem do tipo ou da disciplina. */
 export type AgendaKind =

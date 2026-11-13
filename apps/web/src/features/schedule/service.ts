@@ -31,6 +31,7 @@ import { badRequest, conflict, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { assertDisciplinesEnabled } from '@/features/academics/service';
 import { latestConsent, recordConsents } from '@/features/privacy/consent';
+import { syncAcademicAlerts } from '@/features/notifications/service';
 
 // Importação do cronograma (SPEC v2, DIS-05, DIS-07 e CAL-06). A IA lê no worker
 // (ai.extract_schedule); aqui o aluno confere e confirma. Nada entra na agenda antes disso.
@@ -433,6 +434,8 @@ export async function confirmImport(userId: string, id: string, rawItems: Schedu
       result.removed++;
     }
 
+    // Avisos de aula e prova acompanham a agenda nova (LEM-15).
+    await syncAcademicAlerts(tx, userId);
     const [updated] = await tx
       .update(s.scheduleImports)
       .set({ status: 'confirmed', confirmed: { items, result }, confirmedAt: sql`now()` })

@@ -30,6 +30,12 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_SCHEDULE_MODEL: z.string().default('claude-opus-5-5'),
   AI_SCHEDULE_EFFORT: z.enum(['low', 'medium', 'high']).default('medium'),
+  // Avisos por e-mail (SPEC v2, LEM-11). Sem chave, só registro (e arquivo nos testes).
+  APP_URL: z.string().url().default('http://localhost:3000'),
+  RESEND_API_KEY: z.string().optional(),
+  MAIL_FROM: z.string().default('Cognuss <nao-responda@gutta.tudomudou.com.br>'),
+  MAIL_OUTBOX_FILE: z.string().optional(),
+  WORKER_NOTIFY_INTERVAL_MS: z.coerce.number().int().min(1000).default(60_000),
 });
 
 export type Config = z.infer<typeof schema>;

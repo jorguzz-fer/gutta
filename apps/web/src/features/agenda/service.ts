@@ -84,6 +84,20 @@ export async function agendaOccurrences(
     durationMinutes: e.durationMinutes,
   }));
 
+  // Lembrete "apenas lembrar" aparece como marca, sem ocupar horário; o "reservar" já está
+  // na agenda pelo compromisso que criou (LEM-08, sem duplicar).
+  const reminders = await tx
+    .select()
+    .from(s.reminders)
+    .where(
+      and(
+        eq(s.reminders.ownerId, userId),
+        eq(s.reminders.mode, 'lembrar'),
+        isNull(s.reminders.doneAt),
+        lt(s.reminders.dueAt, to),
+        gte(s.reminders.dueAt, new Date(from.getTime() - 86_400_000)),
+      ),
+    );
   const singles: SingleItem[] = [
     ...lessons.map((l): SingleItem => ({
       source: 'lesson',
@@ -108,6 +122,19 @@ export async function agendaOccurrences(
       start: a.dueAt!,
       end: null,
       allDay: a.allDay,
+    })),
+    ...reminders.map((r): SingleItem => ({
+      source: 'reminder',
+      sourceId: r.id,
+      kind: 'compromisso',
+      title: r.title,
+      disciplineId: r.disciplineId,
+      category: 'lembrete',
+      protected: false,
+      blocksTime: false,
+      start: r.dueAt,
+      end: null,
+      allDay: r.allDay,
     })),
   ];
   return projectAgenda({

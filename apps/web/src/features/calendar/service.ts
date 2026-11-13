@@ -18,6 +18,7 @@ import type { z } from 'zod';
 import { ApiError, badRequest, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { flags } from '@/features/flags/service';
+import { syncAcademicAlerts } from '@/features/notifications/service';
 
 // Calendário (SPEC v2, CAL-02 a CAL-07, CAL-16). Compromissos com recorrência e exceções;
 // aulas e avaliações editadas no lugar delas, marcando o que o aluno mudou no que veio do
@@ -339,6 +340,7 @@ export async function createLesson(userId: string, body: LessonBody) {
         ...instants(body, tz),
       })
       .returning();
+    await syncAcademicAlerts(tx, userId);
     return { lesson: toLessonDto(row!, tz) };
   });
 }
@@ -362,6 +364,7 @@ export async function updateLesson(userId: string, id: string, body: LessonBody)
       })
       .where(eq(s.lessons.id, id))
       .returning();
+    await syncAcademicAlerts(tx, userId);
     return { lesson: toLessonDto(updated!, tz) };
   });
 }
@@ -378,6 +381,7 @@ export async function removeLesson(userId: string, id: string) {
     } else {
       await tx.delete(s.lessons).where(eq(s.lessons.id, id));
     }
+    await syncAcademicAlerts(tx, userId);
   });
   return { ok: true as const };
 }
@@ -429,6 +433,7 @@ export async function createAssessment(userId: string, body: AssessmentBody) {
         origin: 'manual',
       })
       .returning();
+    await syncAcademicAlerts(tx, userId);
     return { assessment: toAssessmentDto(row!, tz) };
   });
 }
@@ -453,6 +458,7 @@ export async function updateAssessment(userId: string, id: string, body: Assessm
       })
       .where(eq(s.assessments.id, id))
       .returning();
+    await syncAcademicAlerts(tx, userId);
     return { assessment: toAssessmentDto(updated!, tz) };
   });
 }
@@ -462,6 +468,7 @@ export async function removeAssessment(userId: string, id: string) {
   await withUser(db(), userId, async (tx) => {
     await findAssessment(tx, userId, id);
     await tx.delete(s.assessments).where(eq(s.assessments.id, id));
+    await syncAcademicAlerts(tx, userId);
   });
   return { ok: true as const };
 }

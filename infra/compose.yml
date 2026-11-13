@@ -83,6 +83,10 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       AI_SCHEDULE_MODEL: ${AI_SCHEDULE_MODEL:-claude-opus-5-5}
       AI_SCHEDULE_EFFORT: ${AI_SCHEDULE_EFFORT:-medium}
+      # Avisos por e-mail (LEM-11): mesmo remetente e endereço do app.
+      APP_URL: ${APP_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Cognuss <nao-responda@gutta.tudomudou.com.br>}
       STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
       STORAGE_REGION: ${STORAGE_REGION:-auto}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-}
