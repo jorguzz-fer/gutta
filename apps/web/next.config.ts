@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(import.meta.dirname, '../../'),
   transpilePackages: ['@gutta/core', '@gutta/db'],
-  serverExternalPackages: ['@node-rs/argon2', 'pg'],
+  serverExternalPackages: ['@node-rs/argon2', 'pg', 'ioredis'],
   poweredByHeader: false,
   async headers() {
     return [
