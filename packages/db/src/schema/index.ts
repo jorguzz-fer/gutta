@@ -16,3 +16,4 @@ export * from './attendance';
 export * from './materials';
 export * from './lesson-notes';
 export * from './planning';
+export * from './creations';

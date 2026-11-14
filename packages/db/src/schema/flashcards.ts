@@ -33,6 +33,9 @@ export const flashcards = pgTable(
     sourceQuestionId: uuid('source_question_id').references(() => questions.id, {
       onDelete: 'set null',
     }),
+    // Cartão gerado na Ajuda Cognuss (MEM-01): a criação de origem e a disciplina do aluno.
+    creationId: uuid('creation_id'),
+    enrolledDisciplineId: uuid('enrolled_discipline_id'),
     visibility: flashcardVisibility('visibility').notNull().default('private'),
     status: contentStatus('status').notNull().default('published'),
     isDemo: boolean('is_demo').notNull().default(false),
@@ -50,6 +53,7 @@ export const flashcards = pgTable(
     uniqueIndex('flashcards_owner_question_uq').on(t.ownerId, t.sourceQuestionId),
     index('flashcards_topic_idx').on(t.topicId, t.status),
     index('flashcards_owner_idx').on(t.ownerId),
+    index('flashcards_creation_idx').on(t.creationId),
   ],
 );
 
