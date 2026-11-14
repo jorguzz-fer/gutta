@@ -1155,6 +1155,7 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 | D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
 | D13 | Definições de progresso e de "em risco" | **As propostas de 6.4.** | Fernando, 14/11/2026 |
 | D15 | Parâmetros iniciais do Equilíbrio | **As propostas de 6.4**, ajustadas depois do piloto. | Fernando, 14/11/2026 |
+| D21 | Provedor de vetores da busca por conceito (ADR 0014, D07) | **Voyage AI**, modelo `voyage-4`, com retenção zero ligada no painel. Só gera vetores para quem autorizou a leitura dos materiais com o texto que cita a Voyage; a qualidade em português médico é medida com material real antes de abrir (`search:eval`). | Fernando, 14/11/2026 |
 
 ### 14.2 Abertas
 
