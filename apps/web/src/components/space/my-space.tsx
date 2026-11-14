@@ -47,6 +47,7 @@ export type SpaceLinks = {
   /** Acompanhar Aula ligado: o progresso (aulas concluídas) passa a ter sentido. */
   aula: boolean;
   equilibrio: boolean;
+  ajuda: boolean;
 };
 
 /** Resumo da semana do Equilíbrio (EQU-10, EQU-16), quando ligado. */
@@ -145,6 +146,11 @@ export function MySpace({
         {links.equilibrio ? (
           <Link href="/app/equilibrio" className={buttonClass('secondary', 'md')}>
             Equilíbrio
+          </Link>
+        ) : null}
+        {links.ajuda ? (
+          <Link href="/app/ajuda" className={buttonClass('secondary', 'md')}>
+            Ajuda Cognuss
           </Link>
         ) : null}
         {links.agenda ? (

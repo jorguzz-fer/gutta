@@ -75,6 +75,7 @@ export default async function DisciplineOverviewPage({
       on: o.flags.materiais,
     },
     { href: `/app/minhas-disciplinas/${id}/caderno`, label: 'Meu caderno', on: o.flags.aula },
+    { href: '/app/ajuda/criar', label: 'Ajuda Cognuss', on: o.flags.ajuda },
   ].filter((m) => m.on);
 
   return (
