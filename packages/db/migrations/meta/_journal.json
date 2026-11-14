@@ -281,6 +281,20 @@
       "when": 1794613191977,
       "tag": "0039_rls_materiais",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794614611216,
+      "tag": "0040_aula",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794614612372,
+      "tag": "0041_rls_aula",
+      "breakpoints": true
     }
   ]
 }

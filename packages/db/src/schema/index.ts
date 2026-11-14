@@ -14,3 +14,4 @@ export * from './routine';
 export * from './notifications';
 export * from './attendance';
 export * from './materials';
+export * from './lesson-notes';

@@ -67,6 +67,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0034, 0035 | Faltas: regra por disciplina e registros em horas-aula |
 | 0036, 0037 | Forma de cálculo da média por disciplina |
 | 0038, 0039 | Material de estudo (materiais, versões, vínculos), busca em português sem acento e lixeira |
+| 0040, 0041 | Acompanhar Aula: marcações por página com histórico, caderno com busca, selos e dúvidas, progresso da aula (ADR 0015) |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 
