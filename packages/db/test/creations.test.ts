@@ -49,15 +49,13 @@ async function setup(user: string) {
         disciplineId: d!.id,
       })
       .returning();
-    await tx
-      .insert(s.creationSources)
-      .values({
-        ownerId: user,
-        creationId: c!.id,
-        materialId: m!.id,
-        versionId: v!.id,
-        pages: [1, 2],
-      });
+    await tx.insert(s.creationSources).values({
+      ownerId: user,
+      creationId: c!.id,
+      materialId: m!.id,
+      versionId: v!.id,
+      pages: [1, 2],
+    });
     const [q] = await tx
       .insert(s.creationQuestions)
       .values({
