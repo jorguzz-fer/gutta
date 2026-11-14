@@ -116,9 +116,15 @@ class FakeProvider implements AIProvider {
     const last = req.messages.at(-1)?.content ?? '';
     const title = /modulo="([^"]+)"/.exec(req.material)?.[1] ?? 'do módulo';
     const real = /paciente|minha m[ãa]e|meu pai|dose/i.test(last);
+    // Tutor sobre os materiais do aluno: cita a primeira página etiquetada.
+    const page = /<pagina etiqueta="(P\d+)"[^>]*>\n([^\n]*)/.exec(req.material);
     const text = real
       ? 'Não posso orientar casos reais. Posso explicar o conceito como em uma aula.'
-      : `Pelo material de ${title}: ${req.material.split('\n').slice(1, 3).join(' ').slice(0, 200)}`;
+      : req.material.startsWith('<material escopo=')
+        ? page
+          ? `Pelos seus materiais: ${page[2]!.slice(0, 200)} [${page[1]}]`
+          : 'Os seus materiais não cobrem isso.'
+        : `Pelo material de ${title}: ${req.material.split('\n').slice(1, 3).join(' ').slice(0, 200)}`;
     return {
       text,
       model: 'fake-tutor',

@@ -323,6 +323,20 @@
       "when": 1794622760551,
       "tag": "0045_rls_ajuda",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794624273349,
+      "tag": "0046_tutor_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794624274587,
+      "tag": "0047_rls_tutor_materiais",
+      "breakpoints": true
     }
   ]
 }

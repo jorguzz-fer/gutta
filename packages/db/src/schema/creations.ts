@@ -162,3 +162,49 @@ export const creationQuestionAttempts = pgTable(
       .where(sql`${t.clientKey} is not null`),
   ],
 );
+
+export const tutorScope = pgEnum('tutor_scope', ['materiais', 'aula', 'slide']);
+
+// Tutor sobre os materiais do aluno (AJU-08, AUL-17): uma conversa por escopo escolhido. As
+// fontes ficam guardadas para a conversa seguir usando as mesmas páginas.
+export const tutorThreads = pgTable(
+  'tutor_threads',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    scope: tutorScope('scope').notNull(),
+    title: text('title').notNull(),
+    materialIds: uuid('material_ids').array().notNull(),
+    lessonId: uuid('lesson_id'),
+    focusMaterialId: uuid('focus_material_id'),
+    focusPage: integer('focus_page'),
+    disciplineId: uuid('discipline_id').references(() => enrolledDisciplines.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index('tutor_threads_owner_idx').on(t.ownerId, t.updatedAt)],
+);
+
+export const tutorThreadMessages = pgTable(
+  'tutor_thread_messages',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    threadId: uuid('thread_id')
+      .notNull()
+      .references(() => tutorThreads.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(),
+    content: text('content').notNull(),
+    // Páginas citadas na resposta (IA-2).
+    citations: jsonb('citations').$type<unknown[]>().notNull().default([]),
+    model: text('model'),
+    refused: boolean('refused').notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index('tutor_thread_messages_idx').on(t.threadId, t.createdAt),
+    check('tutor_thread_messages_role_ck', sql`${t.role} in ('user', 'assistant')`),
+  ],
+);

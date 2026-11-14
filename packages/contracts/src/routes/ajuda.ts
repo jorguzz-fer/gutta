@@ -189,3 +189,82 @@ export const answerQuestion = defineRoute({
   response: QuestionDto,
   errors: ['feature_disabled', 'not_found', 'invalid_request'],
 });
+
+// Tutor sobre os materiais (AJU-08, AUL-17). Responde citando as páginas usadas.
+
+export const TutorScope = z.enum(['materiais', 'aula', 'slide']);
+
+export const TutorMessageDto = z.object({
+  id: Uuid,
+  role: z.enum(['user', 'assistant']),
+  content: z.string(),
+  citations: z.array(SourceDto),
+  createdAt: z.string(),
+});
+
+export const TutorThreadDto = z.object({
+  id: Uuid,
+  scope: TutorScope,
+  title: z.string(),
+  sourceTitles: z.array(z.string()),
+  /** Dúvidas registradas na aula (AJU-09), como sugestões de pergunta. */
+  doubts: z.array(z.string()),
+  remaining: z.number().int(),
+  dailyLimit: z.number().int(),
+  messages: z.array(TutorMessageDto),
+});
+export type TutorThreadDto = z.infer<typeof TutorThreadDto>;
+
+export const createTutorThread = defineRoute({
+  method: 'post',
+  path: '/api/v1/ajuda/tutor/threads',
+  summary:
+    'Abre uma conversa com o tutor sobre materiais escolhidos, uma aula ou um slide (AJU-08, AUL-17).',
+  tags: ['ajuda'],
+  idempotent: true,
+  body: z.object({
+    scope: TutorScope,
+    materialIds: z.array(Uuid).max(20).optional(),
+    lessonId: Uuid.optional(),
+    materialId: Uuid.optional(),
+    page: z.number().int().min(1).optional(),
+    grantConsent: z.boolean().optional(),
+  }),
+  response: TutorThreadDto,
+  status: 201,
+  errors: ['feature_disabled', 'not_found', 'invalid_request', 'conflict'],
+});
+
+export const getTutorThread = defineRoute({
+  method: 'get',
+  path: '/api/v1/ajuda/tutor/threads/{id}',
+  summary: 'Uma conversa com o tutor, com as páginas citadas em cada resposta.',
+  tags: ['ajuda'],
+  params: z.object({ id: Uuid }),
+  response: TutorThreadDto,
+  errors: ['feature_disabled', 'not_found'],
+});
+
+export const askTutorThread = defineRoute({
+  method: 'post',
+  path: '/api/v1/ajuda/tutor/threads/{id}/messages',
+  summary: 'Pergunta ao tutor. A resposta cita as páginas e diz quando o material não cobre.',
+  tags: ['ajuda'],
+  params: z.object({ id: Uuid }),
+  body: z.object({ message: z.string().trim().min(3, 'Escreva sua dúvida.').max(1500) }),
+  response: TutorThreadDto,
+  errors: ['feature_disabled', 'not_found', 'rate_limited', 'unavailable'],
+});
+
+export const listTutorThreads = defineRoute({
+  method: 'get',
+  path: '/api/v1/ajuda/tutor/threads',
+  summary: 'Conversas recentes com o tutor.',
+  tags: ['ajuda'],
+  response: z.object({
+    items: z.array(
+      z.object({ id: Uuid, scope: TutorScope, title: z.string(), updatedAt: z.string() }),
+    ),
+  }),
+  errors: ['feature_disabled'],
+});
