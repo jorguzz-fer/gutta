@@ -54,6 +54,26 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0003, 0004 | Banco de questões, tentativas, domínio, recomendações |
 | 0005, 0006 | Flashcards, agendamentos e revisões |
 | 0007, 0008 | Leitura dos próprios eventos (LGPD); recomendações lidas por admin (métricas) |
+| 0009 a 0015 | Papel de professor, turmas, tutor IA e pacote LGPD |
+| 0016, 0017 | Outbox de eventos, com RLS e funções só para o worker (ADR 0013) |
+| 0018, 0019 | Arquivos do aluno e texto por página, com RLS; gatilho que pede a limpeza do bucket quando a conta é excluída (ADR 0012) |
+| 0020, 0021 | Vida acadêmica do aluno: semestres, disciplinas, docentes e temas, com RLS; cópia das disciplinas do MVP (SPEC v2, 8.1) |
+| 0022, 0023 | Dados pessoais com CPF cifrado, perfil da v2 e cursos da saúde (CAD-01 a CAD-10) |
+| 0024, 0025 | Cronograma e plano de ensino ligados à disciplina (DIS-02, DIS-03) |
+| 0026, 0027 | Aulas, avaliações, leitura do cronograma pela IA e uso de IA (DIS-05, DIS-07); provas do MVP (`exam_dates`) viram avaliações |
+| 0028, 0029 | Rotina semanal (`routine_blocks`) e preferências de planejamento (meta semanal, grade) |
+| 0030, 0031 | Compromissos do calendário com recorrência e exceções |
+| 0032, 0033 | Lembretes, avisos (um por origem), entregas e preferências de aviso; função de sistema do envio por e-mail |
+| 0034, 0035 | Faltas: regra por disciplina e registros em horas-aula |
+| 0036, 0037 | Forma de cálculo da média por disciplina |
+| 0038, 0039 | Material de estudo (materiais, versões, vínculos), busca em português sem acento e lixeira |
+| 0040, 0041 | Acompanhar Aula: marcações por página com histórico, caderno com busca, selos e dúvidas, progresso da aula (ADR 0015) |
+| 0042, 0043 | Equilíbrio: preferências completas, tarefas, propostas e sessões de estudo |
+| 0044, 0045 | Ajuda Cognuss: trabalhos de IA, criações com as páginas de origem, questões geradas e tentativas; flashcards ligados à criação |
+| 0046, 0047 | Tutor sobre os materiais: conversas por materiais, aula ou slide, e mensagens com as páginas citadas |
+| 0048, 0049 | Custos de IA: alerta de gasto do mês (um por mês, gravado só pelo worker) e funções de soma do gasto |
+| 0050 | Análise de provas: tipo `analise` nas criações |
+| 0051, 0052 | Busca por conceito: `material_chunks` com vetores (pgvector, HNSW) e RLS |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

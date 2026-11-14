@@ -1,0 +1,17 @@
+export * from './common';
+export * from './registry';
+export { routes } from './routes';
+export * as system from './routes/system';
+export * as files from './routes/files';
+export * as disciplines from './routes/disciplines';
+export * as schedule from './routes/schedule';
+export * as routine from './routes/routine';
+export * as agenda from './routes/agenda';
+export * as calendar from './routes/calendar';
+export * as reminders from './routes/reminders';
+export * as attendance from './routes/attendance';
+export * as grades from './routes/grades';
+export * as materials from './routes/materials';
+export * as lessonStudy from './routes/lesson-study';
+export * as planning from './routes/planning';
+export * as ajuda from './routes/ajuda';

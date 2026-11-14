@@ -11,6 +11,8 @@ export {
   lt,
   lte,
   inArray,
+  notInArray,
+  like,
   ilike,
   isNull,
   isNotNull,
@@ -19,3 +21,4 @@ export {
   count,
 } from 'drizzle-orm';
 export { hashPassword, verifyPassword } from './password';
+export * from './ai-settings';

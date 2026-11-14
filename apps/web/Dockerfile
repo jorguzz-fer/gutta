@@ -14,8 +14,13 @@ WORKDIR /repo
 FROM base AS deps
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc* ./
 COPY apps/web/package.json apps/web/
+COPY apps/worker/package.json apps/worker/
+COPY packages/ai/package.json packages/ai/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
+COPY packages/contracts/package.json packages/contracts/
+COPY packages/jobs/package.json packages/jobs/
+COPY packages/storage/package.json packages/storage/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store --mount=type=secret,id=ca,required=false \
     if [ -f /run/secrets/ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/ca npm_config_cafile=/run/secrets/ca; fi; \
     pnpm install --frozen-lockfile

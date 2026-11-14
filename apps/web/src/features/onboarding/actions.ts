@@ -9,6 +9,7 @@ import { db } from '@/lib/db';
 import { track } from '@/lib/events';
 import { logger } from '@/lib/logger';
 import { recordConsents } from '@/features/privacy/consent';
+import { mirrorCatalogDisciplines } from '@/features/academics/service';
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
@@ -137,6 +138,8 @@ export async function saveAcademicProfile(
           .values(toOpen.map((disciplineId) => ({ studentId: user.id, disciplineId })))
           .onConflictDoNothing();
       }
+      // Espelho para a v2 (disciplinas próprias), como a migração 0021 fez para quem já existia.
+      const mirrored = await mirrorCatalogDisciplines(tx, user.id, [...wanted]);
 
       if (v.displayName) {
         await tx
@@ -162,6 +165,17 @@ export async function saveAcademicProfile(
             title: v.examTitle || 'Prova',
             examAt,
           });
+          // A mesma prova como avaliação da disciplina própria (agenda da v2).
+          const own = mirrored.get(v.examDisciplineId);
+          if (own)
+            await tx.insert(s.assessments).values({
+              ownerId: user.id,
+              disciplineId: own,
+              kind: 'prova',
+              name: v.examTitle || 'Prova',
+              dueAt: examAt,
+              origin: 'manual',
+            });
         }
       }
 

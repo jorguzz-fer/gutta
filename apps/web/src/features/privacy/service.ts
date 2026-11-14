@@ -45,7 +45,7 @@ export async function currentConsents(userId: string) {
 }
 
 /** Finalidades que a pessoa liga e desliga sem perder o serviço essencial (art. 8º, §5º). */
-export const OPTIONAL_PURPOSES = ['marketing', 'ai_tutor'] as const;
+export const OPTIONAL_PURPOSES = ['marketing', 'ai_tutor', 'ai_materials'] as const;
 export type OptionalPurpose = (typeof OPTIONAL_PURPOSES)[number];
 
 export async function setConsent(userId: string, purpose: OptionalPurpose, granted: boolean) {
@@ -167,6 +167,46 @@ export async function exportData(userId: string) {
       requests,
       tutorMessages,
       classes,
+      terms,
+      enrolled,
+      teachers,
+      topicsOwn,
+      files,
+      filePages,
+      lessons,
+      assessments,
+      scheduleImports,
+      aiUsage,
+      routineBlocks,
+      planningPreferences,
+      calendarEvents,
+      calendarEventExceptions,
+      reminders,
+      notifications,
+      notificationDeliveries,
+      notificationPreferences,
+      attendanceRules,
+      absences,
+      gradingSchemes,
+      materials,
+      materialVersions,
+      materialLinks,
+      slideAnnotations,
+      slideAnnotationHistory,
+      notebookEntries,
+      notebookEntryHistory,
+      contentMarks,
+      lessonProgress,
+      studyTasks,
+      planProposals,
+      studySessions,
+      aiJobs,
+      creations,
+      creationSources,
+      creationQuestions,
+      creationQuestionAttempts,
+      tutorThreads,
+      tutorThreadMessages,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -204,6 +244,97 @@ export async function exportData(userId: string) {
           )
           .where(eq(s.tutorMessages.studentId, userId)),
       () => tx.select().from(s.classMembers).where(eq(s.classMembers.studentId, userId)),
+      // v2 (SPEC v2, 10.1): vida acadêmica e arquivos. O conteúdo dos arquivos fica no bucket;
+      // aqui vão os metadados e o texto extraído de cada página.
+      () => tx.select().from(s.studentTerms).where(eq(s.studentTerms.ownerId, userId)),
+      () =>
+        tx.select().from(s.enrolledDisciplines).where(eq(s.enrolledDisciplines.ownerId, userId)),
+      () => tx.select().from(s.disciplineTeachers).where(eq(s.disciplineTeachers.ownerId, userId)),
+      () => tx.select().from(s.disciplineTopics).where(eq(s.disciplineTopics.ownerId, userId)),
+      () => tx.select().from(s.files).where(eq(s.files.ownerId, userId)),
+      () => tx.select().from(s.filePages).where(eq(s.filePages.ownerId, userId)),
+      // Cronograma (SPEC v2, 8.2 e 8.6): aulas, avaliações, leituras pela IA e o uso de IA.
+      () => tx.select().from(s.lessons).where(eq(s.lessons.ownerId, userId)),
+      () => tx.select().from(s.assessments).where(eq(s.assessments.ownerId, userId)),
+      () => tx.select().from(s.scheduleImports).where(eq(s.scheduleImports.ownerId, userId)),
+      () => tx.select().from(s.aiUsage).where(eq(s.aiUsage.ownerId, userId)),
+      // Rotina semanal (SPEC v2, 5.3).
+      () => tx.select().from(s.routineBlocks).where(eq(s.routineBlocks.ownerId, userId)),
+      () => tx.select().from(s.planningPreferences).where(eq(s.planningPreferences.userId, userId)),
+      // Calendário, lembretes e avisos (SPEC v2, CAL e LEM).
+      () => tx.select().from(s.calendarEvents).where(eq(s.calendarEvents.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.calendarEventExceptions)
+          .where(eq(s.calendarEventExceptions.ownerId, userId)),
+      () => tx.select().from(s.reminders).where(eq(s.reminders.ownerId, userId)),
+      () => tx.select().from(s.notifications).where(eq(s.notifications.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.notificationDeliveries)
+          .where(eq(s.notificationDeliveries.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.notificationPreferences)
+          .where(eq(s.notificationPreferences.userId, userId)),
+      // Faltas (SPEC v2, FAL).
+      () => tx.select().from(s.attendanceRules).where(eq(s.attendanceRules.ownerId, userId)),
+      () => tx.select().from(s.absences).where(eq(s.absences.ownerId, userId)),
+      // Notas: a forma de cálculo (as notas estão nas avaliações).
+      () => tx.select().from(s.gradingSchemes).where(eq(s.gradingSchemes.ownerId, userId)),
+      // Material de estudo (SPEC v2, MAT). O conteúdo dos arquivos está no bucket.
+      () => tx.select().from(s.materials).where(eq(s.materials.ownerId, userId)),
+      () => tx.select().from(s.materialVersions).where(eq(s.materialVersions.ownerId, userId)),
+      () => tx.select().from(s.materialLinks).where(eq(s.materialLinks.ownerId, userId)),
+      // Acompanhar Aula (SPEC v2, AUL): marcações, caderno, selos e progresso.
+      () => tx.select().from(s.slideAnnotations).where(eq(s.slideAnnotations.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.slideAnnotationHistory)
+          .where(eq(s.slideAnnotationHistory.ownerId, userId)),
+      () =>
+        tx
+          .select({
+            id: s.notebookEntries.id,
+            disciplineId: s.notebookEntries.disciplineId,
+            lessonId: s.notebookEntries.lessonId,
+            materialId: s.notebookEntries.materialId,
+            versionId: s.notebookEntries.versionId,
+            page: s.notebookEntries.page,
+            region: s.notebookEntries.region,
+            content: s.notebookEntries.content,
+            revision: s.notebookEntries.revision,
+            createdAt: s.notebookEntries.createdAt,
+            updatedAt: s.notebookEntries.updatedAt,
+          })
+          .from(s.notebookEntries)
+          .where(eq(s.notebookEntries.ownerId, userId)),
+      () =>
+        tx.select().from(s.notebookEntryHistory).where(eq(s.notebookEntryHistory.ownerId, userId)),
+      () => tx.select().from(s.contentMarks).where(eq(s.contentMarks.ownerId, userId)),
+      () => tx.select().from(s.lessonProgress).where(eq(s.lessonProgress.ownerId, userId)),
+      // Equilíbrio (SPEC v2, EQU): tarefas, propostas e sessões.
+      () => tx.select().from(s.studyTasks).where(eq(s.studyTasks.ownerId, userId)),
+      () => tx.select().from(s.planProposals).where(eq(s.planProposals.ownerId, userId)),
+      () => tx.select().from(s.studySessions).where(eq(s.studySessions.ownerId, userId)),
+      // Ajuda Cognuss (SPEC v2, AJU): gerações, criações, fontes, questões e respostas.
+      () => tx.select().from(s.aiJobs).where(eq(s.aiJobs.ownerId, userId)),
+      () => tx.select().from(s.creations).where(eq(s.creations.ownerId, userId)),
+      () => tx.select().from(s.creationSources).where(eq(s.creationSources.ownerId, userId)),
+      () => tx.select().from(s.creationQuestions).where(eq(s.creationQuestions.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.creationQuestionAttempts)
+          .where(eq(s.creationQuestionAttempts.ownerId, userId)),
+      // Tutor sobre os materiais (AJU-08): conversas e mensagens com as páginas citadas.
+      () => tx.select().from(s.tutorThreads).where(eq(s.tutorThreads.ownerId, userId)),
+      () =>
+        tx.select().from(s.tutorThreadMessages).where(eq(s.tutorThreadMessages.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -229,6 +360,46 @@ export async function exportData(userId: string) {
       dataRequests: requests,
       tutorMessages,
       classMemberships: classes,
+      terms,
+      enrolledDisciplines: enrolled,
+      disciplineTeachers: teachers,
+      disciplineTopics: topicsOwn,
+      files,
+      filePages,
+      lessons,
+      assessments,
+      scheduleImports,
+      aiUsage,
+      routineBlocks,
+      planningPreferences: planningPreferences[0] ?? null,
+      calendarEvents,
+      calendarEventExceptions,
+      reminders,
+      notifications,
+      notificationDeliveries,
+      notificationPreferences: notificationPreferences[0] ?? null,
+      attendanceRules,
+      absences,
+      gradingSchemes,
+      materials,
+      materialVersions,
+      materialLinks,
+      slideAnnotations,
+      slideAnnotationHistory,
+      notebookEntries,
+      notebookEntryHistory,
+      contentMarks,
+      lessonProgress,
+      studyTasks,
+      planProposals,
+      studySessions,
+      aiJobs,
+      creations,
+      creationSources,
+      creationQuestions,
+      creationQuestionAttempts,
+      tutorThreads,
+      tutorThreadMessages,
     };
   });
 }

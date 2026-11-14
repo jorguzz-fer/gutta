@@ -4,7 +4,9 @@
 #   APP_URL, BETTER_AUTH_SECRET, POSTGRES_PASSWORD, GUTTA_OWNER_PASSWORD, GUTTA_APP_PASSWORD,
 #   RESEND_API_KEY, MAIL_FROM, LESSON_ORIGINS, BOOTSTRAP_ADMIN_EMAILS, SEED_CATALOG,
 #   ANTHROPIC_API_KEY, TUTOR_MODEL e TUTOR_DAILY_LIMIT (opcionais)
+#   VOYAGE_API_KEY e EMBEDDING_MODEL (opcionais; busca por conceito, ADR 0014)
 #   LEGAL_CONTROLLER_NAME, LEGAL_CONTROLLER_DOCUMENT, DPO_NAME, DPO_EMAIL (LGPD; preencher antes do piloto)
+#   REDIS_PASSWORD (fila e limite de taxa; ADR 0013)
 name: gutta
 
 services:
@@ -17,18 +19,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       APP_URL: ${APP_URL}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       DATABASE_URL: postgres://gutta_app:${GUTTA_APP_PASSWORD}@db:5432/gutta
       DATABASE_OWNER_URL: postgres://gutta_owner:${GUTTA_OWNER_PASSWORD}@db:5432/gutta
       DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
+      STORAGE_REGION: ${STORAGE_REGION:-auto}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-}
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:-}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:-}
+      FEATURES_ON: ${FEATURES_ON:-}
+      PII_ENCRYPTION_KEY: ${PII_ENCRYPTION_KEY:-}
+      PII_HASH_KEY: ${PII_HASH_KEY:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       MAIL_FROM: ${MAIL_FROM:-Cognuss <nao-responda@gutta.tudomudou.com.br>}
       LESSON_ORIGINS: ${LESSON_ORIGINS:-}
       BOOTSTRAP_ADMIN_EMAILS: ${BOOTSTRAP_ADMIN_EMAILS:-}
       SEED_CATALOG: ${SEED_CATALOG:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-voyage-4}
       TUTOR_MODEL: ${TUTOR_MODEL:-claude-opus-5-5}
       TUTOR_DAILY_LIMIT: ${TUTOR_DAILY_LIMIT:-20}
       LEGAL_CONTROLLER_NAME: ${LEGAL_CONTROLLER_NAME:-}
@@ -44,6 +59,84 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+
+  # Processo worker (ADR 0013): publica o outbox na fila e executa os trabalhos. Usa o mesmo
+  # papel do app (gutta_app, sem BYPASSRLS). Sobe depois do web, que aplica as migrations.
+  worker:
+    image: gutta-worker:latest
+    build:
+      context: ..
+      dockerfile: apps/worker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://gutta_app:${GUTTA_APP_PASSWORD}@db:5432/gutta
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      QUEUE_PREFIX: ${QUEUE_PREFIX:-cognuss}
+      DB_POOL_MAX: ${WORKER_DB_POOL_MAX:-5}
+      SCANNER: clamd
+      CLAMD_HOST: clamav
+      CLAMD_PORT: '3310'
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-voyage-4}
+      AI_SCHEDULE_MODEL: ${AI_SCHEDULE_MODEL:-claude-opus-5-5}
+      AI_SCHEDULE_EFFORT: ${AI_SCHEDULE_EFFORT:-medium}
+      # Avisos por e-mail (LEM-11): mesmo remetente e endereço do app.
+      APP_URL: ${APP_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Cognuss <nao-responda@gutta.tudomudou.com.br>}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
+      STORAGE_REGION: ${STORAGE_REGION:-auto}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-}
+      STORAGE_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID:-}
+      STORAGE_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY:-}
+    expose:
+      - '3001'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3001/health >/dev/null || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Antivírus (ADR 0012): clamd com a base atualizada pelo freshclam da própria imagem. Carrega
+  # a base na memória (cerca de 1 GB) e leva alguns minutos para ficar pronto no primeiro start.
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    expose:
+      - '3310'
+    volumes:
+      - gutta-clamav:/var/lib/clamav
+    healthcheck:
+      test: ['CMD', 'clamdcheck.sh']
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+  # Fila de trabalhos e limite de taxa compartilhado (ADR 0013). Sem porta publicada, com
+  # senha, e com AOF para a fila sobreviver a um reinício. Não guarda dado pessoal.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['sh', '-c', 'exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"']
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - gutta-redis:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" --no-auth-warning ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   db:
     image: gutta-db:16
@@ -67,3 +160,5 @@ services:
 
 volumes:
   gutta-pg:
+  gutta-redis:
+  gutta-clamav:

@@ -18,4 +18,15 @@ describe('CSP', () => {
     expect(buildCsp({})).toContain("frame-ancestors 'none'");
     expect(buildCsp({})).not.toContain('unsafe-eval');
   });
+
+  it('libera o bucket de arquivos para envio e miniaturas, só com https', () => {
+    const csp = buildCsp({ storageEndpoint: 'https://conta.r2.cloudflarestorage.com/qualquer' });
+    expect(csp).toContain("connect-src 'self' https://conta.r2.cloudflarestorage.com;");
+    expect(csp).toContain("img-src 'self' data: blob: https://conta.r2.cloudflarestorage.com;");
+    expect(buildCsp({ storageEndpoint: 'http://minio:9000' })).toContain("connect-src 'self';");
+    expect(buildCsp({ storageEndpoint: 'http://localhost:9000', dev: true })).toContain(
+      "connect-src 'self' http://localhost:9000;",
+    );
+    expect(buildCsp({ storageEndpoint: 'não é url' })).toContain("connect-src 'self';");
+  });
 });

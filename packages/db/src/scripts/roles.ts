@@ -45,6 +45,8 @@ export async function ensureRolesAndDatabase(opts: {
   try {
     await c2.query('ALTER SCHEMA public OWNER TO gutta_owner');
     await c2.query('REVOKE CREATE ON SCHEMA public FROM PUBLIC');
+    // pgvector (ADR 0014) só pode ser criado por superusuário; a migration 0051 só confere.
+    await c2.query('CREATE EXTENSION IF NOT EXISTS vector');
     await c2.query('CREATE EXTENSION IF NOT EXISTS pg_stat_statements');
   } catch (err) {
     // pg_stat_statements depende de shared_preload_libraries; sem ele seguimos.

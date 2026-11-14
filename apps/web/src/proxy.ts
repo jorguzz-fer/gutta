@@ -2,7 +2,7 @@ import { getSessionCookie } from 'better-auth/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildCsp } from './lib/csp';
 
-const PROTECTED = ['/app', '/admin', '/professor', '/onboarding', '/seguranca'];
+const PROTECTED = ['/app', '/admin', '/professor', '/onboarding', '/comecar', '/seguranca'];
 
 /*
   Roda em toda requisição de página e API:
@@ -25,6 +25,7 @@ export function proxy(request: NextRequest) {
     'Content-Security-Policy',
     buildCsp({
       lessonOrigins: process.env.LESSON_ORIGINS,
+      storageEndpoint: process.env.STORAGE_ENDPOINT,
       dev: process.env.NODE_ENV === 'development',
     }),
   );

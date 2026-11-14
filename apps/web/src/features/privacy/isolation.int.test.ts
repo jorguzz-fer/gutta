@@ -93,6 +93,30 @@ describe('telas pessoais de admin e revisor só mostram os próprios dados', () 
     expect(asReviewer.questionAttempts).toHaveLength(0);
   });
 
+  it('exportação inclui a vida acadêmica e os arquivos do próprio aluno, só dele', async () => {
+    const [term] = await owner
+      .insert(s.studentTerms)
+      .values({ ownerId: student, label: '2026.2' })
+      .returning();
+    await owner
+      .insert(s.enrolledDisciplines)
+      .values({ ownerId: student, termId: term!.id, name: 'Anatomia' });
+    await owner.insert(s.files).values({
+      ownerId: student,
+      originalName: 'aula.pdf',
+      mime: 'application/pdf',
+      sizeBytes: 10,
+      sha256: 'e'.repeat(64),
+    });
+    const mine = await exportData(student);
+    expect(mine.terms.map((t) => t.label)).toEqual(['2026.2']);
+    expect(mine.enrolledDisciplines.map((d) => d.name)).toEqual(['Anatomia']);
+    expect(mine.files.map((f) => f.originalName)).toEqual(['aula.pdf']);
+    const other = await exportData(admin);
+    expect(other.terms).toHaveLength(0);
+    expect(other.files).toHaveLength(0);
+  });
+
   it('consentimentos, histórico e sessões são do próprio usuário', async () => {
     expect((await currentConsents(admin)).latest.marketing).toBeUndefined();
     expect(await recentSessions(admin)).toHaveLength(0);

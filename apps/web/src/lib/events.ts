@@ -14,7 +14,10 @@ export type EventName =
   | 'recommendation_shown'
   | 'data_export_requested'
   | 'tutor_asked'
-  | 'account_deletion_requested';
+  | 'tutor_thread_opened'
+  | 'account_deletion_requested'
+  | 'signup_step_completed'
+  | 'file_uploaded';
 
 export async function track(
   tx: Tx,

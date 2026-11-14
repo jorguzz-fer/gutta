@@ -113,6 +113,265 @@
       "when": 1793740024810,
       "tag": "0015_rls_lgpd",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794601673117,
+      "tag": "0016_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794601673966,
+      "tag": "0017_rls_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794602785804,
+      "tag": "0018_arquivos",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794602786625,
+      "tag": "0019_rls_arquivos",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794603737207,
+      "tag": "0020_academico",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794603738015,
+      "tag": "0021_rls_academico",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794603939639,
+      "tag": "0022_cadastro_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794603940455,
+      "tag": "0023_rls_cadastro_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794604608432,
+      "tag": "0024_documentos_disciplina",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794604609431,
+      "tag": "0025_rls_documentos_disciplina",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794605087103,
+      "tag": "0026_cronograma",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794605088027,
+      "tag": "0027_rls_cronograma",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794606457486,
+      "tag": "0028_rotina",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794606458364,
+      "tag": "0029_rls_rotina",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794608489346,
+      "tag": "0030_calendario",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794608490307,
+      "tag": "0031_rls_calendario",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794610361570,
+      "tag": "0032_lembretes",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794610362599,
+      "tag": "0033_rls_lembretes",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794611380391,
+      "tag": "0034_faltas",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794611381396,
+      "tag": "0035_rls_faltas",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794611978851,
+      "tag": "0036_notas",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794611979841,
+      "tag": "0037_rls_notas",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794613190973,
+      "tag": "0038_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794613191977,
+      "tag": "0039_rls_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794614611216,
+      "tag": "0040_aula",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794614612372,
+      "tag": "0041_rls_aula",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794619778501,
+      "tag": "0042_equilibrio",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794619779739,
+      "tag": "0043_rls_equilibrio",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794622759337,
+      "tag": "0044_ajuda",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794622760551,
+      "tag": "0045_rls_ajuda",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794624273349,
+      "tag": "0046_tutor_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794624274587,
+      "tag": "0047_rls_tutor_materiais",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794626094049,
+      "tag": "0048_ia_gasto",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794626095320,
+      "tag": "0049_rls_ia_gasto",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794626789358,
+      "tag": "0050_analise_provas",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794651472070,
+      "tag": "0051_busca_conceito",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1794651480464,
+      "tag": "0052_rls_busca_conceito",
+      "breakpoints": true
     }
   ]
 }

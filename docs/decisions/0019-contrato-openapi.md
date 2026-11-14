@@ -1,6 +1,6 @@
 # ADR 0019: Contrato da API em OpenAPI, gerado dos esquemas Zod
 
-- Status: proposto
+- Status: aceito (Fernando, 13/11/2026)
 - Data: 2026-11-13
 
 ## Contexto

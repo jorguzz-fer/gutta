@@ -1,6 +1,6 @@
 # ADR 0014: Busca por texto e por conceito
 
-- Status: proposto
+- Status: aceito (Fernando, 13/11/2026)
 - Data: 2026-11-13
 
 ## Contexto
@@ -42,6 +42,17 @@ Opção 3.
 - `pgvector` e `unaccent`.
 - Atenção: a imagem atual é `postgres:16-alpine`. Trocar para uma imagem baseada em Debian (como a oficial do pgvector) muda a biblioteca C, e a ordenação de texto pode mudar com ela, o que corromperia índices de texto já existentes em produção. Por isso a extensão é **compilada dentro da imagem Alpine atual** (`infra/postgres/Dockerfile`), sem trocar a base.
 - A migration cria as extensões como `gutta_owner`. O papel `gutta_app` não ganha permissão nova.
+
+## Escolha do provedor (14/11/2026)
+
+Fernando escolheu a **Voyage AI** (SPEC v2, D21). Implementação do item 66:
+- Modelo `voyage-4`, 1024 dimensões, `input_type` `document` para os trechos e `query` para as buscas (API conferida em docs.voyageai.com em 14/11/2026). Preço: US$ 0,06 por milhão de tokens, com 200 milhões grátis por conta. Retenção zero e sem uso para treino: opção "Opted Out" no painel (Organization → Terms of Service), que pede cartão cadastrado.
+- Trechos de cerca de **350 palavras** com 50 de sobreposição, em vez de 800: slides têm pouco texto por página, e trecho grande tornaria a página de origem imprecisa. Reavaliar com a bateria real.
+- `material_chunks` com RLS (migrations 0051 e 0052) e índice HNSW por cosseno. A extensão `vector` é criada por superusuário (`docs/deploy.md`).
+- O worker gera os vetores por aluno (`ai.embed_user`), quando o arquivo fica pronto, quando entra material ou versão e quando o aluno autoriza. Apaga os trechos de versão antiga, de material na lixeira e de quem retira a autorização.
+- **Autorização:** o texto da leitura dos materiais passou a citar a Voyage AI (política na versão `2026-11-14-rascunho`). Só gera vetores quem autorizou a partir dessa versão; quem autorizou antes continua com a busca por palavra e vê, na busca, o pedido para autorizar.
+- Busca híbrida por fusão de posições (RRF, k = 60) entre a busca por palavra e os trechos com semelhança de cosseno a partir de 0,3 (ajustar com a bateria). O tutor sobre os materiais usa a mesma fusão para escolher as páginas quando o material passa do teto.
+- Interruptor "Busca por conceito" no `/admin/ia`; custo em `ai_usage` (`embedding` e `embedding_query`). Sem `VOYAGE_API_KEY`, só a busca por palavra.
 
 ## Consequências
 

@@ -39,7 +39,7 @@ import { aiProvider, ProviderUnavailable } from './provider';
 
 export type TutorSettings = { enabled: boolean; dailyLimit: number };
 
-async function readSettings(tx: Tx): Promise<TutorSettings> {
+export async function readSettings(tx: Tx): Promise<TutorSettings> {
   const row = await tx.query.appSettings.findFirst({ where: eq(s.appSettings.key, 'tutor') });
   const v = (row?.value ?? {}) as Partial<TutorSettings>;
   return {

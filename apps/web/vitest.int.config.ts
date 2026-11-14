@@ -26,6 +26,8 @@ export default defineConfig({
       BETTER_AUTH_SECRET: randomBytes(32).toString('base64'),
       APP_URL: 'http://localhost:3000',
       AI_PROVIDER: 'fake',
+      PII_ENCRYPTION_KEY: randomBytes(32).toString('base64'),
+      PII_HASH_KEY: randomBytes(32).toString('base64'),
     },
   },
 });

@@ -1,0 +1,12 @@
+# Ignore usado pelo BuildKit para apps/worker/Dockerfile.
+**/node_modules
+**/.next
+**/dist
+.git
+.env
+**/.env
+docs
+loadtest
+public
+playwright-report
+test-results

@@ -1,11 +1,13 @@
 import 'server-only';
 import { and, desc, eq, schema, type Tx } from '@gutta/db';
+import { emit } from '@gutta/jobs';
 
 /*
   Versão dos termos e da política. Rascunho até a revisão jurídica (SPEC §13.1, D09).
   Ao mudar, quem aceitou a versão anterior vê o aviso de nova versão no app e aceita de novo.
 */
-export const POLICY_VERSION = '2026-11-03-rascunho';
+export const POLICY_VERSION = '2026-11-14-rascunho';
+export { AI_MATERIALS_VECTORS_SINCE, coversVectors } from '@gutta/db';
 
 export type ConsentPurpose = (typeof schema.consentPurpose.enumValues)[number];
 
@@ -23,6 +25,12 @@ export async function recordConsents(
       policyVersion: POLICY_VERSION,
     }));
   if (rows.length) await tx.insert(schema.consentRecords).values(rows);
+  // Autorizar a leitura dos materiais gera os vetores da busca por conceito; retirar apaga.
+  if (choices.ai_materials !== undefined) {
+    if (!choices.ai_materials)
+      await tx.delete(schema.materialChunks).where(eq(schema.materialChunks.ownerId, userId));
+    await emit(tx, 'ai.embed_user', { userId });
+  }
 }
 
 /** Último registro da finalidade (o mais recente vence). */

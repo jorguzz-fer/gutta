@@ -9,10 +9,13 @@ import { env } from '../env';
 import { logger } from '../logger';
 import { mailer } from '../mail';
 import { resetPasswordEmail, verificationEmail } from '../mail/templates';
+import { redis } from '../redis';
+import { redisRateLimitStorage } from './rate-limit-store';
 
 // Configuração de autenticação (ADR 0002).
 function createAuth() {
   const e = env();
+  const redisClient = redis();
   return betterAuth({
     appName: 'Cognuss',
     baseURL: e.APP_URL,
@@ -65,6 +68,8 @@ function createAuth() {
     },
     rateLimit: {
       enabled: e.AUTH_RATE_LIMIT ? e.AUTH_RATE_LIMIT === 'on' : e.NODE_ENV === 'production',
+      // Com Redis, o limite vale para todas as réplicas juntas; sem ele, fica na memória.
+      ...(redisClient ? { customStorage: redisRateLimitStorage(redisClient, logger) } : {}),
       window: 60,
       max: 100,
       customRules: {

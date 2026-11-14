@@ -5,6 +5,7 @@ import { LegalPage } from '@/components/shared/legal-page';
 import { currentRetention } from '@/features/privacy/admin';
 import { RESPONSE_DAYS } from '@/features/privacy/service';
 import { legalInfo } from '@/lib/legal';
+import { featureEnabled } from '@/features/flags/service';
 
 export const metadata: Metadata = { title: 'Política de privacidade' };
 
@@ -19,6 +20,11 @@ export default async function PrivacyPolicyPage() {
   await connection();
   const legal = legalInfo();
   const r = await currentRetention();
+  // O cadastro da v2 coleta CPF e telefone (SPEC v2, D04); a política só fala deles quando
+  // ele está ligado, para descrever o que de fato é coletado.
+  const signupV2 = await featureEnabled('cadastro');
+  // Leitura do cronograma pela IA (SPEC v2, DIS-05): só aparece com o módulo ligado.
+  const aiMaterials = signupV2 || (await featureEnabled('disciplinas'));
   const lessonHosts = (process.env.LESSON_ORIGINS ?? '')
     .split(/[\s,]+/)
     .filter(Boolean)
@@ -43,12 +49,24 @@ export default async function PrivacyPolicyPage() {
       <h2>O que coletamos</h2>
       <ul>
         <li>Conta: nome, e-mail e senha (guardamos só uma versão cifrada, nunca a senha).</li>
+        {signupV2 ? (
+          <li>
+            Dados pessoais: nome completo, CPF e telefone. O CPF fica guardado cifrado e só é usado
+            para emitir nota fiscal; o telefone serve para falar com você sobre a sua conta.
+          </li>
+        ) : null}
         <li>
           Perfil acadêmico: curso, instituição, semestre, disciplinas e datas de prova que você
           informar.
         </li>
         <li>Estudo: respostas, revisões, cartões e tempo de uso.</li>
         <li>Tutor IA, se você usar: suas perguntas e as respostas do tutor.</li>
+        {aiMaterials ? (
+          <li>
+            Arquivos que você envia, como o cronograma da disciplina, e o que a IA leu deles para
+            você conferir.
+          </li>
+        ) : null}
         <li>Turmas, se você entrar em uma: em qual turma está e desde quando.</li>
         <li>
           Dados técnicos: endereço IP e navegador de cada sessão, e registros de quem mudou o quê
@@ -73,6 +91,21 @@ export default async function PrivacyPolicyPage() {
             <td>Conta, login, segurança e comunicação essencial (confirmação, senha)</td>
             <td>Execução do contrato com você (V)</td>
           </tr>
+          {signupV2 ? (
+            <>
+              <tr>
+                <td>Emitir nota fiscal (CPF)</td>
+                <td>
+                  Cumprimento de obrigação legal ou regulatória (II), a confirmar na revisão
+                  jurídica
+                </td>
+              </tr>
+              <tr>
+                <td>Falar com você sobre a sua conta (telefone)</td>
+                <td>Execução do contrato com você (V)</td>
+              </tr>
+            </>
+          ) : null}
           <tr>
             <td>Personalizar o estudo: próximo passo, revisões, domínio dos assuntos</td>
             <td>Execução do contrato com você (V)</td>
@@ -85,6 +118,14 @@ export default async function PrivacyPolicyPage() {
             <td>Tutor IA</td>
             <td>Consentimento específico (I e art. 33, VIII), pedido antes da primeira pergunta</td>
           </tr>
+          {aiMaterials ? (
+            <tr>
+              <td>Leitura dos seus materiais pela IA (datas e temas do cronograma)</td>
+              <td>
+                Consentimento específico (I e art. 33, VIII), pedido antes da primeira leitura
+              </td>
+            </tr>
+          ) : null}
           <tr>
             <td>Novidades e ofertas</td>
             <td>Consentimento (I), opcional</td>
@@ -109,6 +150,20 @@ export default async function PrivacyPolicyPage() {
           Anthropic, nos Estados Unidos, só quando você usa o tutor: recebe a pergunta, o material
           do módulo e o resumo das suas respostas naquele módulo. Nome e e-mail não vão.
         </li>
+        {aiMaterials ? (
+          <li>
+            Anthropic, nos Estados Unidos, quando você autoriza a leitura dos seus materiais: recebe
+            o conteúdo dos arquivos escolhidos (o cronograma, slides, apostilas). Nome, e-mail e CPF
+            não vão.
+          </li>
+        ) : null}
+        {aiMaterials ? (
+          <li>
+            Voyage AI, nos Estados Unidos, quando você autoriza a leitura dos seus materiais: recebe
+            trechos do texto dos seus materiais e as suas buscas, para a busca por assunto, sem
+            guardar nem usar para treino. Nome, e-mail e CPF não vão.
+          </li>
+        ) : null}
         <li>
           Provedor de e-mail transacional (Resend, nos Estados Unidos), quando ativo: recebe seu
           e-mail para enviar confirmação e recuperação de senha.

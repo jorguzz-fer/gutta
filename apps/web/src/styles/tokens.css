@@ -36,6 +36,33 @@
   --login-line: oklch(0.43 0.04 25);
   --radius: 6px;
   --radius-lg: 8px;
+  /* Categorias (SPEC v2, D03; plano, item 37): disciplinas e tipos de evento na grade e no
+     calendário. Cada uma tem fundo, texto sobre o fundo (AA, 4,5:1) e borda (3:1 contra a
+     superfície). A categoria nunca é só cor: o bloco sempre leva o nome. */
+  --cat-1: oklch(0.32 0.07 10);
+  --cat-1-fg: oklch(0.92 0.06 10);
+  --cat-1-line: oklch(0.72 0.13 10);
+  --cat-2: oklch(0.32 0.07 55);
+  --cat-2-fg: oklch(0.92 0.06 55);
+  --cat-2-line: oklch(0.72 0.13 55);
+  --cat-3: oklch(0.32 0.07 85);
+  --cat-3-fg: oklch(0.92 0.06 85);
+  --cat-3-line: oklch(0.72 0.13 85);
+  --cat-4: oklch(0.32 0.07 145);
+  --cat-4-fg: oklch(0.92 0.06 145);
+  --cat-4-line: oklch(0.72 0.13 145);
+  --cat-5: oklch(0.32 0.07 190);
+  --cat-5-fg: oklch(0.92 0.06 190);
+  --cat-5-line: oklch(0.72 0.13 190);
+  --cat-6: oklch(0.32 0.07 250);
+  --cat-6-fg: oklch(0.92 0.06 250);
+  --cat-6-line: oklch(0.72 0.13 250);
+  --cat-7: oklch(0.32 0.07 295);
+  --cat-7-fg: oklch(0.92 0.06 295);
+  --cat-7-line: oklch(0.72 0.13 295);
+  --cat-8: oklch(0.32 0.07 340);
+  --cat-8-fg: oklch(0.92 0.06 340);
+  --cat-8-line: oklch(0.72 0.13 340);
   color-scheme: dark;
 }
 
@@ -60,5 +87,32 @@
   --warn-soft: oklch(0.95 0.05 85);
   --focus: oklch(0.52 0.2 27);
   --card-shadow: 0 8px 24px -12px oklch(0.2 0 0 / 0.22);
+  /* Categorias, tema claro (SPEC v2, D03; plano, item 37): disciplinas e tipos de evento na grade e no
+     calendário. Cada uma tem fundo, texto sobre o fundo (AA, 4,5:1) e borda (3:1 contra a
+     superfície). A categoria nunca é só cor: o bloco sempre leva o nome. */
+  --cat-1: oklch(0.94 0.045 10);
+  --cat-1-fg: oklch(0.38 0.11 10);
+  --cat-1-line: oklch(0.58 0.15 10);
+  --cat-2: oklch(0.94 0.045 55);
+  --cat-2-fg: oklch(0.38 0.11 55);
+  --cat-2-line: oklch(0.58 0.15 55);
+  --cat-3: oklch(0.94 0.045 85);
+  --cat-3-fg: oklch(0.38 0.11 85);
+  --cat-3-line: oklch(0.58 0.15 85);
+  --cat-4: oklch(0.94 0.045 145);
+  --cat-4-fg: oklch(0.38 0.11 145);
+  --cat-4-line: oklch(0.58 0.15 145);
+  --cat-5: oklch(0.94 0.045 190);
+  --cat-5-fg: oklch(0.38 0.11 190);
+  --cat-5-line: oklch(0.58 0.15 190);
+  --cat-6: oklch(0.94 0.045 250);
+  --cat-6-fg: oklch(0.38 0.11 250);
+  --cat-6-line: oklch(0.58 0.15 250);
+  --cat-7: oklch(0.94 0.045 295);
+  --cat-7-fg: oklch(0.38 0.11 295);
+  --cat-7-line: oklch(0.58 0.15 295);
+  --cat-8: oklch(0.94 0.045 340);
+  --cat-8-fg: oklch(0.38 0.11 340);
+  --cat-8-line: oklch(0.58 0.15 340);
   color-scheme: light;
 }
