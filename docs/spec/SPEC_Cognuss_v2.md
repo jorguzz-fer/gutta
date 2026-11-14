@@ -331,7 +331,7 @@ Os itens 1 a 5 e 7 viram testes automáticos de propriedade sobre o motor (seç�
 | ESP-01 | Cabeçalho | Saudação, curso e semestre, instituição, campus e turma. Objetivo principal com "Alterar objetivo". | E |
 | ESP-02 | Visão do dia | Aulas, estudos, academia e demais compromissos de hoje em ordem cronológica. | E |
 | ESP-03 | Tarefas de hoje | Lista com marcação de feito e contador (2/3). Vem das sessões planejadas e dos lembretes com data de hoje. | E |
-| ESP-04 | Minhas disciplinas | Cartões com docentes, estado do cronograma e progresso. "Gerenciar disciplinas" e "Adicionar disciplina". A definição de progresso é **[PEND D13]**. | E |
+| ESP-04 | Minhas disciplinas | Cartões com docentes, estado do cronograma e progresso. "Gerenciar disciplinas" e "Adicionar disciplina". A definição de progresso está em 6.4 (D13). | E |
 | ESP-05 | Minha rotina semanal | Tempo de estudo planejado em relação à meta (17 h de 20 h), horas de aula, outras atividades, meta. "Ver e editar rotina". A linha "Descanso (média diária)" só aparece se o aluno registrou sono, e só como soma do que ele registrou. | E |
 | ESP-06 | Plano de estudos da semana | Conteúdos distribuídos em sessões ("BMF, expressão gênica: 2 sessões"), com marcação e "Iniciar plano de estudos". | E |
 | ESP-07 | Meu desempenho | Evolução por disciplina e geral, com "Ver desempenho completo". Depende de D13. | D |
@@ -684,12 +684,12 @@ Três procedências sempre visíveis: **do professor**, **pessoal** e **produzid
 
 | Termo | Proposta | Decisão |
 |---|---|---|
-| Progresso da disciplina | Aulas concluídas no Acompanhar Aula dividido por aulas já ocorridas no cronograma. Sem cronograma, não mostra percentual. | D13 |
-| Progresso geral | Média dos progressos das disciplinas, ponderada pelo número de aulas. | D13 |
-| "Em risco" (notas) | A média desejada ainda é alcançável, mas a nota necessária nas avaliações restantes é maior que a média das já lançadas ou maior que 80% da nota máxima. | D13 |
-| Semana intensa | Duas ou mais avaliações em sete dias, ou soma de aulas e compromissos acima de um limiar configurável. | D15 |
-| Jornada acadêmica longa | Quatro ou mais horas-aula seguidas imediatamente antes do horário. | D15 |
-| Ocupação por intensidade | Leve usa até 50% das janelas de estudo declaradas; equilibrada, até 75%; intensiva, até 100%, só quando o aluno pede. | D15 |
+| Progresso da disciplina | Aulas concluídas no Acompanhar Aula dividido por aulas já ocorridas no cronograma. Sem cronograma, não mostra percentual. | D13, decidida |
+| Progresso geral | Média dos progressos das disciplinas, ponderada pelo número de aulas. | D13, decidida |
+| "Em risco" (notas) | A média desejada ainda é alcançável, mas a nota necessária nas avaliações restantes é maior que a média das já lançadas ou maior que 80% da nota máxima. | D13, decidida |
+| Semana intensa | Duas ou mais avaliações em sete dias, ou soma de aulas e compromissos acima de um limiar configurável. | D15, decidida |
+| Jornada acadêmica longa | Quatro ou mais horas-aula seguidas imediatamente antes do horário. | D15, decidida |
+| Ocupação por intensidade | Leve usa até 50% das janelas de estudo declaradas; equilibrada, até 75%; intensiva, até 100%, só quando o aluno pede. | D15, decidida |
 
 ---
 
@@ -1153,6 +1153,8 @@ Aprendizagem de preferências (`EQU-19`), comparação entre semestres (`MAT-13`
 | D05 | Público: qualquer curso de graduação da saúde ou só Medicina | **Qualquer curso da saúde.** Substitui o recorte de um curso do ADR 0004. | Fernando, 13/11/2026 |
 | D06 | Onde ficam os arquivos que os alunos enviam e quanto cada aluno pode enviar | **Cloudflare R2.** Sem teto de espaço por aluno durante o QA, com limite de 50 MB por arquivo. Dica de localização: leste da América do Norte, o mais próximo do Brasil (não há região no país; ver 10.1). Os testes de QA usam arquivos de teste; arquivo real de aluno só sobe depois do parecer jurídico sobre a transferência. Se o parecer exigir dados no Brasil, o plano B é o Amazon S3 em São Paulo: mais caro no armazenamento e com cobrança de download, mas troca só configuração, porque o código usa a API S3 padrão. | Fernando, 13/11/2026 |
 | D07 | Provedores de IA e teto de custo por aluno | **Sem teto durante o período de QA; os tetos são definidos depois.** O consumo é registrado por aluno e por recurso desde o início, para a decisão sair com número (7.7). | Fernando, 13/11/2026 |
+| D13 | Definições de progresso e de "em risco" | **As propostas de 6.4.** | Fernando, 14/11/2026 |
+| D15 | Parâmetros iniciais do Equilíbrio | **As propostas de 6.4**, ajustadas depois do piloto. | Fernando, 14/11/2026 |
 
 ### 14.2 Abertas
 
@@ -1165,9 +1167,7 @@ Nenhuma bloqueia o início. Cada uma bloqueia só a fase indicada.
 | D10 | Áudio: parecer jurídico (10.3) | Não construir antes. | Fase 7 |
 | D11 | Aceitar upload de atestado | Começar sem upload (10.2). | Fase 2 |
 | D12 | Offline: quais telas, quais aparelhos, PWA ou app nativo | PWA primeiro; reavaliar depois do experimento com caneta. | Fase 6 |
-| D13 | Definições de progresso e de "em risco" (6.4) | As propostas de 6.4. | Fases 1 e 2 |
 | D14 | Avatar do tutor: escopo | Nome e imagem escolhida de um conjunto, sem gerador. | Fase 8 |
-| D15 | Parâmetros iniciais do Equilíbrio (6.4) | As propostas de 6.4, ajustadas depois do piloto. | Fase 4 |
 | D16 | Papel do professor e da instituição na v2 | Manter o painel do MVP como está; decidir na Parte II. | Não bloqueia |
 | D17 | Parte II: Aprender, Organizar, Conectar, Evoluir, simulados, lâminas | Aguardar o documento. | Menu principal |
 | D18 | Modelo comercial, cobrança, emissão de nota fiscal (a finalidade do CPF) e limites do plano gratuito para IA e armazenamento. Pagamento não está nesta spec (2.3). | Definir junto com os tetos da D07, depois do QA. | Fase 5 |
