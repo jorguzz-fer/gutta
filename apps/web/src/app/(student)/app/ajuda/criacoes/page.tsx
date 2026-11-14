@@ -13,6 +13,7 @@ const TYPE_LABEL = {
   questoes: 'Questões',
   mapa: 'Mapa mental',
   roteiro: 'Roteiro',
+  analise: 'Análise de provas',
 } as const;
 const DAY = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 

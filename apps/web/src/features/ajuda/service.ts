@@ -94,7 +94,7 @@ export async function createJob(userId: string, body: JobBody) {
     if (consent?.granted !== true) throw conflict(CONSENT_TEXT);
     const ids = [...new Set(body.materialIds)];
     const owned = await tx
-      .select({ id: s.materials.id })
+      .select({ id: s.materials.id, type: s.materials.type })
       .from(s.materials)
       .where(
         and(
@@ -104,6 +104,9 @@ export async function createJob(userId: string, body: JobBody) {
         ),
       );
     if (owned.length !== ids.length) throw notFound('Material');
+    // Análise de provas (MAT-11): só provas e atividades anteriores entram.
+    if (body.type === 'analise' && owned.some((m) => m.type === 'estudo'))
+      throw badRequest('Para analisar, escolha só provas e atividades anteriores.');
     if (body.disciplineId) {
       const d = await tx.query.enrolledDisciplines.findFirst({
         where: and(
@@ -536,6 +539,27 @@ export function toMarkdown(c: contract.CreationDto): string {
       out.push(`${q.position}. ${q.stem}`);
       q.options.forEach((o, i) => out.push(`   ${String.fromCharCode(97 + i)}) ${o}`));
       out.push('');
+    }
+  } else if (c.type === 'analise') {
+    const n = Number(k.documentsAnalyzed ?? 0);
+    out.push(
+      `**${n} ${n === 1 ? 'documento analisado' : 'documentos analisados'}.** ${k.notice ?? ''}`,
+      '',
+    );
+    type Item = { name: string; documents: number; detail: string; refs: string[] };
+    const list = (heading: string, items: Item[] | undefined) => {
+      if (!items?.length) return;
+      out.push(`## ${heading}`, '');
+      for (const x of items)
+        out.push(`- **${x.name}** (em ${x.documents} de ${n}): ${x.detail}${cite(x.refs)}`);
+      out.push('');
+    };
+    list('Temas mais frequentes', k.topics);
+    list('Formatos de questão', k.formats);
+    list('Competências exigidas', k.competencies);
+    if (k.directions?.length) {
+      out.push('## O que revisar', '');
+      for (const d of k.directions) out.push(`- **${d.topic}**: ${d.suggestion}${cite(d.refs)}`);
     }
   } else if (c.type === 'mapa') {
     out.push(`Conceito central: **${k.central}**`, '');

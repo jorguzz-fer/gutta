@@ -1,4 +1,11 @@
-import { CalendarCheck, FolderOpen, Library, MessageCircleQuestion, Sparkles } from 'lucide-react';
+import {
+  BarChart3,
+  CalendarCheck,
+  FolderOpen,
+  Library,
+  MessageCircleQuestion,
+  Sparkles,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
@@ -14,6 +21,7 @@ const TYPE_LABEL = {
   questoes: 'Questões',
   mapa: 'Mapa mental',
   roteiro: 'Roteiro',
+  analise: 'Análise de provas',
 } as const;
 
 // Ajuda Cognuss (SPEC v2, 5.14; tela T25): central que transforma o acervo do aluno em
@@ -29,6 +37,7 @@ export default async function AjudaPage() {
     materiais ? { href: '/app/materiais', label: 'Minha biblioteca', Icon: Library } : null,
     { href: '/app/ajuda/criar', label: 'Criar com IA', Icon: Sparkles },
     { href: '/app/ajuda/tutor', label: 'Tutor', Icon: MessageCircleQuestion },
+    { href: '/app/ajuda/criar?tipo=analise', label: 'Analisar provas', Icon: BarChart3 },
     { href: '/app/ajuda/criacoes', label: 'Minhas criações', Icon: FolderOpen },
     { href: '/app/revisoes', label: 'Revisões', Icon: CalendarCheck },
   ].filter((t): t is NonNullable<typeof t> => Boolean(t));
@@ -42,7 +51,7 @@ export default async function AjudaPage() {
         </p>
       </div>
       <nav aria-label="Áreas da Ajuda Cognuss">
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           {tiles.map(({ href, label, Icon }) => (
             <li key={href}>
               <Link

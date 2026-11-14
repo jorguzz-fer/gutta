@@ -26,6 +26,7 @@ export function usageLabel(feature: string) {
     questoes: 'questões',
     mapa: 'mapa mental',
     roteiro: 'roteiro',
+    analise: 'análise de provas',
   };
   if (feature === 'schedule_extract') return 'Leitura do cronograma';
   if (feature === 'tutor_materiais') return 'Tutor sobre os materiais';

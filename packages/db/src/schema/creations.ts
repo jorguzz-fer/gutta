@@ -58,6 +58,7 @@ export const creationType = pgEnum('creation_type', [
   'questoes',
   'mapa',
   'roteiro',
+  'analise',
 ]);
 export const creationLevel = pgEnum('creation_level', ['basico', 'intermediario', 'avancado']);
 

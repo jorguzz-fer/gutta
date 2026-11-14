@@ -6,7 +6,14 @@ import { defineRoute } from '../registry';
 // criação traz as páginas de origem e o selo de IA. O gabarito das questões só sai depois da
 // tentativa (IA-9).
 
-export const CreationType = z.enum(['resumo', 'flashcards', 'questoes', 'mapa', 'roteiro']);
+export const CreationType = z.enum([
+  'resumo',
+  'flashcards',
+  'questoes',
+  'mapa',
+  'roteiro',
+  'analise',
+]);
 export const Level = z.enum(['basico', 'intermediario', 'avancado']);
 export const SummaryStyle = z.enum(['sintetico', 'completo', 'esquematizado', 'comparativo']);
 

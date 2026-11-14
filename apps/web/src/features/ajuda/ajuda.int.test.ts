@@ -260,3 +260,50 @@ describe('Minhas criações (AJU-10 a AJU-12)', () => {
     await setFeatures({ ajuda: true, materiais: true });
   });
 });
+
+describe('análise de provas (MAT-11, MAT-12)', () => {
+  it('só aceita provas e atividades; a exportação traz a contagem e o aviso', async () => {
+    const a = await student();
+    const body = {
+      type: 'analise' as const,
+      level: 'intermediario' as const,
+      materialIds: [a.materialId],
+      grantConsent: true,
+    };
+    await expect(svc.createJob(a.id, body)).rejects.toMatchObject({ status: 400 });
+    await owner.update(s.materials).set({ type: 'prova' }).where(eq(s.materials.id, a.materialId));
+    const job = await svc.createJob(a.id, body);
+    expect(job).toMatchObject({ status: 'queued', type: 'analise' });
+    await svc.cancelJob(a.id, job.id);
+
+    // Como o worker grava (testado lá): frequência por documento e aviso.
+    const [c] = await owner
+      .insert(s.creations)
+      .values({
+        ownerId: a.id,
+        type: 'analise',
+        level: 'intermediario',
+        title: 'Análise de provas: Patologia',
+        content: {
+          title: 'Análise de provas: Patologia',
+          documentsAnalyzed: 2,
+          notice: 'Frequência passada não garante cobrança futura.',
+          topics: [
+            { name: 'Inflamação aguda', detail: 'Caiu nas duas.', refs: ['P1'], documents: 2 },
+          ],
+          formats: [],
+          competencies: [],
+          directions: [{ topic: 'Inflamação aguda', suggestion: 'Revise primeiro.', refs: ['P1'] }],
+          notCovered: null,
+          sources: [{ ref: 'P1', label: 'Prova, página 1', materialId: a.materialId, page: 1 }],
+          warnings: [],
+        },
+      })
+      .returning();
+    const dto = await svc.getCreation(a.id, c!.id);
+    const md = svc.toMarkdown(dto);
+    expect(md).toContain('**2 documentos analisados.** Frequência passada não garante');
+    expect(md).toContain('- **Inflamação aguda** (em 2 de 2): Caiu nas duas. (Prova, página 1)');
+    expect(md).toContain('## O que revisar');
+  });
+});

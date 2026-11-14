@@ -7,7 +7,14 @@ import { costMicros, type Usage } from './pricing';
 // (P1, P2…); cada trecho da saída cita as páginas que usou (IA-2). Etiqueta inexistente ou
 // trecho sem fonte invalida a saída, que é refeita uma vez e, se falhar de novo, descartada.
 
-export const CREATION_TYPES = ['resumo', 'flashcards', 'questoes', 'mapa', 'roteiro'] as const;
+export const CREATION_TYPES = [
+  'resumo',
+  'flashcards',
+  'questoes',
+  'mapa',
+  'roteiro',
+  'analise',
+] as const;
 export type CreationType = (typeof CREATION_TYPES)[number];
 export const LEVELS = ['basico', 'intermediario', 'avancado'] as const;
 export type Level = (typeof LEVELS)[number];
@@ -108,12 +115,39 @@ export const RoadmapOutput = z.object({
   notCovered,
 });
 
+// Análise de provas e atividades anteriores (MAT-11, MAT-12). A frequência de cada tema é
+// contada no servidor, pelos documentos das páginas citadas, nunca estimada pelo modelo.
+const analysisItem = z.object({
+  name: z.string().describe('Nome curto do tema, formato ou competência.'),
+  detail: z.string().describe('Como aparece nas questões, em uma ou duas frases.'),
+  refs,
+});
+export const AnalysisOutput = z.object({
+  title: z.string(),
+  topics: z
+    .array(analysisItem)
+    .describe('Temas cobrados. Cite TODAS as páginas em que cada tema aparece.'),
+  formats: z
+    .array(analysisItem)
+    .describe('Formatos de questão (objetiva, discursiva, caso clínico, imagem…), com as páginas.'),
+  competencies: z
+    .array(analysisItem)
+    .describe(
+      'Competências exigidas (memorizar, interpretar, aplicar a um caso…), com as páginas.',
+    ),
+  directions: z
+    .array(z.object({ topic: z.string(), suggestion: z.string(), refs }))
+    .describe('Sugestões de revisão a partir do que foi cobrado (MAT-12), com as páginas.'),
+  notCovered,
+});
+
 export const OUTPUT_SCHEMAS = {
   resumo: SummaryOutput,
   flashcards: FlashcardsOutput,
   questoes: QuestionsOutput,
   mapa: MapOutput,
   roteiro: RoadmapOutput,
+  analise: AnalysisOutput,
 } as const;
 
 export type CreationOutput = {
@@ -122,6 +156,7 @@ export type CreationOutput = {
   questoes: z.infer<typeof QuestionsOutput>;
   mapa: z.infer<typeof MapOutput>;
   roteiro: z.infer<typeof RoadmapOutput>;
+  analise: z.infer<typeof AnalysisOutput>;
 };
 export type AnyCreation = CreationOutput[CreationType];
 
@@ -181,6 +216,10 @@ function citedGroups(type: CreationType, data: AnyCreation): string[][] {
       return (data as CreationOutput['mapa']).nodes.map((n) => n.refs);
     case 'roteiro':
       return (data as CreationOutput['roteiro']).steps.map((s) => s.refs);
+    case 'analise': {
+      const d = data as CreationOutput['analise'];
+      return [...d.topics, ...d.formats, ...d.competencies, ...d.directions].map((x) => x.refs);
+    }
   }
 }
 
@@ -258,7 +297,54 @@ const TASK_TEXT: Record<CreationType, (i: CreateInput) => string> = {
     'Crie um mapa conceitual: um conceito central, os conceitos ligados a ele (ids curtos como c1, c2) e as relações entre eles (mecanismos, causas, consequências).',
   roteiro: () =>
     'Crie um roteiro de aprendizagem em sequência lógica: pré-requisitos, conteúdo essencial, aprofundamento e etapas de revisão.',
+  analise: () =>
+    'Analise estas provas e atividades anteriores: os temas cobrados, os formatos de questão e as competências exigidas, e sugira o que revisar. Em cada item, cite todas as páginas em que ele aparece: a frequência é contada a partir dessas páginas. Não faça previsão do que vai cair.',
 };
+
+export const ANALYSIS_NOTICE =
+  'Frequência passada não garante cobrança futura: use a análise para orientar a revisão, não para deixar temas de lado.';
+
+type Counted = { documents: number };
+export type AnalysisContent = Omit<
+  CreationOutput['analise'],
+  'topics' | 'formats' | 'competencies'
+> & {
+  topics: (CreationOutput['analise']['topics'][number] & Counted)[];
+  formats: (CreationOutput['analise']['formats'][number] & Counted)[];
+  competencies: (CreationOutput['analise']['competencies'][number] & Counted)[];
+  documentsAnalyzed: number;
+  notice: string;
+};
+
+/**
+ * Frequência da análise (MAT-11): em quantos documentos cada item aparece, contado pelas
+ * páginas citadas. A lista sai ordenada da maior para a menor frequência, com o total de
+ * documentos analisados e o aviso de limitação.
+ */
+export function countAnalysis(
+  data: CreationOutput['analise'],
+  materialOf: Map<string, string>,
+  documentsAnalyzed: number,
+): AnalysisContent {
+  const count = <T extends { refs: string[] }>(items: T[]) =>
+    items
+      .map((x) => ({
+        ...x,
+        documents: new Set(x.refs.map((r) => materialOf.get(r)).filter(Boolean)).size,
+      }))
+      .sort((a, b) => b.documents - a.documents || b.refs.length - a.refs.length);
+  return {
+    ...data,
+    topics: count(data.topics),
+    formats: count(data.formats),
+    competencies: count(data.competencies),
+    documentsAnalyzed,
+    notice:
+      documentsAnalyzed < 2
+        ? `${ANALYSIS_NOTICE} Com um documento só, a frequência diz pouco: acrescente outras provas para comparar.`
+        : ANALYSIS_NOTICE,
+  };
+}
 
 /** Pedido montado em blocos: tarefa e contexto primeiro, material como dado separado. */
 export function buildCreationPrompt(i: CreateInput): string {
@@ -447,6 +533,38 @@ export class FakeCreator implements Creator {
           edges: pick
             .slice(1)
             .map((_, i) => ({ from: 'c1', to: `c${i + 2}`, relation: 'relaciona-se com' })),
+          notCovered: null,
+        };
+        break;
+      case 'analise':
+        data = {
+          title: `Análise de provas: ${input.context.discipline ?? 'material escolhido'}`,
+          topics: pick.map((x, i) => ({
+            name: x.s.split(' ').slice(0, 3).join(' '),
+            detail: x.s,
+            refs: i === 0 ? [...new Set(items.map((y) => y.ref))] : [x.ref],
+          })),
+          formats: [
+            {
+              name: 'Objetiva',
+              detail: 'Questões de múltipla escolha.',
+              refs: [pick[0]!.ref],
+            },
+          ],
+          competencies: [
+            {
+              name: 'Interpretar',
+              detail: 'Relacionar o conceito à situação descrita.',
+              refs: [pick[0]!.ref],
+            },
+          ],
+          directions: [
+            {
+              topic: pick[0]!.s.split(' ').slice(0, 3).join(' '),
+              suggestion: 'Revise este tema antes dos outros.',
+              refs: [pick[0]!.ref],
+            },
+          ],
           notCovered: null,
         };
         break;

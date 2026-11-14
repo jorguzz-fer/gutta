@@ -123,6 +123,47 @@ test.describe('ajuda cognuss', () => {
     await expect(page.getByRole('link', { name: 'Slides de inflamação' })).toBeVisible();
   });
 
+  test('análise de provas com a contagem de documentos e o aviso (MAT-11)', async ({ page }) => {
+    test.setTimeout(120_000);
+    await signUp(page, 'Ada', uniqueEmail('ajuda-provas'));
+    await page.goto('/app');
+    await completeOnboarding(page);
+
+    await page.goto('/app/materiais');
+    await page.getByRole('button', { name: 'Anexar material' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Anexar material' });
+    await dialog.getByLabel('Arquivo').setInputFiles(AULA);
+    await dialog.getByLabel('Título').fill('Prova de 2024');
+    await dialog.getByLabel('Tipo').selectOption('prova');
+    await dialog.getByLabel('Disciplina').selectOption({ index: 1 });
+    await dialog.getByRole('button', { name: 'Anexar' }).click();
+    await expect(dialog).toBeHidden({ timeout: 30_000 });
+
+    // A prova aparece quando o texto for lido; o tipo já vem escolhido pelo atalho.
+    await page.goto('/app/ajuda');
+    await page.getByRole('link', { name: 'Analisar provas' }).click();
+    await expect(page.getByRole('radio', { name: 'Análise de provas' })).toBeChecked();
+    const prova = page.getByRole('checkbox', { name: /Prova de 2024/ });
+    await expect
+      .poll(
+        async () => {
+          await page.reload();
+          return prova.count();
+        },
+        { timeout: 45_000 },
+      )
+      .toBe(1);
+    await prova.check();
+    await page.getByRole('checkbox', { name: /Autorizo a leitura/ }).check();
+    await page.getByRole('button', { name: 'Preparar com IA' }).click();
+
+    await expect(page.getByText('1 documento analisado')).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByText(/Frequência passada não garante cobrança futura/)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Temas mais frequentes' })).toBeVisible();
+    await expect(page.getByText('(em 1 de 1 documento)').first()).toBeVisible();
+    await axe(page, 'analise');
+  });
+
   test('desligado pela chave, a página não existe', async ({ page }) => {
     await setFeatures(['materiais']);
     await signUp(page, 'Ian', uniqueEmail('ajuda-off'));

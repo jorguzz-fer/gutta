@@ -1,0 +1,1 @@
+ALTER TYPE "public"."creation_type" ADD VALUE 'analise';

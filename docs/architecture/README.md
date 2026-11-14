@@ -72,6 +72,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0044, 0045 | Ajuda Cognuss: trabalhos de IA, criações com as páginas de origem, questões geradas e tentativas; flashcards ligados à criação |
 | 0046, 0047 | Tutor sobre os materiais: conversas por materiais, aula ou slide, e mensagens com as páginas citadas |
 | 0048, 0049 | Custos de IA: alerta de gasto do mês (um por mês, gravado só pelo worker) e funções de soma do gasto |
+| 0050 | Análise de provas: tipo `analise` nas criações |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

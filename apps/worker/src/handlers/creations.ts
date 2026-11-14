@@ -1,4 +1,5 @@
 import {
+  countAnalysis,
   InvalidSourcesError,
   type CreateInput,
   type CreationOutput,
@@ -307,8 +308,17 @@ async function saveCreation(
   result: { data: CreationOutput[CreationType]; usedRefs: string[]; model: string },
   prepared: Prepared,
 ): Promise<string> {
+  // Análise de provas (MAT-11): frequência contada pelos documentos das páginas citadas.
+  const data =
+    input.type === 'analise'
+      ? countAnalysis(
+          result.data as CreationOutput['analise'],
+          new Map(prepared.pages.map((p) => [p.ref, p.materialId])),
+          new Set(prepared.pages.map((p) => p.materialId)).size,
+        )
+      : result.data;
   const content = {
-    ...(result.data as Record<string, unknown>),
+    ...(data as Record<string, unknown>),
     // Etiqueta → material, versão e página, para a interface mostrar a origem (IA-2).
     sources: prepared.pages
       .filter((p) => result.usedRefs.includes(p.ref))

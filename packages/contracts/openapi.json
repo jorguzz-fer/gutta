@@ -325,7 +325,8 @@
                 "flashcards",
                 "questoes",
                 "mapa",
-                "roteiro"
+                "roteiro",
+                "analise"
               ]
             }
           }
@@ -355,7 +356,8 @@
                               "flashcards",
                               "questoes",
                               "mapa",
-                              "roteiro"
+                              "roteiro",
+                              "analise"
                             ]
                           },
                           "level": {
@@ -614,7 +616,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "level": {
@@ -955,7 +958,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "level": {
@@ -1332,7 +1336,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "error": {
@@ -1482,7 +1487,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "error": {
@@ -1595,7 +1601,8 @@
                       "flashcards",
                       "questoes",
                       "mapa",
-                      "roteiro"
+                      "roteiro",
+                      "analise"
                     ]
                   },
                   "level": {
@@ -1717,7 +1724,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "error": {
@@ -1857,7 +1865,8 @@
                         "flashcards",
                         "questoes",
                         "mapa",
-                        "roteiro"
+                        "roteiro",
+                        "analise"
                       ]
                     },
                     "error": {

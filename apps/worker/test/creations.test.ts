@@ -201,6 +201,25 @@ describe('criação com IA no worker', () => {
     expect(none).toEqual([]);
   });
 
+  it('análise de provas: frequência por documento e aviso de limitação (MAT-11)', async () => {
+    const a = await scenario({ type: 'analise' });
+    await createCreation({ creator: new Spy() }).run({ jobId: a.jobId, userId: a.userId }, ctx());
+    const job = await jobOf(a.jobId);
+    expect(job!.status).toBe('done');
+    const creation = await owner.query.creations.findFirst({
+      where: eq(s.creations.id, job!.resultId!),
+    });
+    const content = creation!.content as {
+      documentsAnalyzed: number;
+      notice: string;
+      topics: { documents: number }[];
+    };
+    expect(content.documentsAnalyzed).toBe(1);
+    expect(content.topics[0]!.documents).toBe(1);
+    expect(content.notice).toContain('Frequência passada não garante cobrança futura');
+    expect(content.notice).toContain('Com um documento só');
+  });
+
   it('pausada pelo admin depois de enfileirada: falha com o motivo, sem chamar a IA', async () => {
     const sc = await scenario();
     const spy = new Spy();

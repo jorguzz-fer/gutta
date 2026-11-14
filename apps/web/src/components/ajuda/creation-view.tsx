@@ -312,6 +312,57 @@ function Body({
         ))}
       </ol>
     );
+  if (c.type === 'analise') {
+    const n = Number(k.documentsAnalyzed ?? 0);
+    const freq = (d: number) => `em ${d} de ${n} ${n === 1 ? 'documento' : 'documentos'}`;
+    const block = (id: string, heading: string, items: any[] | undefined) =>
+      items?.length ? (
+        <section aria-labelledby={id} className="grid gap-2">
+          <h2 id={id} className="text-xl font-semibold">
+            {heading}
+          </h2>
+          <ol className="grid gap-2">
+            {items.map((x: any, i: number) => (
+              <li key={i}>
+                <strong>{x.name}</strong>{' '}
+                <span className="text-sm text-muted">({freq(x.documents)})</span>
+                <br />
+                {x.detail}
+                <Refs refs={x.refs} sources={src} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null;
+    return (
+      <div className="grid gap-4">
+        <Alert>
+          <p className="font-semibold">
+            {n} {n === 1 ? 'documento analisado' : 'documentos analisados'}
+          </p>
+          <p>{k.notice}</p>
+        </Alert>
+        {block('temas', 'Temas mais frequentes', k.topics)}
+        {block('formatos', 'Formatos de questão', k.formats)}
+        {block('competencias', 'Competências exigidas', k.competencies)}
+        {k.directions?.length ? (
+          <section aria-labelledby="direcao" className="grid gap-2">
+            <h2 id="direcao" className="text-xl font-semibold">
+              O que revisar
+            </h2>
+            <ul className="grid gap-2">
+              {k.directions.map((d: any, i: number) => (
+                <li key={i}>
+                  <strong>{d.topic}</strong>: {d.suggestion}
+                  <Refs refs={d.refs} sources={src} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
+    );
+  }
   if (c.type === 'mapa') {
     const names = new Map<string, string>((k.nodes ?? []).map((n: any) => [n.id, n.label]));
     return (

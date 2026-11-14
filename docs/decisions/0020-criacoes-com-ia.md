@@ -19,6 +19,10 @@ A Ajuda Cognuss (SPEC v2, 5.14) transforma o material do aluno em resumos, flash
 
 **Questões e flashcards.** Flashcards gerados entram na revisão espaçada do MVP como cartões pessoais (MEM-01). Questões geradas ficam em tabela privada própria, com o gabarito e o comentário só no servidor; a tentativa é corrigida no servidor e só então o comentário vai ao navegador (MEM-03, IA-9). Não reaproveitamos a tabela editorial de questões do MVP, que é ligada ao catálogo e tem fluxo de publicação; o motor de tentativa segue o mesmo desenho.
 
+**Análise de provas (MAT-11, MAT-12).** É mais um tipo de criação (`analise`), só sobre materiais do tipo prova ou atividade. O modelo lista temas, formatos, competências e sugestões de revisão, cada item com todas as páginas em que aparece; a frequência ("em X de N documentos") é contada no worker pelos documentos dessas páginas, nunca estimada pelo modelo. Toda análise mostra o total de documentos e o aviso de que frequência passada não garante cobrança futura.
+
+**Tutor sobre os materiais (AJU-08, AUL-17).** Conversa com fonte escolhida (materiais, aula ou slide), sem fila: a resposta é curta e o aluno espera por ela. Mesmo desenho de páginas etiquetadas; o servidor tira da resposta qualquer etiqueta que não exista e guarda as páginas citadas com a mensagem. Acima do teto de tamanho, ficam as páginas mais ligadas à pergunta pela busca por palavra.
+
 **Custo.** Cada chamada grava modelo, tokens e custo em `ai_usage`, por aluno e por recurso. Sem teto durante o QA (D07); o admin vê o gasto, recebe alerta acima de um valor configurável e desliga cada recurso.
 
 ## Consequências

@@ -1,5 +1,5 @@
 'use client';
-import { CheckSquare, FileText, Layers, ListChecks, Network, Route } from 'lucide-react';
+import { BarChart3, CheckSquare, FileText, Layers, ListChecks, Network, Route } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type { ajuda } from '@gutta/contracts';
@@ -24,6 +24,7 @@ const KINDS: [Kind, string, typeof FileText][] = [
   ['mapa', 'Mapa mental', Network],
   ['roteiro', 'Roteiro de estudo', Route],
   ['questoes', 'Questões', ListChecks],
+  ['analise', 'Análise de provas', BarChart3],
 ];
 const LEVELS = [
   ['basico', 'Básico'],
@@ -106,18 +107,20 @@ function Progress({ job, onReset }: { job: ajuda.JobDto; onReset: () => void }) 
 export function CreateForm({
   materials,
   initialMaterialIds,
+  initialKind = 'resumo',
   needsConsent,
   consentText,
 }: {
   materials: Material[];
   initialMaterialIds: string[];
+  initialKind?: Kind;
   needsConsent: boolean;
   consentText: string;
 }) {
   const [query, setQuery] = useState('');
   const [discipline, setDiscipline] = useState<string>('');
   const [chosen, setChosen] = useState(() => new Set(initialMaterialIds));
-  const [kind, setKind] = useState<Kind>('resumo');
+  const [kind, setKind] = useState<Kind>(initialKind);
   const [level, setLevel] = useState<(typeof LEVELS)[number][0]>('intermediario');
   const [style, setStyle] = useState<(typeof STYLES)[number][0]>('completo');
   const [count, setCount] = useState(10);
@@ -137,8 +140,11 @@ export function CreateForm({
     [materials],
   );
   const fold = (t: string) => t.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  // Análise de provas (MAT-11): só provas e atividades anteriores.
+  const analysis = kind === 'analise';
   const shown = materials.filter(
     (m) =>
+      (!analysis || m.type !== 'estudo') &&
       (!discipline || m.disciplineId === discipline) &&
       (!query.trim() || fold(`${m.title} ${m.disciplineName ?? ''}`).includes(fold(query.trim()))),
   );
@@ -146,7 +152,15 @@ export function CreateForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    if (!chosen.size) return setError('Escolha pelo menos um material.');
+    const ids = [...chosen].filter(
+      (id) => !analysis || materials.find((m) => m.id === id)?.type !== 'estudo',
+    );
+    if (!ids.length)
+      return setError(
+        analysis
+          ? 'Escolha pelo menos uma prova ou atividade anterior.'
+          : 'Escolha pelo menos um material.',
+      );
     if (needsConsent && !consent) return setError('Para continuar, autorize a leitura pela IA.');
     setBusy(true);
     try {
@@ -159,7 +173,7 @@ export function CreateForm({
             style: kind === 'resumo' ? style : undefined,
             count: kind === 'flashcards' || kind === 'questoes' ? count : undefined,
             instructions: instructions.trim() || null,
-            materialIds: [...chosen],
+            materialIds: ids,
             grantConsent: needsConsent ? consent : undefined,
           },
         }),
@@ -184,6 +198,12 @@ export function CreateForm({
             {chosen.size} {chosen.size === 1 ? 'selecionado' : 'selecionados'}
           </span>
         </div>
+        {analysis ? (
+          <p className="text-sm text-muted">
+            Para a análise, só aparecem provas e atividades anteriores. Quanto mais documentos, mais
+            a contagem de temas ajuda.
+          </p>
+        ) : null}
         {materials.length === 0 ? (
           <p>
             Você ainda não tem material com o texto lido. Anexe slides ou apostilas em Material de
@@ -283,7 +303,7 @@ export function CreateForm({
             </label>
           ))}
         </div>
-        <fieldset className="grid gap-1">
+        <fieldset className={cn('grid gap-1', analysis && 'hidden')}>
           <legend className="mb-1 text-sm font-semibold">Nível de aprofundamento</legend>
           <div className="flex flex-wrap gap-4">
             {LEVELS.map(([k, label]) => (

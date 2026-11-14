@@ -13,7 +13,7 @@ const UUID = /^[0-9a-f-]{36}$/i;
 export default async function CreatePage({
   searchParams,
 }: {
-  searchParams: Promise<{ material?: string | string[] }>;
+  searchParams: Promise<{ material?: string | string[]; tipo?: string }>;
 }) {
   await requireFeature('ajuda');
   const user = await requireStudent('/app/ajuda/criar');
@@ -36,6 +36,7 @@ export default async function CreatePage({
       <CreateForm
         materials={materials}
         initialMaterialIds={initial.filter((id) => materials.some((m) => m.id === id))}
+        initialKind={sp.tipo === 'analise' ? 'analise' : 'resumo'}
         needsConsent={!consent}
         consentText={CONSENT_TEXT}
       />
