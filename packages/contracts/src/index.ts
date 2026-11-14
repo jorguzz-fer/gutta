@@ -13,3 +13,4 @@ export * as attendance from './routes/attendance';
 export * as grades from './routes/grades';
 export * as materials from './routes/materials';
 export * as lessonStudy from './routes/lesson-study';
+export * as planning from './routes/planning';

@@ -12,7 +12,20 @@ import {
   type SingleItem,
 } from '@gutta/core';
 import type { agenda as contract } from '@gutta/contracts';
-import { and, eq, gte, isNotNull, isNull, lt, or, schema as s, withUser, type Tx } from '@gutta/db';
+import {
+  and,
+  eq,
+  gt,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  lt,
+  or,
+  schema as s,
+  withUser,
+  type Tx,
+} from '@gutta/db';
 import { ApiError } from '@/lib/api';
 import { db } from '@/lib/db';
 import { flags } from '@/features/flags/service';
@@ -98,7 +111,32 @@ export async function agendaOccurrences(
         gte(s.reminders.dueAt, new Date(from.getTime() - 86_400_000)),
       ),
     );
+  // Sessões de estudo do Equilíbrio: só as confirmadas em diante (R10); a proposta não aparece.
+  const sessions = await tx
+    .select({ x: s.studySessions, origin: s.studyTasks.origin })
+    .from(s.studySessions)
+    .leftJoin(s.studyTasks, eq(s.studyTasks.id, s.studySessions.taskId))
+    .where(
+      and(
+        eq(s.studySessions.ownerId, userId),
+        inArray(s.studySessions.status, ['confirmed', 'done', 'partly_done']),
+        lt(s.studySessions.startsAt, to),
+        gt(s.studySessions.endsAt, from),
+      ),
+    );
   const singles: SingleItem[] = [
+    ...sessions.map(({ x, origin }): SingleItem => ({
+      source: 'session',
+      sourceId: x.id,
+      kind: origin && origin !== 'aluno' ? 'revisao' : 'estudo',
+      title: x.title,
+      disciplineId: x.disciplineId,
+      protected: false,
+      blocksTime: true,
+      start: x.startsAt,
+      end: x.endsAt,
+      allDay: false,
+    })),
     ...lessons.map((l): SingleItem => ({
       source: 'lesson',
       sourceId: l.id,

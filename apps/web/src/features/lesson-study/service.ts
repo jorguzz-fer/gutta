@@ -19,6 +19,7 @@ import { ApiError, badRequest, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { toDto as fileDto } from '@/features/files/service';
 import { flags } from '@/features/flags/service';
+import { requestTask } from '@/features/planning/service';
 
 // Acompanhar Aula (SPEC v2, 5.7; ADR 0015). Marcações por página com histórico, caderno,
 // selos, dúvidas e conclusão da aula. Tudo como o dono (withUser), com o filtro do dono
@@ -978,6 +979,10 @@ export async function saveProgress(
           .insert(s.lessonProgress)
           .values({ ownerId: userId, lessonId, ...set })
           .returning();
+    // "Quero uma revisão de 30 minutos" (AUL-22) vira pedido ao Equilíbrio (EQU-18), que entra
+    // na próxima proposta; nada vai para a agenda sem confirmação.
+    if (p?.concludedAt && p.wantsReview && (await flags()).equilibrio)
+      await requestTask(tx, userId, 'aula', lessonId);
     return progressDto(p);
   });
 }

@@ -6,6 +6,7 @@ import * as files from './files';
 import * as grades from './grades';
 import * as lessonStudy from './lesson-study';
 import * as materials from './materials';
+import * as planning from './planning';
 import * as reminders from './reminders';
 import * as routine from './routine';
 import * as schedule from './schedule';
@@ -29,4 +30,5 @@ export const routes: RouteDef[] = [
   grades,
   materials,
   lessonStudy,
+  planning,
 ].flatMap((m) => Object.values(m).filter(isRoute));

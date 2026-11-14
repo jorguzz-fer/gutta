@@ -197,6 +197,9 @@ export async function exportData(userId: string) {
       notebookEntryHistory,
       contentMarks,
       lessonProgress,
+      studyTasks,
+      planProposals,
+      studySessions,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -307,6 +310,10 @@ export async function exportData(userId: string) {
         tx.select().from(s.notebookEntryHistory).where(eq(s.notebookEntryHistory.ownerId, userId)),
       () => tx.select().from(s.contentMarks).where(eq(s.contentMarks.ownerId, userId)),
       () => tx.select().from(s.lessonProgress).where(eq(s.lessonProgress.ownerId, userId)),
+      // Equilíbrio (SPEC v2, EQU): tarefas, propostas e sessões.
+      () => tx.select().from(s.studyTasks).where(eq(s.studyTasks.ownerId, userId)),
+      () => tx.select().from(s.planProposals).where(eq(s.planProposals.ownerId, userId)),
+      () => tx.select().from(s.studySessions).where(eq(s.studySessions.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -362,6 +369,9 @@ export async function exportData(userId: string) {
       notebookEntryHistory,
       contentMarks,
       lessonProgress,
+      studyTasks,
+      planProposals,
+      studySessions,
     };
   });
 }
