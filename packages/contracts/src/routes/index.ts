@@ -1,4 +1,5 @@
 import * as agenda from './agenda';
+import * as ajuda from './ajuda';
 import * as attendance from './attendance';
 import * as calendar from './calendar';
 import * as disciplines from './disciplines';
@@ -31,4 +32,5 @@ export const routes: RouteDef[] = [
   materials,
   lessonStudy,
   planning,
+  ajuda,
 ].flatMap((m) => Object.values(m).filter(isRoute));

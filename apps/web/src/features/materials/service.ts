@@ -19,6 +19,7 @@ import { ApiError, badRequest, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { toDto as fileDto } from '@/features/files/service';
 import { flags } from '@/features/flags/service';
+import { markCreationsStale } from '@/features/ajuda/service';
 
 // Material de estudo (SPEC v2, MAT-01 a MAT-07, MAT-14 a MAT-17, MAT-19, MAT-21), conteúdo de
 // aula (MAT-02, MAT-03) e busca por palavra (MAT-09; ADR 0014). Tudo como o dono (withUser).
@@ -205,6 +206,8 @@ export async function createMaterial(userId: string, body: Body) {
       .insert(s.materialVersions)
       .values({ ownerId: userId, materialId: m!.id, fileId: body.fileId, version: 1 });
     await addLink(tx, userId, m!.id, body);
+    // Material novo na disciplina: criações dela ficam desatualizadas (AJU-11).
+    await markCreationsStale(tx, userId, [body.disciplineId]);
     return { material: await oneDto(tx, userId, m!.id) };
   });
 }
@@ -270,6 +273,15 @@ export async function addVersion(userId: string, id: string, fileId: string) {
     await tx
       .insert(s.materialVersions)
       .values({ ownerId: userId, materialId: id, fileId, version: (last?.v ?? 0) + 1 });
+    const links = await tx
+      .select({ d: s.materialLinks.disciplineId })
+      .from(s.materialLinks)
+      .where(eq(s.materialLinks.materialId, id));
+    await markCreationsStale(
+      tx,
+      userId,
+      links.map((l) => l.d).filter((d): d is string => Boolean(d)),
+    );
     return { material: await oneDto(tx, userId, id) };
   });
 }
@@ -288,6 +300,7 @@ export async function linkMaterial(
   return withUser(db(), userId, async (tx) => {
     await findOwn(tx, userId, id);
     await addLink(tx, userId, id, link);
+    await markCreationsStale(tx, userId, [link.disciplineId]);
     return { material: await oneDto(tx, userId, id) };
   });
 }

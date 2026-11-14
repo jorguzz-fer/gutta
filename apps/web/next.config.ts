@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(import.meta.dirname, '../../'),
   transpilePackages: [
+    '@gutta/ai',
     '@gutta/core',
     '@gutta/db',
     '@gutta/contracts',

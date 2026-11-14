@@ -200,6 +200,11 @@ export async function exportData(userId: string) {
       studyTasks,
       planProposals,
       studySessions,
+      aiJobs,
+      creations,
+      creationSources,
+      creationQuestions,
+      creationQuestionAttempts,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -314,6 +319,16 @@ export async function exportData(userId: string) {
       () => tx.select().from(s.studyTasks).where(eq(s.studyTasks.ownerId, userId)),
       () => tx.select().from(s.planProposals).where(eq(s.planProposals.ownerId, userId)),
       () => tx.select().from(s.studySessions).where(eq(s.studySessions.ownerId, userId)),
+      // Ajuda Cognuss (SPEC v2, AJU): gerações, criações, fontes, questões e respostas.
+      () => tx.select().from(s.aiJobs).where(eq(s.aiJobs.ownerId, userId)),
+      () => tx.select().from(s.creations).where(eq(s.creations.ownerId, userId)),
+      () => tx.select().from(s.creationSources).where(eq(s.creationSources.ownerId, userId)),
+      () => tx.select().from(s.creationQuestions).where(eq(s.creationQuestions.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.creationQuestionAttempts)
+          .where(eq(s.creationQuestionAttempts.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -372,6 +387,11 @@ export async function exportData(userId: string) {
       studyTasks,
       planProposals,
       studySessions,
+      aiJobs,
+      creations,
+      creationSources,
+      creationQuestions,
+      creationQuestionAttempts,
     };
   });
 }

@@ -32,6 +32,9 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^1.4.0
         version: 1.4.0(zod@4.6.7)
+      '@gutta/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@gutta/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts

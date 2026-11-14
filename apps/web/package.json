@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
+    "@gutta/ai": "workspace:*",
     "@gutta/contracts": "workspace:*",
     "@gutta/core": "workspace:*",
     "@gutta/db": "workspace:*",
