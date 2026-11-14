@@ -9,6 +9,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  vector,
 } from 'drizzle-orm/pg-core';
 import { createdAt, pk, tsvector, updatedAt } from './_shared';
 import { authUsers } from './auth';
@@ -104,5 +105,35 @@ export const materialLinks = pgTable(
     index('material_links_material_idx').on(t.materialId),
     index('material_links_lesson_idx').on(t.lessonId),
     index('material_links_discipline_idx').on(t.disciplineId),
+  ],
+);
+
+// Busca por conceito (ADR 0014; SPEC v2, MAT-09). Trechos da versão atual de cada material,
+// com as páginas de origem e o vetor da Voyage AI (decisão do Fernando, 14/11/2026). Gerados
+// pelo worker só para quem autorizou a leitura pela IA com o texto que cita a Voyage.
+export const EMBEDDING_DIMENSIONS = 1024;
+export const materialChunks = pgTable(
+  'material_chunks',
+  {
+    id: pk(),
+    ownerId: ownerRef(),
+    materialId: uuid('material_id')
+      .notNull()
+      .references(() => materials.id, { onDelete: 'cascade' }),
+    versionId: uuid('version_id')
+      .notNull()
+      .references(() => materialVersions.id, { onDelete: 'cascade' }),
+    position: integer('position').notNull(),
+    pageFrom: integer('page_from').notNull(),
+    pageTo: integer('page_to').notNull(),
+    text: text('text').notNull(),
+    embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
+    model: text('model').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('material_chunks_version_pos_uq').on(t.versionId, t.position),
+    index('material_chunks_owner_idx').on(t.ownerId),
+    index('material_chunks_embedding_idx').using('hnsw', t.embedding.op('vector_cosine_ops')),
   ],
 );

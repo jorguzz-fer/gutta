@@ -49,7 +49,9 @@ jobs:
       REDIS_URL: redis://localhost:6379
     services:
       postgres:
-        image: postgres:16-alpine
+        # Com pgvector (busca por conceito, ADR 0014). Só para os testes; produção usa
+        # infra/postgres, conferida no job abaixo.
+        image: pgvector/pgvector:0.8.0-pg16
         env: { POSTGRES_PASSWORD: postgres }
         ports: ['5432:5432']
         options: >-
@@ -84,7 +86,9 @@ jobs:
       REDIS_URL: redis://localhost:6379
     services:
       postgres:
-        image: postgres:16-alpine
+        # Com pgvector (busca por conceito, ADR 0014). Só para os testes; produção usa
+        # infra/postgres, conferida no job abaixo.
+        image: pgvector/pgvector:0.8.0-pg16
         env: { POSTGRES_PASSWORD: postgres }
         ports: ['5432:5432']
         options: >-

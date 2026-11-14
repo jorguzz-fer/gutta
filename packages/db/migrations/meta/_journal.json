@@ -358,6 +358,20 @@
       "when": 1794626789358,
       "tag": "0050_analise_provas",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794651472070,
+      "tag": "0051_busca_conceito",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1794651480464,
+      "tag": "0052_rls_busca_conceito",
+      "breakpoints": true
     }
   ]
 }
