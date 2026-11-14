@@ -34,9 +34,10 @@ ajustável o que depende dele (espessura por pressão, rejeição da palma).
 Opção 2, como a SPEC v2 (7.1) previa.
 
 **Exibição**
-- `pdfjs-dist`, com o worker do pdf.js servido pelo próprio app (`script-src 'self'`) e
-  `isEvalSupported: false`. A CSP ganha `'wasm-unsafe-eval'` para os decodificadores de imagem
-  do pdf.js; continua sem `'unsafe-eval'`.
+- `pdfjs-dist`, com o worker do pdf.js servido pelo próprio app (`script-src 'self'`): o
+  arquivo do worker do pacote não tem importações, e o build copia como está. Sem WebAssembly
+  (`useWasm: false`), a CSP fica como estava, sem `'unsafe-eval'` nem `'wasm-unsafe-eval'`.
+  A página desenha no canvas pela linha principal (`disableWorkerRendering`).
 - O PDF vem da URL assinada do arquivo (o original, ou o PDF convertido do PowerPoint). O CORS do
   bucket já aceita `GET` a partir do app (`docs/deploy.md`).
 - Miniaturas: as que o worker já gera (320 px).
@@ -80,6 +81,8 @@ Opção 2, como a SPEC v2 (7.1) previa.
 
 - Uma dependência nova no navegador (`pdfjs-dist`, carregada só na tela da aula) e uma para
   fórmulas (`katex`).
+- A borracha apaga a forma inteira que toca (borracha de objeto), o que mantém a camada simples
+  e o desfazer previsível.
 - O traço é desenhado localmente; o servidor só recebe a camada pronta. A espessura por pressão e
   a rejeição da palma são ajustadas com os números do experimento da caneta (item 36).
 - Exportar o PDF anotado (AUL-24) e o funcionamento offline (AUL-27, D12) ficam para depois; o
