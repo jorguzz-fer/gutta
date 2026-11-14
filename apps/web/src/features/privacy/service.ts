@@ -205,6 +205,8 @@ export async function exportData(userId: string) {
       creationSources,
       creationQuestions,
       creationQuestionAttempts,
+      tutorThreads,
+      tutorThreadMessages,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -329,6 +331,10 @@ export async function exportData(userId: string) {
           .select()
           .from(s.creationQuestionAttempts)
           .where(eq(s.creationQuestionAttempts.ownerId, userId)),
+      // Tutor sobre os materiais (AJU-08): conversas e mensagens com as páginas citadas.
+      () => tx.select().from(s.tutorThreads).where(eq(s.tutorThreads.ownerId, userId)),
+      () =>
+        tx.select().from(s.tutorThreadMessages).where(eq(s.tutorThreadMessages.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -392,6 +398,8 @@ export async function exportData(userId: string) {
       creationSources,
       creationQuestions,
       creationQuestionAttempts,
+      tutorThreads,
+      tutorThreadMessages,
     };
   });
 }

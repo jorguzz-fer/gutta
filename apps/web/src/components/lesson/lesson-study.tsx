@@ -145,6 +145,7 @@ type Shared = {
   setTab: (t: 'caderno' | 'aula') => void;
   pageLabel: (m: lessonStudy.MarkDto) => string;
   onSwitch: (materialId: string, page: number) => void;
+  tutor: boolean;
 };
 
 /*
@@ -167,6 +168,7 @@ function Workspace({
   setTab,
   pageLabel,
   onSwitch,
+  tutor,
 }: Shared & { material: Study['materials'][number]; initialPage: number }) {
   const pageCount = material.file.pageCount ?? 0;
   const [page, setPage] = useState(() =>
@@ -569,6 +571,7 @@ function Workspace({
         </div>
         <div id="painel-aula" role="tabpanel" aria-labelledby="aba-aula" hidden={tab !== 'aula'}>
           <LearningPanel
+            tutor={tutor}
             lessonId={l.id}
             disciplineId={l.disciplineId}
             slide={slide}
@@ -611,11 +614,13 @@ export function LessonStudy({
   disciplines,
   initialMaterialId,
   initialPage,
+  tutor = false,
 }: {
   study: Study;
   disciplines: Discipline[];
   initialMaterialId: string | null;
   initialPage: number | null;
+  tutor?: boolean;
 }) {
   const router = useRouter();
   const l = study.lesson;
@@ -667,6 +672,7 @@ export function LessonStudy({
     setTab,
     pageLabel,
     onSwitch,
+    tutor,
   };
 
   return (
@@ -768,6 +774,7 @@ export function LessonStudy({
         />
       ) : (
         <LearningPanel
+          tutor={tutor}
           lessonId={l.id}
           disciplineId={l.disciplineId}
           slide={null}

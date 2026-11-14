@@ -1,4 +1,4 @@
-import { FolderOpen, Library, Sparkles, CalendarCheck } from 'lucide-react';
+import { CalendarCheck, FolderOpen, Library, MessageCircleQuestion, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
@@ -28,6 +28,7 @@ export default async function AjudaPage() {
   const tiles = [
     materiais ? { href: '/app/materiais', label: 'Minha biblioteca', Icon: Library } : null,
     { href: '/app/ajuda/criar', label: 'Criar com IA', Icon: Sparkles },
+    { href: '/app/ajuda/tutor', label: 'Tutor', Icon: MessageCircleQuestion },
     { href: '/app/ajuda/criacoes', label: 'Minhas criações', Icon: FolderOpen },
     { href: '/app/revisoes', label: 'Revisões', Icon: CalendarCheck },
   ].filter((t): t is NonNullable<typeof t> => Boolean(t));
@@ -41,7 +42,7 @@ export default async function AjudaPage() {
         </p>
       </div>
       <nav aria-label="Áreas da Ajuda Cognuss">
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
           {tiles.map(({ href, label, Icon }) => (
             <li key={href}>
               <Link

@@ -43,7 +43,7 @@ async function stroke(page: Page, name: RegExp, y: number) {
 }
 
 test.describe('acompanhar aula', () => {
-  test.beforeAll(() => setFeatures(['materiais', 'aula', 'meu_espaco']));
+  test.beforeAll(() => setFeatures(['materiais', 'aula', 'meu_espaco', 'ajuda']));
   test.afterAll(() => setFeatures([]));
 
   test('slides, marcações, caderno, selos, concluir e versão nova @celular', async ({ page }) => {
@@ -235,6 +235,21 @@ test.describe('acompanhar aula', () => {
       page.getByRole('button', { name: 'Slide 3, marcado como importante' }),
     ).toBeVisible();
     await expect.poll(layers).toEqual([[2, 1]]);
+
+    // Tutor a partir da aula (AUL-17, AJU-09): a dúvida registrada vira sugestão de pergunta.
+    await page.getByRole('tab', { name: 'Aula' }).click();
+    await page.getByRole('link', { name: 'Perguntar sobre a aula' }).click();
+    await expect(page.getByText('a aula Inflamação aguda e crônica')).toBeVisible();
+    await page.getByRole('checkbox', { name: /Autorizo a leitura/ }).check();
+    await page.getByRole('button', { name: 'Abrir conversa' }).click();
+    await expect(page.getByRole('heading', { name: 'Suas dúvidas registradas' })).toBeVisible();
+    await page.getByRole('button', { name: /Por que predominam macrófagos\?/ }).click();
+    await expect(page.getByLabel('Sua pergunta')).toHaveValue(/Por que predominam macrófagos/);
+    await page.getByRole('button', { name: 'Perguntar' }).click();
+    const answer = page.getByRole('article', { name: 'Resposta do tutor' });
+    await expect(answer.getByText('Gerado por IA a partir dos seus materiais')).toBeVisible();
+    await expect(answer.getByRole('link', { name: /^\[P1\] / })).toBeVisible();
+    await axe(page, 'tutor da aula');
   });
 
   test('desligado pela chave, a página da aula não existe', async ({ page }) => {
@@ -254,6 +269,6 @@ test.describe('acompanhar aula', () => {
       .returning();
     const res = await page.goto(`/app/aulas/${lesson!.id}`);
     expect(res?.status()).toBe(404);
-    await setFeatures(['materiais', 'aula', 'meu_espaco']);
+    await setFeatures(['materiais', 'aula', 'meu_espaco', 'ajuda']);
   });
 });

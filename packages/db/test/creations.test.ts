@@ -162,3 +162,49 @@ describe('Ajuda Cognuss: isolamento', () => {
     expect(card).toMatchObject({ creationId: a.creation, visibility: 'private' });
   });
 });
+
+describe('Tutor sobre os materiais: isolamento', () => {
+  it('outro aluno não lê conversas nem escreve na conversa ou na disciplina de outro', async () => {
+    const [t] = await withUser(app, ana, (tx) =>
+      tx
+        .insert(s.tutorThreads)
+        .values({
+          ownerId: ana,
+          scope: 'materiais',
+          title: 'Slides',
+          materialIds: [a.material],
+          disciplineId: a.disc,
+        })
+        .returning(),
+    );
+    await withUser(app, ana, (tx) =>
+      tx
+        .insert(s.tutorThreadMessages)
+        .values({ ownerId: ana, threadId: t!.id, role: 'user', content: 'O que é?' }),
+    );
+    const seen = await withUser(app, beto, async (tx) => ({
+      threads: await tx.select().from(s.tutorThreads),
+      messages: await tx.select().from(s.tutorThreadMessages),
+    }));
+    expect(seen).toEqual({ threads: [], messages: [] });
+    const tries = [
+      () =>
+        withUser(app, beto, (tx) =>
+          tx
+            .insert(s.tutorThreadMessages)
+            .values({ ownerId: beto, threadId: t!.id, role: 'user', content: 'x' }),
+        ),
+      () =>
+        withUser(app, beto, (tx) =>
+          tx.insert(s.tutorThreads).values({
+            ownerId: beto,
+            scope: 'materiais',
+            title: 'x',
+            materialIds: [],
+            disciplineId: a.disc,
+          }),
+        ),
+    ];
+    for (const run of tries) expect(pgCode(await run().catch((e) => e))).toBe('42501');
+  });
+});

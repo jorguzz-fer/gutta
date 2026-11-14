@@ -465,3 +465,25 @@ export async function askTutorThread(userId: string, id: string, message: string
     return threadDto(tx, userId, await ownThread(tx, userId, prep.thread.id));
   });
 }
+
+/** Nome do ponto de partida vindo da aula (para a tela de abrir conversa). */
+export async function tutorPresetLabel(
+  userId: string,
+  p: { scope: 'aula' | 'slide'; lessonId?: string; materialId?: string; page?: number },
+) {
+  return withUser(db(), userId, async (tx) => {
+    if (p.scope === 'aula' && p.lessonId) {
+      const l = await tx.query.lessons.findFirst({
+        where: and(eq(s.lessons.id, p.lessonId), eq(s.lessons.ownerId, userId)),
+      });
+      return l ? `a aula ${l.title}` : null;
+    }
+    if (p.scope === 'slide' && p.materialId && p.page) {
+      const m = await tx.query.materials.findFirst({
+        where: and(eq(s.materials.id, p.materialId), eq(s.materials.ownerId, userId)),
+      });
+      return m ? `${m.title}, página ${p.page}` : null;
+    }
+    return null;
+  });
+}

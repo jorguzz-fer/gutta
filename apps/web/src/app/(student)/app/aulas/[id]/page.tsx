@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { LessonStudy } from '@/components/lesson/lesson-study';
-import { requireFeature } from '@/features/flags/service';
+import { featureEnabled, requireFeature } from '@/features/flags/service';
 import { getLessonStudy } from '@/features/lesson-study/service';
 import { disciplinesForMaterials } from '@/features/materials/service';
 import { ApiError } from '@/lib/api';
@@ -26,12 +26,13 @@ export default async function LessonStudyPage({
   const user = await requireStudent(`/app/aulas/${id}`);
   if (!UUID.test(id)) notFound();
   const { material, pagina } = await searchParams;
-  const [study, disciplines] = await Promise.all([
+  const [study, disciplines, tutor] = await Promise.all([
     getLessonStudy(user.id, id).catch((err) => {
       if (err instanceof ApiError && err.status === 404) notFound();
       throw err;
     }),
     disciplinesForMaterials(user.id),
+    featureEnabled('ajuda'),
   ]);
   return (
     <div className="grid gap-4">
@@ -45,6 +46,7 @@ export default async function LessonStudyPage({
         disciplines={disciplines}
         initialMaterialId={material && UUID.test(material) ? material : null}
         initialPage={pagina && /^\d{1,4}$/.test(pagina) ? Number(pagina) : null}
+        tutor={tutor}
       />
     </div>
   );

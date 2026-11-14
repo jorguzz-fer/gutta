@@ -104,6 +104,23 @@ test.describe('ajuda cognuss', () => {
     await page.goto('/app/ajuda');
     await expect(page.getByRole('heading', { name: 'Ajuda Cognuss' })).toBeVisible();
     await axe(page, 'central');
+
+    // Tutor sobre os materiais (AJU-08): a resposta cita a página e leva ao material.
+    await page.getByRole('link', { name: 'Tutor' }).click();
+    await expect(page.getByRole('heading', { name: 'Tutor', exact: true })).toBeVisible();
+    await page.getByRole('checkbox', { name: /Slides de inflamação/ }).check();
+    await page.getByRole('button', { name: 'Abrir conversa' }).click();
+    await expect(page.getByRole('heading', { name: 'Slides de inflamação' })).toBeVisible();
+    await page.getByLabel('Sua pergunta').fill('O que acontece na inflamação aguda?');
+    await page.getByRole('button', { name: 'Perguntar' }).click();
+    const answer = page.getByRole('article', { name: 'Resposta do tutor' });
+    await expect(answer.getByText('Gerado por IA a partir dos seus materiais')).toBeVisible();
+    await expect(
+      answer.getByRole('link', { name: '[P1] Slides de inflamação, página 1' }),
+    ).toBeVisible();
+    await axe(page, 'tutor');
+    await page.goto('/app/ajuda/tutor');
+    await expect(page.getByRole('link', { name: 'Slides de inflamação' })).toBeVisible();
   });
 
   test('desligado pela chave, a página não existe', async ({ page }) => {

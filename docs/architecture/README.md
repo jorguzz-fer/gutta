@@ -70,6 +70,7 @@ As migrations ficam em `packages/db/migrations`, em ordem:
 | 0040, 0041 | Acompanhar Aula: marcações por página com histórico, caderno com busca, selos e dúvidas, progresso da aula (ADR 0015) |
 | 0042, 0043 | Equilíbrio: preferências completas, tarefas, propostas e sessões de estudo |
 | 0044, 0045 | Ajuda Cognuss: trabalhos de IA, criações com as páginas de origem, questões geradas e tentativas; flashcards ligados à criação |
+| 0046, 0047 | Tutor sobre os materiais: conversas por materiais, aula ou slide, e mensagens com as páginas citadas |
 
 Os timestamps são sempre `timestamptz` em UTC. "Hoje" e os vencimentos usam o fuso do aluno (`profiles.timezone`, padrão `America/Sao_Paulo`).
 

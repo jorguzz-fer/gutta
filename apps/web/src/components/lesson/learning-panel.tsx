@@ -302,9 +302,12 @@ export function LearningPanel({
   onMark,
   onProgress,
   onGoTo,
+  tutor = false,
 }: {
   lessonId: string;
   disciplineId: string;
+  /** Ajuda Cognuss ligada: atalhos para o tutor (AUL-17). */
+  tutor?: boolean;
   slide: Slide;
   marks: Mark[];
   progress: Progress;
@@ -333,6 +336,33 @@ export function LearningPanel({
           mark={current}
           onMark={onMark}
         />
+      ) : null}
+      {tutor ? (
+        <section aria-labelledby="tutor-aula" className="grid gap-2">
+          <h2 id="tutor-aula" className="text-lg font-semibold">
+            Tutor
+          </h2>
+          <p className="text-sm text-muted">
+            Pergunte e receba a resposta com a página dos seus materiais. As dúvidas que você marcou
+            entram como sugestão.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {slide ? (
+              <Link
+                href={`/app/ajuda/tutor?escopo=slide&aula=${lessonId}&material=${slide.materialId}&pagina=${slide.page}`}
+                className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-line-strong px-3 text-sm font-semibold no-underline hover:border-accent"
+              >
+                Perguntar sobre este slide
+              </Link>
+            ) : null}
+            <Link
+              href={`/app/ajuda/tutor?escopo=aula&aula=${lessonId}`}
+              className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-line-strong px-3 text-sm font-semibold no-underline hover:border-accent"
+            >
+              Perguntar sobre a aula
+            </Link>
+          </div>
+        </section>
       ) : null}
       <section aria-labelledby="revisar" className="grid gap-2">
         <h2 id="revisar" className="text-lg font-semibold">
