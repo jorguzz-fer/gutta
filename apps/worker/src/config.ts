@@ -33,6 +33,9 @@ const schema = z.object({
   // Criações da Ajuda Cognuss (ADR 0020).
   AI_CREATION_MODEL: z.string().default('claude-opus-5-5'),
   AI_CREATION_EFFORT: z.enum(['low', 'medium', 'high']).default('medium'),
+  // Vetores da busca por conceito (ADR 0014): Voyage AI. Sem chave, a busca por palavra segue.
+  VOYAGE_API_KEY: z.string().optional(),
+  EMBEDDING_MODEL: z.string().default('voyage-4'),
   // Avisos por e-mail (SPEC v2, LEM-11). Sem chave, só registro (e arquivo nos testes).
   APP_URL: z.string().url().default('http://localhost:3000'),
   RESEND_API_KEY: z.string().optional(),

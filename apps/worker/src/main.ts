@@ -5,6 +5,8 @@ import {
   AnthropicScheduleExtractor,
   FakeCreator,
   FakeScheduleExtractor,
+  FakeEmbedder,
+  VoyageEmbedder,
 } from '@gutta/ai';
 import { createDb, createPool, sql } from '@gutta/db';
 import { loadConfig } from './config';
@@ -48,7 +50,14 @@ async function main() {
       : cfg.AI_PROVIDER === 'fake'
         ? new FakeCreator()
         : null;
-  const handlers = createHandlers({ storage, scanner, scheduleExtractor, creator });
+  const embedder =
+    cfg.AI_PROVIDER === 'fake'
+      ? new FakeEmbedder()
+      : cfg.VOYAGE_API_KEY
+        ? new VoyageEmbedder(cfg.VOYAGE_API_KEY, cfg.EMBEDDING_MODEL)
+        : null;
+  if (!embedder) logger.warn('worker.no_embeddings', { reason: 'VOYAGE_API_KEY ausente' });
+  const handlers = createHandlers({ storage, scanner, scheduleExtractor, creator, embedder });
   const pool = createPool(cfg.DATABASE_URL, cfg.DB_POOL_MAX);
   const db = createDb(pool);
   // Uma conexão para filas e outra para os workers: comandos bloqueantes não podem segurar

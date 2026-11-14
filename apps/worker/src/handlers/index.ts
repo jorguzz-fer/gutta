@@ -1,7 +1,8 @@
-import type { Creator, ScheduleExtractor } from '@gutta/ai';
+import type { Creator, Embedder, ScheduleExtractor } from '@gutta/ai';
 import type { ObjectStorage } from '@gutta/storage';
 import type { Scanner } from '../files/scanner';
 import { createCreation } from './creations';
+import { embedUser } from './embeddings';
 import { filesProcess } from './files';
 import { eraseUserObjects } from './maintenance';
 import { extractSchedule } from './schedule';
@@ -14,6 +15,8 @@ export type HandlerDeps = {
   scheduleExtractor: ScheduleExtractor | null;
   /** Null: sem provedor; a criação falha com aviso para o aluno. */
   creator: Creator | null;
+  /** Null: sem chave da Voyage AI; a busca por conceito fica desligada e a por palavra segue. */
+  embedder?: Embedder | null;
 };
 
 function unavailable<T extends 'files.process'>(): Handler<T> {
@@ -41,6 +44,7 @@ export function createHandlers(deps: HandlerDeps): Handlers {
       extractor: deps.scheduleExtractor,
     }),
     'ai.create': createCreation({ creator: deps.creator }),
+    'ai.embed_user': embedUser({ embedder: deps.embedder ?? null }),
     'maintenance.erase_user_objects': eraseUserObjects(deps.storage),
   };
 }

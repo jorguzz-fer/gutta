@@ -15,6 +15,9 @@ export const topics = {
   'ai.extract_schedule': z.object({ importId: z.uuid(), userId: id }),
   // Criação com IA a partir dos materiais do aluno (AJU-01; ADR 0020).
   'ai.create': z.object({ jobId: z.uuid(), userId: id }),
+  // Vetores da busca por conceito dos materiais do aluno (ADR 0014): gera o que falta e apaga o
+  // que não vale mais (versão antiga, material excluído, autorização retirada).
+  'ai.embed_user': z.object({ userId: id }),
   // Conta excluída: apagar do bucket tudo o que estava sob u/{userId}/ (LGPD, ADR 0009).
   'maintenance.erase_user_objects': z.object({ userId: id }),
 } as const;

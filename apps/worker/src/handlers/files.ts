@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { and, eq, schema as s, withUser } from '@gutta/db';
+import { emit } from '@gutta/jobs';
 import { keys, type ObjectStorage } from '@gutta/storage';
 import { classify } from '../files/detect';
 import type { Scanner } from '../files/scanner';
@@ -50,6 +51,9 @@ export function filesProcess(deps: FileDeps): Handler<'files.process'> {
             patch.status === 'quarantined'
           )
             await releaseScheduleImports(tx, fileId, userId);
+          // Arquivo pronto: os vetores da busca por conceito podem ser gerados (ADR 0014).
+          if (patch.status === 'ready')
+            await emit(tx, 'ai.embed_user', { userId }, { delayMs: 2000 });
         });
 
       try {
