@@ -30,6 +30,7 @@ import { costMicros } from './pricing';
 import { HISTORY_TURNS } from './prompt';
 import { aiProvider, ProviderUnavailable } from './provider';
 import { readSettings } from './service';
+import { conceptStatus, embedQuery, fuseRanks, nearestChunks } from '@/features/search/concept';
 
 /*
   Tutor sobre os materiais do aluno (SPEC v2, AJU-08, AJU-09, AUL-17; ADR 0020). A fonte é o
@@ -43,7 +44,7 @@ type Citation = { ref: string; label: string; materialId: string; page: number }
 type CreateBody = z.output<(typeof contract.createTutorThread)['body']>;
 
 export const TUTOR_CONSENT_TEXT =
-  'Para conversar com o tutor, a IA precisa ler os materiais escolhidos. O conteúdo vai para a Anthropic (EUA); nome, e-mail e CPF não vão. Você pode desligar em Privacidade.';
+  'Para conversar com o tutor, a IA precisa ler os materiais escolhidos. O conteúdo vai para a Anthropic (o modelo de IA) e para a Voyage AI (a busca por assunto), ambas nos EUA; nome, e-mail e CPF não vão. Você pode desligar em Privacidade.';
 
 export const TUTOR_OFF = 'O tutor está pausado no momento. Tente de novo mais tarde.';
 
@@ -146,7 +147,32 @@ async function sourcePages(tx: Tx, userId: string, t: Thread, question: string) 
   }
   let chosen = all;
   if (all.reduce((n, p) => n + p.text.length, 0) > MAX_TUTOR_CHARS) {
-    const byRank = [...all].sort((a, b) => Number(b.focus) - Number(a.focus) || b.rank - a.rank);
+    // Por palavra e, com a busca por conceito ligada, pelo assunto (ADR 0014), juntadas por
+    // posição. A página do slide vem sempre primeiro.
+    const pageKey = (p: { materialId: string; page: number }) => `${p.materialId}:${p.page}`;
+    const byWord = [...all].sort((a, b) => b.rank - a.rank);
+    const byConcept: typeof all = [];
+    if ((await conceptStatus(tx, userId)) === 'on') {
+      const vector = await embedQuery(tx, userId, question);
+      if (vector) {
+        const near = await nearestChunks(tx, userId, vector, {
+          limit: 40,
+          materialIds: versions.map((v) => v.materialId),
+        });
+        const index = new Map(all.map((p) => [pageKey(p), p]));
+        const seen = new Set<string>();
+        for (const n of near)
+          for (let pg = n.pageFrom; pg <= n.pageTo; pg++) {
+            const hit = index.get(`${n.materialId}:${pg}`);
+            if (hit && !seen.has(pageKey(hit))) {
+              seen.add(pageKey(hit));
+              byConcept.push(hit);
+            }
+          }
+      }
+    }
+    const fused = fuseRanks([byWord, byConcept], pageKey);
+    const byRank = [...fused].sort((a, b) => Number(b.focus) - Number(a.focus));
     const keep = new Set<(typeof all)[number]>();
     let size = 0;
     for (const p of byRank) {

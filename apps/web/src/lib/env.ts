@@ -25,6 +25,9 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_PROVIDER: z.enum(['anthropic', 'fake']).default('anthropic'),
   TUTOR_MODEL: z.string().default('claude-opus-5-5'),
+  // Busca por conceito (ADR 0014): vetores da Voyage AI. Sem chave, só a busca por palavra.
+  VOYAGE_API_KEY: z.string().optional(),
+  EMBEDDING_MODEL: z.string().default('voyage-4'),
   TUTOR_DAILY_LIMIT: z.coerce.number().int().min(0).max(500).default(20),
   // LGPD: quem é o controlador e o encarregado (art. 41). Sem valor, as páginas avisam que
   // falta definir; não inventamos razão social, CNPJ nem contato.

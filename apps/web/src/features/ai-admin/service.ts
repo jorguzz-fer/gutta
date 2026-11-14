@@ -16,6 +16,7 @@ export const FEATURE_LABEL: Record<AiFeature, string> = {
   cronograma: 'Leitura do cronograma',
   criacao: 'Criar com IA',
   tutor_materiais: 'Tutor sobre os materiais',
+  busca_conceito: 'Busca por conceito (Voyage AI)',
 };
 
 /** Rótulo de cada valor de `ai_usage.feature` (e do tutor do módulo, em `tutor_messages`). */
@@ -31,6 +32,8 @@ export function usageLabel(feature: string) {
   if (feature === 'schedule_extract') return 'Leitura do cronograma';
   if (feature === 'tutor_materiais') return 'Tutor sobre os materiais';
   if (feature === 'tutor_modulo') return 'Tutor do módulo (MVP)';
+  if (feature === 'embedding') return 'Busca por conceito: vetores dos materiais';
+  if (feature === 'embedding_query') return 'Busca por conceito: buscas';
   if (feature.startsWith('criacao_'))
     return `Criar com IA: ${kinds[feature.slice(8)] ?? feature.slice(8)}`;
   return feature;

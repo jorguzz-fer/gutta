@@ -27705,7 +27705,7 @@
     },
     "/api/v1/search": {
       "get": {
-        "summary": "Busca por palavra no título e no conteúdo dos materiais e nos lembretes do aluno (MAT-09; ADR 0014), sem acento.",
+        "summary": "Busca por palavra e por assunto no título e no conteúdo dos materiais e nos lembretes do aluno (MAT-09; ADR 0014), sem acento.",
         "tags": [
           "materiais"
         ],
@@ -27823,6 +27823,9 @@
                           },
                           "link": {
                             "type": "string"
+                          },
+                          "byConcept": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -27833,14 +27836,24 @@
                           "page",
                           "disciplineName",
                           "type",
-                          "link"
+                          "link",
+                          "byConcept"
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "concept": {
+                      "type": "string",
+                      "enum": [
+                        "on",
+                        "needs_consent",
+                        "off"
+                      ]
                     }
                   },
                   "required": [
-                    "items"
+                    "items",
+                    "concept"
                   ],
                   "additionalProperties": false
                 }

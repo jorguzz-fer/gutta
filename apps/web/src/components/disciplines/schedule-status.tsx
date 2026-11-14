@@ -53,8 +53,9 @@ export function ScheduleStatus({
         <>
           <p>
             Para montar as aulas e as provas a partir do cronograma, a IA precisa ler o arquivo. O
-            conteúdo vai para a Anthropic (EUA); nome, e-mail e CPF não vão. Você confere tudo antes
-            de entrar na agenda e pode desligar em Privacidade.
+            conteúdo vai para a Anthropic (o modelo de IA) e para a Voyage AI (a busca por assunto),
+            ambas nos EUA; nome, e-mail e CPF não vão. Você confere tudo antes de entrar na agenda e
+            pode desligar em Privacidade.
           </p>
           <div>
             <Button type="button" disabled={busy} onClick={() => retry(true)}>

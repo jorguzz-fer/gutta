@@ -195,19 +195,25 @@ export const SearchHitDto = z.object({
   disciplineName: z.string().nullable(),
   type: MaterialType.nullable(),
   link: z.string(),
+  /** Achado pelo assunto (vetores), sem o termo exato no texto. */
+  byConcept: z.boolean(),
 });
 
 export const search = defineRoute({
   method: 'get',
   path: '/api/v1/search',
   summary:
-    'Busca por palavra no título e no conteúdo dos materiais e nos lembretes do aluno (MAT-09; ADR 0014), sem acento.',
+    'Busca por palavra e por assunto no título e no conteúdo dos materiais e nos lembretes do aluno (MAT-09; ADR 0014), sem acento.',
   tags: ['materiais'],
   query: z.object({
     q: z.string().trim().min(2, 'Digite pelo menos duas letras.').max(200),
     disciplineId: Uuid.optional(),
     type: MaterialType.optional(),
   }),
-  response: z.object({ items: z.array(SearchHitDto) }),
+  response: z.object({
+    items: z.array(SearchHitDto),
+    /** Busca por assunto: ligada, esperando a autorização que cita a Voyage AI, ou desligada. */
+    concept: z.enum(['on', 'needs_consent', 'off']),
+  }),
   errors: ['invalid_request', 'feature_disabled'],
 });

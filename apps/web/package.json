@@ -11,7 +11,8 @@
     "test": "vitest run",
     "e2e": "playwright test --pass-with-no-tests",
     "test:int": "vitest run -c vitest.int.config.ts",
-    "tutor:eval": "tsx scripts/tutor-eval.ts"
+    "tutor:eval": "tsx scripts/tutor-eval.ts",
+    "search:eval": "tsx scripts/search-eval.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",

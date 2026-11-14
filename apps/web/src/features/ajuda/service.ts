@@ -34,7 +34,7 @@ export async function assertAjudaEnabled() {
 }
 
 export const CONSENT_TEXT =
-  'Para criar com IA, a IA precisa ler os materiais escolhidos. O conteúdo vai para a Anthropic (EUA); nome, e-mail e CPF não vão. Você pode desligar em Privacidade.';
+  'Para criar com IA, a IA precisa ler os materiais escolhidos. O conteúdo vai para a Anthropic (o modelo de IA) e para a Voyage AI (a busca por assunto), ambas nos EUA; nome, e-mail e CPF não vão. Você pode desligar em Privacidade.';
 
 const jobDto = (j: JobRow): contract.JobDto => ({
   id: j.id,

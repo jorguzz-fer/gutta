@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, Badge, Card } from '@/components/ui/card';
 import { requireFeature } from '@/features/flags/service';
 import { search } from '@/features/materials/service';
+import { grantConceptSearchAction } from '@/features/search/actions';
 import { requireStudent } from '@/lib/auth/session';
 
 export const metadata: Metadata = { title: 'Busca' };
@@ -33,15 +34,16 @@ function Snippet({ text }: { text: string }) {
   );
 }
 
-// Busca por palavra nos materiais, no caderno e nos lembretes (SPEC v2, MAT-09; ADR 0014). Sem acento.
+// Busca por palavra e por assunto nos materiais, no caderno e nos lembretes (SPEC v2, MAT-09;
+// ADR 0014). Sem acento. A busca por assunto usa os vetores da Voyage AI, com autorização.
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; autorizado?: string }>;
 }) {
   await requireFeature('materiais');
   const user = await requireStudent('/app/busca');
-  const { q = '' } = await searchParams;
+  const { q = '', autorizado } = await searchParams;
   const term = q.trim().slice(0, 200);
   const result = term.length >= 2 ? await search(user.id, { q: term }) : null;
   return (
@@ -64,6 +66,29 @@ export default async function SearchPage({
         <Button type="submit">Buscar</Button>
       </form>
       {term.length === 1 ? <Alert>Digite pelo menos duas letras.</Alert> : null}
+      {autorizado ? (
+        <Alert tone="success" role="status">
+          Autorizado. Seus materiais estão sendo preparados para a busca por assunto; em alguns
+          minutos ela já encontra o que não tem a palavra exata.
+        </Alert>
+      ) : result?.concept === 'needs_consent' ? (
+        <Alert>
+          <form action={grantConceptSearchAction} className="grid gap-2">
+            <p>
+              Quer achar também o que fala do mesmo assunto com outras palavras (por exemplo,
+              “glóbulos brancos” para “leucócitos”)? Para isso, trechos dos seus materiais e as suas
+              buscas vão para a Voyage AI (EUA), que não guarda nem usa para treino. Nome, e-mail e
+              CPF não vão. Você pode desligar em Privacidade.
+            </p>
+            <input type="hidden" name="q" value={term} />
+            <div>
+              <Button type="submit" variant="secondary">
+                Autorizar a busca por assunto
+              </Button>
+            </div>
+          </form>
+        </Alert>
+      ) : null}
       {result ? (
         result.items.length === 0 ? (
           <p>Nada encontrado para “{term}”.</p>
@@ -74,6 +99,7 @@ export default async function SearchPage({
                 <Card className="grid gap-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone="neutral">{KIND[h.kind]}</Badge>
+                    {h.byConcept ? <Badge>Por assunto</Badge> : null}
                     <Link href={h.link} className="font-semibold">
                       {h.title}
                       {h.page ? `, página ${h.page}` : ''}

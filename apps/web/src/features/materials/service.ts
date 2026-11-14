@@ -20,6 +20,8 @@ import { db } from '@/lib/db';
 import { toDto as fileDto } from '@/features/files/service';
 import { flags } from '@/features/flags/service';
 import { markCreationsStale } from '@/features/ajuda/service';
+import { emit } from '@gutta/jobs';
+import { conceptStatus, embedQuery, fuseRanks, nearestChunks } from '@/features/search/concept';
 
 // Material de estudo (SPEC v2, MAT-01 a MAT-07, MAT-14 a MAT-17, MAT-19, MAT-21), conteúdo de
 // aula (MAT-02, MAT-03) e busca por palavra (MAT-09; ADR 0014). Tudo como o dono (withUser).
@@ -208,6 +210,8 @@ export async function createMaterial(userId: string, body: Body) {
     await addLink(tx, userId, m!.id, body);
     // Material novo na disciplina: criações dela ficam desatualizadas (AJU-11).
     await markCreationsStale(tx, userId, [body.disciplineId]);
+    // Vetores da busca por conceito (ADR 0014): o worker gera quando o arquivo estiver pronto.
+    await emit(tx, 'ai.embed_user', { userId });
     return { material: await oneDto(tx, userId, m!.id) };
   });
 }
@@ -282,6 +286,7 @@ export async function addVersion(userId: string, id: string, fileId: string) {
       userId,
       links.map((l) => l.d).filter((d): d is string => Boolean(d)),
     );
+    await emit(tx, 'ai.embed_user', { userId });
     return { material: await oneDto(tx, userId, id) };
   });
 }
@@ -313,6 +318,8 @@ export async function trashMaterial(userId: string, id: string) {
       .update(s.materials)
       .set({ deletedAt: sql`now()` })
       .where(eq(s.materials.id, id));
+    // Material na lixeira sai da busca por conceito.
+    await tx.delete(s.materialChunks).where(eq(s.materialChunks.materialId, id));
   });
   return { ok: true as const };
 }
@@ -322,6 +329,7 @@ export async function restoreMaterial(userId: string, id: string) {
   return withUser(db(), userId, async (tx) => {
     await findOwn(tx, userId, id);
     await tx.update(s.materials).set({ deletedAt: null }).where(eq(s.materials.id, id));
+    await emit(tx, 'ai.embed_user', { userId });
     return { material: await oneDto(tx, userId, id) };
   });
 }
@@ -469,25 +477,62 @@ export async function search(
       order by rank desc
       limit 50
     `);
-    return {
-      items: hits.rows.map((h) => ({
-        kind: h.kind,
-        materialId: h.material_id,
-        title: h.title,
-        snippet: h.snippet,
-        page: h.page,
-        disciplineName: h.discipline,
-        type: h.type,
-        link:
-          h.kind === 'lembrete'
-            ? '/app/lembretes'
-            : h.kind === 'anotacao'
-              ? h.lesson_id
-                ? `/app/aulas/${h.lesson_id}${h.material_id && h.page ? `?material=${h.material_id}&pagina=${h.page}` : ''}`
-                : `/app/minhas-disciplinas/${h.discipline_id}/caderno`
-              : `/app/materiais/${h.material_id}${h.page ? `?pagina=${h.page}` : ''}`,
-      })),
-    };
+    const words = hits.rows.map((h) => ({
+      kind: h.kind,
+      materialId: h.material_id,
+      title: h.title,
+      snippet: h.snippet,
+      page: h.page,
+      disciplineName: h.discipline,
+      type: h.type,
+      byConcept: false,
+      link:
+        h.kind === 'lembrete'
+          ? '/app/lembretes'
+          : h.kind === 'anotacao'
+            ? h.lesson_id
+              ? `/app/aulas/${h.lesson_id}${h.material_id && h.page ? `?material=${h.material_id}&pagina=${h.page}` : ''}`
+              : `/app/minhas-disciplinas/${h.discipline_id}/caderno`
+            : `/app/materiais/${h.material_id}${h.page ? `?pagina=${h.page}` : ''}`,
+    }));
+
+    // Busca por assunto (ADR 0014): trechos próximos da pergunta, juntados por posição.
+    const concept = await conceptStatus(tx, userId);
+    const vector = concept === 'on' ? await embedQuery(tx, userId, q.q) : null;
+    if (!vector) return { items: words, concept };
+    const near = await nearestChunks(tx, userId, vector, {
+      limit: 15,
+      extra: sql`${disc} ${type}`,
+    });
+    const info = near.length
+      ? await tx
+          .select({ id: s.materials.id, title: s.materials.title, type: s.materials.type })
+          .from(s.materials)
+          .where(inArray(s.materials.id, [...new Set(near.map((n) => n.materialId))]))
+      : [];
+    const names = new Map(
+      words.filter((w) => w.materialId).map((w) => [w.materialId!, w.disciplineName]),
+    );
+    const byAssunto = near.map((n) => {
+      const m = info.find((x) => x.id === n.materialId);
+      return {
+        kind: 'pagina' as const,
+        materialId: n.materialId,
+        title: m?.title ?? 'Material',
+        snippet: n.text.length > 220 ? `${n.text.slice(0, 220)}…` : n.text,
+        page: n.pageFrom,
+        disciplineName: names.get(n.materialId) ?? null,
+        type: m?.type ?? null,
+        byConcept: true,
+        link: `/app/materiais/${n.materialId}?pagina=${n.pageFrom}`,
+      };
+    });
+    const key = (h: { kind: string; materialId: string | null; page: number | null }) =>
+      `${h.kind}:${h.materialId}:${h.page}`;
+    const wordKeys = new Map(words.map((w) => [key(w), w]));
+    // Achado pelas duas buscas: vale o trecho com o termo marcado.
+    const fused = fuseRanks([words, byAssunto], key).map((h) => wordKeys.get(key(h)) ?? h);
+    return { items: fused.slice(0, 50), concept };
   });
 }
 

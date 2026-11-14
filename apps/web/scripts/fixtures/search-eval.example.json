@@ -1,0 +1,21 @@
+{
+  "documents": [
+    {
+      "id": "slides-inflamacao",
+      "pages": [
+        "Inflamação aguda. Resposta imediata do organismo a uma agressão. Vasodilatação e aumento da permeabilidade vascular.",
+        "Mediadores químicos. Histamina, prostaglandinas e citocinas participam da resposta."
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "q": "aumento do calibre dos vasos",
+      "expected": [{ "doc": "slides-inflamacao", "page": 1 }]
+    },
+    {
+      "q": "substâncias que sinalizam a inflamação",
+      "expected": [{ "doc": "slides-inflamacao", "page": 2 }]
+    }
+  ]
+}

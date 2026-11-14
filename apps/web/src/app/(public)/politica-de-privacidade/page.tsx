@@ -153,7 +153,15 @@ export default async function PrivacyPolicyPage() {
         {aiMaterials ? (
           <li>
             Anthropic, nos Estados Unidos, quando você autoriza a leitura dos seus materiais: recebe
-            o conteúdo do arquivo (o cronograma, por exemplo). Nome, e-mail e CPF não vão.
+            o conteúdo dos arquivos escolhidos (o cronograma, slides, apostilas). Nome, e-mail e CPF
+            não vão.
+          </li>
+        ) : null}
+        {aiMaterials ? (
+          <li>
+            Voyage AI, nos Estados Unidos, quando você autoriza a leitura dos seus materiais: recebe
+            trechos do texto dos seus materiais e as suas buscas, para a busca por assunto, sem
+            guardar nem usar para treino. Nome, e-mail e CPF não vão.
           </li>
         ) : null}
         <li>

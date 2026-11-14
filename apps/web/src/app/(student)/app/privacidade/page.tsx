@@ -75,7 +75,7 @@ export default async function PrivacyPage({
     },
     {
       title: 'Leitura dos seus materiais pela IA',
-      text: 'O cronograma (e, depois, os materiais) que você envia vai para a Anthropic (EUA) para a IA extrair datas e temas. Nada entra na sua agenda sem você conferir. Nome, e-mail e CPF não vão.',
+      text: 'O cronograma e os materiais que você escolhe vão para a Anthropic (EUA), que roda a IA que extrai datas e temas, cria resumos e responde no tutor, e para a Voyage AI (EUA), que gera a busca por assunto nos seus materiais. Nada entra na sua agenda sem você conferir. Nome, e-mail e CPF não vão.',
       basis: 'sua autorização',
       toggle: 'ai_materials',
     },
