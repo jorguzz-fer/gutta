@@ -295,6 +295,20 @@
       "when": 1794614612372,
       "tag": "0041_rls_aula",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794619778501,
+      "tag": "0042_equilibrio",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794619779739,
+      "tag": "0043_rls_equilibrio",
+      "breakpoints": true
     }
   ]
 }

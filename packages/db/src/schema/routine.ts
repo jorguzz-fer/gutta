@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   date,
   index,
@@ -64,8 +65,17 @@ export const routineBlocks = pgTable(
   ],
 );
 
-// Preferências de planejamento (SPEC v2, 8.3). Por enquanto, o que a rotina usa: meta
-// semanal (ROT-09) e a grade (ROT-01). O Equilíbrio acrescenta o resto.
+export const preferredPeriod = pgEnum('preferred_period', ['manha', 'tarde', 'noite', 'varia']);
+export const planIntensity = pgEnum('plan_intensity', ['leve', 'equilibrada', 'intensiva']);
+export const planPriority = pgEnum('plan_priority', [
+  'bem_estar',
+  'avaliacoes',
+  'dificuldade',
+  'distribuicao',
+]);
+
+// Preferências de planejamento (SPEC v2, 8.3): a meta semanal (ROT-09), a grade (ROT-01) e as
+// do Equilíbrio (EQU-01 a EQU-03), com os padrões da SPEC e da seção 6.4 (D15).
 export const planningPreferences = pgTable(
   'planning_preferences',
   {
@@ -79,12 +89,32 @@ export const planningPreferences = pgTable(
     viewEndMinute: smallint('view_end_minute').notNull().default(1440),
     // Passo "Minha rotina" do cadastro concluído (CAD-05).
     routineConfirmedAt: timestamp('routine_confirmed_at', { withTimezone: true }),
+    // Equilíbrio (EQU-01 a EQU-03). Padrão: varia, 30 min, equilibrada, bem-estar.
+    preferredPeriod: preferredPeriod('preferred_period').notNull().default('varia'),
+    sessionMinutes: smallint('session_minutes').notNull().default(30),
+    intensity: planIntensity('intensity').notNull().default('equilibrada'),
+    priority: planPriority('priority').notNull().default('bem_estar'),
+    dailyLimitMinutes: smallint('daily_limit_minutes'),
+    weeklyLimitMinutes: smallint('weekly_limit_minutes'),
+    breakMinutes: smallint('break_minutes').notNull().default(10),
+    maxConsecutive: smallint('max_consecutive').notNull().default(2),
+    longBreakMinutes: smallint('long_break_minutes').notNull().default(30),
+    avoidAfterLongJourney: boolean('avoid_after_long_journey').notNull().default(true),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
     check('planning_goal_ck', sql`${t.weeklyGoalMinutes} between 0 and 6000`),
     check('planning_step_ck', sql`${t.gridStepMinutes} in (15, 30, 60)`),
+    check('planning_session_ck', sql`${t.sessionMinutes} in (20, 30, 45, 60)`),
+    check('planning_break_ck', sql`${t.breakMinutes} between 5 and 30`),
+    check('planning_consecutive_ck', sql`${t.maxConsecutive} between 1 and 4`),
+    check('planning_long_break_ck', sql`${t.longBreakMinutes} between 10 and 120`),
+    check(
+      'planning_limits_ck',
+      sql`(${t.dailyLimitMinutes} is null or ${t.dailyLimitMinutes} between 0 and 1440)
+        and (${t.weeklyLimitMinutes} is null or ${t.weeklyLimitMinutes} between 0 and 6000)`,
+    ),
     check(
       'planning_view_ck',
       sql`${t.viewStartMinute} between 0 and 1380 and ${t.viewEndMinute} between 60 and 1440 and ${t.viewEndMinute} > ${t.viewStartMinute}`,
