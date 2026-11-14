@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BadgeDollarSign,
   Building2,
   FileQuestion,
   GraduationCap,
@@ -41,6 +42,11 @@ const adminItems: NavItem[] = [
     icon: <Building2 className={icon} aria-hidden />,
   },
   { href: '/admin/tutor', label: 'Tutor IA', icon: <Sparkles className={icon} aria-hidden /> },
+  {
+    href: '/admin/ia',
+    label: 'Custos de IA',
+    icon: <BadgeDollarSign className={icon} aria-hidden />,
+  },
   {
     href: '/admin/privacidade',
     label: 'Privacidade',

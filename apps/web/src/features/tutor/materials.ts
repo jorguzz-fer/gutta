@@ -1,6 +1,18 @@
 import 'server-only';
 import type { ajuda as contract } from '@gutta/contracts';
-import { and, asc, desc, eq, gte, inArray, schema as s, sql, withUser, type Tx } from '@gutta/db';
+import {
+  aiFeatureOn,
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  schema as s,
+  sql,
+  withUser,
+  type Tx,
+} from '@gutta/db';
 import type { z } from 'zod';
 import { ApiError, badRequest, conflict, notFound } from '@/lib/api';
 import { db } from '@/lib/db';
@@ -32,6 +44,8 @@ type CreateBody = z.output<(typeof contract.createTutorThread)['body']>;
 
 export const TUTOR_CONSENT_TEXT =
   'Para conversar com o tutor, a IA precisa ler os materiais escolhidos. O conteúdo vai para a Anthropic (EUA); nome, e-mail e CPF não vão. Você pode desligar em Privacidade.';
+
+export const TUTOR_OFF = 'O tutor está pausado no momento. Tente de novo mais tarde.';
 
 /** Teto de texto por pergunta; acima dele, entram as páginas mais ligadas à pergunta. */
 export const MAX_TUTOR_CHARS = 60_000;
@@ -235,6 +249,8 @@ async function ownMaterialIds(tx: Tx, userId: string, ids: string[]) {
 export async function createTutorThread(userId: string, body: CreateBody) {
   await assertAjudaEnabled();
   return withUser(db(), userId, async (tx) => {
+    if (!(await aiFeatureOn(tx, 'tutor_materiais')))
+      throw new ApiError(503, 'unavailable', TUTOR_OFF);
     if (body.grantConsent) await recordConsents(tx, userId, { ai_materials: true });
     if ((await latestConsent(tx, userId, 'ai_materials'))?.granted !== true)
       throw conflict(TUTOR_CONSENT_TEXT);
@@ -382,8 +398,8 @@ export async function askTutorThread(userId: string, id: string, message: string
   // 1) Pré-condições, páginas e a pergunta gravada, numa transação curta.
   const prep = await withUser(db(), userId, async (tx) => {
     const settings = await readSettings(tx);
-    if (!settings.enabled || !provider.available())
-      throw new ApiError(503, 'unavailable', 'O tutor está desligado no momento.');
+    if (!settings.enabled || !provider.available() || !(await aiFeatureOn(tx, 'tutor_materiais')))
+      throw new ApiError(503, 'unavailable', TUTOR_OFF);
     if ((await latestConsent(tx, userId, 'ai_materials'))?.granted !== true)
       throw conflict(TUTOR_CONSENT_TEXT);
     if ((await usedLast24h(tx, userId)) >= settings.dailyLimit)

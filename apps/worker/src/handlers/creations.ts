@@ -9,20 +9,36 @@ import {
   type SummaryStyle,
 } from '@gutta/ai';
 import { SRS_ALGORITHM, addLocalDays } from '@gutta/core';
-import { and, asc, desc, eq, inArray, schema as s, sql, withUser, type Tx } from '@gutta/db';
+import {
+  aiFeatureOn,
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  schema as s,
+  sql,
+  withUser,
+  type Tx,
+} from '@gutta/db';
 import type { Handler } from './types';
 
 // Criação com IA (SPEC v2, AJU-01 a AJU-06; ADR 0020). O payload só tem ids; as páginas são
 // lidas aqui, como o dono. A saída validada vira criação com as páginas de origem; flashcards
 // entram na revisão espaçada (MEM-01) e questões ficam com o gabarito só no servidor (MEM-03).
 
-export type CreationDeps = { creator: Creator | null };
+export type CreationDeps = {
+  creator: Creator | null;
+  /** Recurso ligado pelo admin (7.7); trocável nos testes. */
+  featureOn?: typeof aiFeatureOn;
+};
 
 /** Teto do material enviado ao modelo; acima dele, o corte é avisado ao aluno. */
 export const MAX_SOURCE_CHARS = 120_000;
 
 export const CREATION_MESSAGES = {
   unavailable: 'A criação com IA ainda não está disponível.',
+  paused: 'A criação com IA está pausada no momento. Tente de novo mais tarde.',
   consent: 'Para criar com IA, autorize a leitura dos seus materiais em Privacidade.',
   noText: 'Os materiais escolhidos ainda não têm texto lido. Espere o processamento terminar.',
   refused: 'A IA não pôde gerar este conteúdo a partir destes materiais.',
@@ -71,6 +87,9 @@ export function createCreation(deps: CreationDeps): Handler<'ai.create'> {
       );
       if (!deps.creator)
         return void (await finish({ status: 'failed', error: CREATION_MESSAGES.unavailable }));
+      // Desligada pelo admin depois de enfileirada (7.7).
+      if (!(await inTx((tx) => (deps.featureOn ?? aiFeatureOn)(tx, 'criacao'))))
+        return void (await finish({ status: 'failed', error: CREATION_MESSAGES.paused }));
 
       // Autorização para a IA ler os materiais (LGPD; a mesma do cronograma).
       const [consent] = await inTx((tx) =>

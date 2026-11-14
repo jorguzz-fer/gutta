@@ -220,6 +220,27 @@ describe('leitura', () => {
     });
   });
 
+  it('pausada pelo admin: falha com aviso para cadastrar à mão, sem chamar a IA', async () => {
+    const { userId, importId } = await scenario({
+      fileStatus: 'ready',
+      importStatus: 'extracting',
+    });
+    const extractor = {
+      extract: async () => {
+        throw new Error('não devia chamar');
+      },
+    };
+    await extractSchedule({
+      storage: store,
+      extractor: extractor as never,
+      featureOn: async () => false,
+    }).run({ importId, userId }, ctx());
+    expect(await importRow(importId)).toMatchObject({
+      status: 'failed',
+      error: SCHEDULE_MESSAGES.paused,
+    });
+  });
+
   it('recusa do modelo: falha com aviso e o uso fica registrado', async () => {
     const { userId, fileId, importId } = await scenario({});
     await process.run({ fileId, userId }, ctx());

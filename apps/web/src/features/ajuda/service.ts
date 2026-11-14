@@ -1,7 +1,18 @@
 import 'server-only';
 import { OUTPUT_SCHEMAS, type CreationType } from '@gutta/ai';
 import type { ajuda as contract } from '@gutta/contracts';
-import { and, asc, desc, eq, inArray, schema as s, sql, withUser, type Tx } from '@gutta/db';
+import {
+  aiFeatureOn,
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  schema as s,
+  sql,
+  withUser,
+  type Tx,
+} from '@gutta/db';
 import { emit } from '@gutta/jobs';
 import type { z } from 'zod';
 import { ApiError, badRequest, conflict, notFound } from '@/lib/api';
@@ -51,11 +62,19 @@ export async function hasAiConsent(userId: string) {
 
 type JobBody = z.output<(typeof contract.createJob)['body']>;
 
+/** Recurso desligado pelo admin (7.7): o pedido não entra na fila. */
+export const CREATION_OFF = 'A criação com IA está pausada no momento. Tente de novo mais tarde.';
+
+async function assertCreationOn(tx: Tx) {
+  if (!(await aiFeatureOn(tx, 'criacao'))) throw new ApiError(503, 'unavailable', CREATION_OFF);
+}
+
 async function enqueue(
   tx: Tx,
   userId: string,
   input: Omit<JobBody, 'grantConsent'> & { creationId?: string | null },
 ) {
+  await assertCreationOn(tx);
   const [j] = await tx
     .insert(s.aiJobs)
     .values({ ownerId: userId, feature: 'criacao', input })
@@ -68,6 +87,8 @@ async function enqueue(
 export async function createJob(userId: string, body: JobBody) {
   await assertAjudaEnabled();
   return withUser(db(), userId, async (tx) => {
+    // Pausada pelo admin (7.7): avisa antes de pedir autorização ou conferir materiais.
+    await assertCreationOn(tx);
     if (body.grantConsent) await recordConsents(tx, userId, { ai_materials: true });
     const consent = await latestConsent(tx, userId, 'ai_materials');
     if (consent?.granted !== true) throw conflict(CONSENT_TEXT);

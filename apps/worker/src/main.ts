@@ -17,6 +17,7 @@ import { createRedis } from './redis';
 import { pruneOutbox, startRelay } from './relay';
 import { LogMailer, ResendMailer } from './notify/mail';
 import { startNotifier } from './notify/dispatch';
+import { checkSpend } from './notify/spend';
 import { startWorkers } from './workers';
 
 // Processo worker (ADR 0013): publica o outbox na fila e executa os trabalhos.
@@ -100,6 +101,14 @@ async function main() {
   });
   void prune();
 
+  // Alerta de gasto com IA (7.7): confere um minuto depois da partida e depois a cada hora.
+  const spend = () =>
+    checkSpend({ db, mailer, log: logger, appUrl: cfg.APP_URL }).catch((err) =>
+      logger.error('ai.spend_check_failed', { error: String(err) }),
+    );
+  const spendTimer = setInterval(spend, 3600_000);
+  const spendFirst = setTimeout(spend, 60_000);
+
   // Saúde: banco e Redis respondendo. Só na rede interna do compose.
   const health = http.createServer(async (req, res) => {
     if (req.url !== '/health') {
@@ -123,6 +132,8 @@ async function main() {
     closing = true;
     logger.info('worker.stopping', { signal });
     clearInterval(pruneTimer);
+    clearInterval(spendTimer);
+    clearTimeout(spendFirst);
     health.close();
     await relay.stop();
     await notifier.stop();

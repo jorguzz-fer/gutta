@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   bigserial,
   boolean,
   check,
@@ -154,6 +155,16 @@ export const aiUsage = pgTable(
     index('ai_usage_feature_idx').on(t.feature, t.createdAt),
   ],
 );
+
+// Alerta de gasto com IA (SPEC v2, 7.7): um por mês, quando o gasto do mês passa do valor
+// configurado pelo admin. Não bloqueia aluno; serve para um defeito não gastar sem ninguém ver.
+// Gravado só pelo worker, por função de sistema.
+export const aiSpendAlerts = pgTable('ai_spend_alerts', {
+  period: text('period').primaryKey(),
+  totalMicros: bigint('total_micros', { mode: 'number' }).notNull(),
+  thresholdMicros: bigint('threshold_micros', { mode: 'number' }).notNull(),
+  sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 // Compromissos do aluno no calendário (SPEC v2, CAL-02 a CAL-05; 8.2). Série em horário local
 // (data, minuto do dia e duração) com regra de @gutta/core/recurrence; cada ocorrência mudada

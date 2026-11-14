@@ -1,11 +1,16 @@
 import type { ScheduleExtractor } from '@gutta/ai';
-import { and, asc, desc, eq, schema as s, withUser, type Tx } from '@gutta/db';
+import { aiFeatureOn, and, asc, desc, eq, schema as s, withUser, type Tx } from '@gutta/db';
 import { emit } from '@gutta/jobs';
 import { keys, type ObjectStorage } from '@gutta/storage';
 import { sheetText, SHEET_EXT_BY_MIME } from '../files/tools';
 import type { Handler } from './types';
 
-export type ScheduleDeps = { storage: ObjectStorage | null; extractor: ScheduleExtractor | null };
+export type ScheduleDeps = {
+  storage: ObjectStorage | null;
+  extractor: ScheduleExtractor | null;
+  /** Recurso ligado pelo admin (7.7); trocável nos testes. */
+  featureOn?: typeof aiFeatureOn;
+};
 
 /** Abaixo disso o texto do PDF não basta (documento digitalizado): o modelo lê o PDF. */
 const MIN_TEXT = 40;
@@ -13,6 +18,8 @@ const MIN_TEXT = 40;
 export const SCHEDULE_MESSAGES = {
   unavailable:
     'A leitura automática do cronograma ainda não está disponível. Você pode cadastrar as aulas à mão.',
+  paused:
+    'A leitura automática do cronograma está pausada no momento. Você pode cadastrar as aulas à mão ou tentar de novo mais tarde.',
   noText: 'Não encontramos texto neste arquivo. Envie o cronograma em PDF, Word ou planilha.',
   refused:
     'A leitura automática não foi possível para este arquivo. Confira o documento ou cadastre as aulas à mão.',
@@ -67,6 +74,9 @@ export function extractSchedule(deps: ScheduleDeps): Handler<'ai.extract_schedul
 
       if (!deps.extractor)
         return void (await finish({ status: 'failed', error: SCHEDULE_MESSAGES.unavailable }));
+      // Desligada pelo admin (7.7).
+      if (!(await inTx((tx) => (deps.featureOn ?? aiFeatureOn)(tx, 'cronograma'))))
+        return void (await finish({ status: 'failed', error: SCHEDULE_MESSAGES.paused }));
 
       // O aluno pode ter retirado a autorização depois de enviar.
       const [consent] = await inTx((tx) =>

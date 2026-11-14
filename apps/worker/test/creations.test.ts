@@ -201,6 +201,18 @@ describe('criação com IA no worker', () => {
     expect(none).toEqual([]);
   });
 
+  it('pausada pelo admin depois de enfileirada: falha com o motivo, sem chamar a IA', async () => {
+    const sc = await scenario();
+    const spy = new Spy();
+    await createCreation({ creator: spy, featureOn: async () => false }).run(
+      { jobId: sc.jobId, userId: sc.userId },
+      ctx(),
+    );
+    const job = await owner.query.aiJobs.findFirst({ where: eq(s.aiJobs.id, sc.jobId) });
+    expect(job).toMatchObject({ status: 'failed', error: CREATION_MESSAGES.paused });
+    expect(spy.inputs).toEqual([]);
+  });
+
   it('cancelado antes de terminar: nada é gravado', async () => {
     const x = await scenario();
     await owner.update(s.aiJobs).set({ status: 'cancelled' }).where(eq(s.aiJobs.id, x.jobId));
