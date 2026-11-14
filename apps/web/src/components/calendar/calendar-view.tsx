@@ -35,6 +35,7 @@ export function CalendarView({
   disciplines,
   defaultDiscipline,
   dayHref,
+  lessonStudy = false,
 }: {
   view: View;
   /** Dias mostrados, em ordem (no mês, as semanas completas). */
@@ -47,6 +48,8 @@ export function CalendarView({
   defaultDiscipline?: string;
   /** Link da visão de dia, para o mês. */
   dayHref: Record<string, string>;
+  /** Acompanhar Aula ligado: a aula ganha o atalho para a página dela (AUL-01). */
+  lessonStudy?: boolean;
 }) {
   const [target, setTarget] = useState<EditorTarget | null>(null);
   const discById = new Map(disciplines.map((d) => [d.id, d]));
@@ -198,6 +201,7 @@ export function CalendarView({
           target={target}
           disciplines={disciplines}
           defaultDiscipline={defaultDiscipline}
+          lessonStudy={lessonStudy}
           onClose={() => setTarget(null)}
         />
       ) : null}

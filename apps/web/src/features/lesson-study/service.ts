@@ -867,42 +867,34 @@ export async function saveMark(userId: string, body: z.output<(typeof contract.s
       ...(body.difficulty !== undefined && { difficulty: body.difficulty }),
       ...(body.doubt !== undefined && { doubt: body.doubt, doubtResolvedAt: null }),
     };
-    if (body.targetType === 'slide') {
-      const [cur] = await tx
-        .select()
-        .from(s.contentMarks)
-        .where(
-          and(
-            eq(s.contentMarks.ownerId, userId),
-            eq(s.contentMarks.targetType, 'slide'),
-            eq(s.contentMarks.versionId, body.versionId!),
-            eq(s.contentMarks.page, body.page!),
-          ),
-        )
-        .for('update');
-      if (cur) {
-        const [m] = await tx
-          .update(s.contentMarks)
-          .set({ ...values, lessonId: cur.lessonId ?? body.lessonId, updatedAt: new Date() })
-          .where(eq(s.contentMarks.id, cur.id))
-          .returning();
-        return markDto(m!);
-      }
-    }
-    const [m] = await tx
-      .insert(s.contentMarks)
-      .values({
-        ownerId: userId,
-        targetType: body.targetType,
-        lessonId: body.lessonId,
-        materialId: body.materialId,
-        versionId: body.versionId,
-        page: body.page,
-        region: body.region,
-        topicId: body.topicId,
-        ...values,
-      })
-      .returning();
+    const row = {
+      ownerId: userId,
+      targetType: body.targetType,
+      lessonId: body.lessonId,
+      materialId: body.materialId,
+      versionId: body.versionId,
+      page: body.page,
+      region: body.region,
+      topicId: body.topicId,
+      ...values,
+    };
+    // Slide inteiro: um selo só. Dois toques seguidos (ou dois aparelhos) não duplicam.
+    const [m] =
+      body.targetType === 'slide'
+        ? await tx
+            .insert(s.contentMarks)
+            .values(row)
+            .onConflictDoUpdate({
+              target: [s.contentMarks.versionId, s.contentMarks.page],
+              targetWhere: sql`target_type = 'slide'`,
+              set: {
+                ...values,
+                lessonId: sql`coalesce(${s.contentMarks.lessonId}, excluded.lesson_id)`,
+                updatedAt: new Date(),
+              },
+            })
+            .returning()
+        : await tx.insert(s.contentMarks).values(row).returning();
     return markDto(m!);
   });
 }

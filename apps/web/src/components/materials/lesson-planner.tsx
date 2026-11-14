@@ -18,10 +18,13 @@ export function LessonPlanner({
   disciplineId,
   lessons,
   disciplines,
+  lessonStudy = false,
 }: {
   disciplineId: string;
   lessons: Lesson[];
   disciplines: Discipline[];
+  /** Acompanhar Aula ligado: o título da aula abre a página dela (AUL-01). */
+  lessonStudy?: boolean;
 }) {
   const [target, setTarget] = useState<AttachTarget | null>(null);
   if (lessons.length === 0)
@@ -65,7 +68,9 @@ export function LessonPlanner({
                   {DAY.format(new Date(`${l.date}T12:00:00Z`))}
                   {l.time ? ` ${l.time}` : ''}
                 </td>
-                <td className="p-2">{l.title}</td>
+                <td className="p-2">
+                  {lessonStudy ? <Link href={`/app/aulas/${l.lessonId}`}>{l.title}</Link> : l.title}
+                </td>
                 <td className="p-2">{l.topic ?? ''}</td>
                 <td className="p-2">{l.teacher ?? ''}</td>
                 <td className="p-2">

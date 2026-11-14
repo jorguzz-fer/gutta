@@ -267,10 +267,17 @@ describe('caderno, selos e conclusão', () => {
     const m1 = await svc.saveMark(a.id, { ...slide, importance: 'importante' });
     const m2 = await svc.saveMark(a.id, { ...slide, doubt: 'Por que há edema?' });
     expect(m2).toMatchObject({ id: m1.id, importance: 'importante', doubt: 'Por que há edema?' });
+    // Dois toques ao mesmo tempo num slide sem selo ainda: um selo só.
+    await Promise.all([
+      svc.saveMark(a.id, { ...slide, page: 3, importance: 'alta' }),
+      svc.saveMark(a.id, { ...slide, page: 3, difficulty: 'dificil' }),
+    ]);
+    const page3 = (await svc.getLessonStudy(a.id, a.lessonId)).marks.filter((m) => m.page === 3);
+    expect(page3).toMatchObject([{ importance: 'alta', difficulty: 'dificil' }]);
     const resolved = await svc.updateMark(a.id, m1.id, { doubtResolved: true });
     expect(resolved.priority).toBeLessThan(m2.priority);
     const study = await svc.getLessonStudy(a.id, a.lessonId);
-    expect(study.marks).toHaveLength(1);
+    expect(study.marks).toHaveLength(2);
   });
 
   it('concluir aula é opcional e reabre', async () => {

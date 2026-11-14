@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { currentDisciplines } from '@/features/academics/service';
 import { getAgenda, userToday } from '@/features/agenda/service';
-import { requireFeature } from '@/features/flags/service';
+import { featureEnabled, requireFeature } from '@/features/flags/service';
 import { requireStudent } from '@/lib/auth/session';
 import { cn } from '@/lib/cn';
 
@@ -298,6 +298,7 @@ export default async function AgendaPage({
           disciplines={disciplines}
           defaultDiscipline={scope?.id}
           dayHref={dayHref}
+          lessonStudy={await featureEnabled('aula')}
         />
       </section>
     </div>

@@ -69,6 +69,12 @@ export default async function DisciplineOverviewPage({
     { href: '/app/lembretes', label: 'Lembretes', on: o.flags.lembretes },
     { href: `/app/faltas/${id}`, label: 'Faltas', on: o.flags.faltas },
     { href: `/app/notas/${id}`, label: 'Notas e calculadora', on: o.flags.notas },
+    {
+      href: `/app/materiais/disciplina/${id}`,
+      label: 'Conteúdo de aula',
+      on: o.flags.materiais,
+    },
+    { href: `/app/minhas-disciplinas/${id}/caderno`, label: 'Meu caderno', on: o.flags.aula },
   ].filter((m) => m.on);
 
   return (
@@ -144,6 +150,11 @@ export default async function DisciplineOverviewPage({
                     <p className="text-sm text-muted">
                       {[o.next.location, o.next.teacher].filter(Boolean).join(' · ')}
                     </p>
+                  ) : null}
+                  {o.flags.aula ? (
+                    <Link href={`/app/aulas/${o.next.id}`} className="text-sm">
+                      Acompanhar a aula
+                    </Link>
                   ) : null}
                 </>
               ) : (

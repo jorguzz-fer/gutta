@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { agenda, calendar } from '@gutta/contracts';
-import { Button } from '@/components/ui/button';
+import { Button, buttonClass } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
 import { Field, Input, Select, Textarea } from '@/components/ui/field';
 import { api, ClientApiError } from '@/lib/client-api';
@@ -78,11 +78,13 @@ export function EventEditor({
   target,
   disciplines,
   defaultDiscipline,
+  lessonStudy = false,
   onClose,
 }: {
   target: EditorTarget;
   disciplines: Discipline[];
   defaultDiscipline?: string;
+  lessonStudy?: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -332,6 +334,11 @@ export function EventEditor({
             {isNew ? 'Novo evento' : 'Editar evento'}
           </h2>
           {draft.importedNote ? <Alert>{draft.importedNote}</Alert> : null}
+          {lessonStudy && draft.source === 'lesson' && draft.id ? (
+            <Link href={`/app/aulas/${draft.id}`} className={buttonClass('secondary')}>
+              Acompanhar esta aula
+            </Link>
+          ) : null}
           <Field label="Tipo">
             {(p) => (
               <Select

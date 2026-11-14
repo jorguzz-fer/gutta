@@ -108,6 +108,7 @@ export async function disciplineOverview(userId: string, disciplineId: string) {
       period,
       next: next
         ? {
+            id: next.l.id,
             title: next.l.title,
             date: localDayKey(next.l.startsAt, tz),
             time: next.l.allDay ? null : fmt(next.l.startsAt),
