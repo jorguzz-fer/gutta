@@ -133,7 +133,7 @@ export class FakeScheduleExtractor implements ScheduleExtractor {
   async extract(input: ExtractInput): Promise<ExtractResult> {
     const events: ScheduleEvent[] = [];
     const re =
-      /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?\s+(?:(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s+)?(aula|prova|atividade|entrega|pr[aá]tica|outro)\s*:\s*(.+)$/i;
+      /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?\s+(?:(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s+)?(aula|prova|atividade|entrega|pr[aá]tica|outro)\s*:\s*(\S.*)$/i;
     for (const raw of input.text.split('\n')) {
       const line = raw.trim();
       const m = re.exec(line);
