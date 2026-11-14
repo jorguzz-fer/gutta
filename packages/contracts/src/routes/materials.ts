@@ -186,7 +186,7 @@ export const lessonContent = defineRoute({
 });
 
 export const SearchHitDto = z.object({
-  kind: z.enum(['material', 'pagina', 'lembrete']),
+  kind: z.enum(['material', 'pagina', 'anotacao', 'lembrete']),
   materialId: Uuid.nullable(),
   title: z.string(),
   /** Trecho com o termo; as palavras encontradas vêm entre « e ». */

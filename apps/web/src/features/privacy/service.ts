@@ -191,6 +191,12 @@ export async function exportData(userId: string) {
       materials,
       materialVersions,
       materialLinks,
+      slideAnnotations,
+      slideAnnotationHistory,
+      notebookEntries,
+      notebookEntryHistory,
+      contentMarks,
+      lessonProgress,
     ] = await inSequence([
       () => tx.select().from(s.profiles).where(eq(s.profiles.userId, userId)),
       () => tx.select().from(s.studentProfiles).where(eq(s.studentProfiles.userId, userId)),
@@ -273,6 +279,34 @@ export async function exportData(userId: string) {
       () => tx.select().from(s.materials).where(eq(s.materials.ownerId, userId)),
       () => tx.select().from(s.materialVersions).where(eq(s.materialVersions.ownerId, userId)),
       () => tx.select().from(s.materialLinks).where(eq(s.materialLinks.ownerId, userId)),
+      // Acompanhar Aula (SPEC v2, AUL): marcações, caderno, selos e progresso.
+      () => tx.select().from(s.slideAnnotations).where(eq(s.slideAnnotations.ownerId, userId)),
+      () =>
+        tx
+          .select()
+          .from(s.slideAnnotationHistory)
+          .where(eq(s.slideAnnotationHistory.ownerId, userId)),
+      () =>
+        tx
+          .select({
+            id: s.notebookEntries.id,
+            disciplineId: s.notebookEntries.disciplineId,
+            lessonId: s.notebookEntries.lessonId,
+            materialId: s.notebookEntries.materialId,
+            versionId: s.notebookEntries.versionId,
+            page: s.notebookEntries.page,
+            region: s.notebookEntries.region,
+            content: s.notebookEntries.content,
+            revision: s.notebookEntries.revision,
+            createdAt: s.notebookEntries.createdAt,
+            updatedAt: s.notebookEntries.updatedAt,
+          })
+          .from(s.notebookEntries)
+          .where(eq(s.notebookEntries.ownerId, userId)),
+      () =>
+        tx.select().from(s.notebookEntryHistory).where(eq(s.notebookEntryHistory.ownerId, userId)),
+      () => tx.select().from(s.contentMarks).where(eq(s.contentMarks.ownerId, userId)),
+      () => tx.select().from(s.lessonProgress).where(eq(s.lessonProgress.ownerId, userId)),
     ]);
     await tx
       .insert(s.dataRequests)
@@ -322,6 +356,12 @@ export async function exportData(userId: string) {
       materials,
       materialVersions,
       materialLinks,
+      slideAnnotations,
+      slideAnnotationHistory,
+      notebookEntries,
+      notebookEntryHistory,
+      contentMarks,
+      lessonProgress,
     };
   });
 }

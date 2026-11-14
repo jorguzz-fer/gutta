@@ -35,10 +35,7 @@ async function setup(user: string): Promise<Setup> {
         status: 'ready',
       })
       .returning();
-    const [m] = await tx
-      .insert(s.materials)
-      .values({ ownerId: user, title: 'Slides' })
-      .returning();
+    const [m] = await tx.insert(s.materials).values({ ownerId: user, title: 'Slides' }).returning();
     const [v] = await tx
       .insert(s.materialVersions)
       .values({ ownerId: user, materialId: m!.id, fileId: f!.id, version: 1 })

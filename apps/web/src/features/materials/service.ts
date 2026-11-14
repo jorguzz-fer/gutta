@@ -394,7 +394,7 @@ export async function search(
       : sql``;
     const type = q.type ? sql`and m.type = ${q.type}` : sql``;
     const hits = await tx.execute<{
-      kind: 'material' | 'pagina' | 'lembrete';
+      kind: 'material' | 'pagina' | 'anotacao' | 'lembrete';
       material_id: string | null;
       title: string;
       snippet: string | null;
@@ -402,6 +402,8 @@ export async function search(
       discipline: string | null;
       type: 'estudo' | 'atividade' | 'prova' | null;
       rank: number;
+      lesson_id: string | null;
+      discipline_id: string | null;
     }>(sql`
       with current_version as (
         select distinct on (v.material_id) v.material_id, v.file_id
@@ -416,22 +418,37 @@ export async function search(
         order by l.material_id, l.created_at
       )
       select 'material' as kind, m.id as material_id, m.title, null as snippet, null::int as page,
-             fd.name as discipline, m.type::text as type, ts_rank(m.search, ${query}) * 2 as rank
+             fd.name as discipline, m.type::text as type, ts_rank(m.search, ${query}) * 2 as rank,
+             null::uuid as lesson_id, null::uuid as discipline_id
       from materials m left join first_discipline fd on fd.material_id = m.id
       where m.owner_id = ${userId} and m.deleted_at is null and m.search @@ ${query} ${disc} ${type}
       union all
       select 'pagina', m.id, m.title,
              ts_headline('cognuss_pt', p.text, ${query},
                'StartSel=«, StopSel=», MaxWords=30, MinWords=12, MaxFragments=1'),
-             p.page, fd.name, m.type::text, ts_rank(p.search, ${query})
+             p.page, fd.name, m.type::text, ts_rank(p.search, ${query}), null, null
       from file_pages p
       join current_version cv on cv.file_id = p.file_id
       join materials m on m.id = cv.material_id
       left join first_discipline fd on fd.material_id = m.id
       where p.owner_id = ${userId} and m.deleted_at is null and p.search @@ ${query} ${disc} ${type}
       union all
+      select 'anotacao', n.material_id,
+             coalesce(ls.title, d.name),
+             ts_headline('cognuss_pt', n.plain_text, ${query},
+               'StartSel=«, StopSel=», MaxWords=30, MinWords=12, MaxFragments=1'),
+             n.page, d.name, null, ts_rank(n.search, ${query}),
+             n.lesson_id, n.discipline_id
+      from notebook_entries n
+      join enrolled_disciplines d on d.id = n.discipline_id
+      left join lessons ls on ls.id = n.lesson_id
+      where n.owner_id = ${userId} and n.search @@ ${query}
+        ${q.disciplineId ? sql`and n.discipline_id = ${q.disciplineId}` : sql``}
+        ${q.type ? sql`and false` : sql``}
+      union all
       select 'lembrete', null, r.title, r.description, null, null, null,
-             ts_rank(to_tsvector('cognuss_pt', r.title || ' ' || coalesce(r.description, '')), ${query})
+             ts_rank(to_tsvector('cognuss_pt', r.title || ' ' || coalesce(r.description, '')), ${query}),
+             null, null
       from reminders r
       where r.owner_id = ${userId}
         and to_tsvector('cognuss_pt', r.title || ' ' || coalesce(r.description, '')) @@ ${query}
@@ -451,7 +468,11 @@ export async function search(
         link:
           h.kind === 'lembrete'
             ? '/app/lembretes'
-            : `/app/materiais/${h.material_id}${h.page ? `?pagina=${h.page}` : ''}`,
+            : h.kind === 'anotacao'
+              ? h.lesson_id
+                ? `/app/aulas/${h.lesson_id}${h.material_id && h.page ? `?material=${h.material_id}&pagina=${h.page}` : ''}`
+                : `/app/minhas-disciplinas/${h.discipline_id}/caderno`
+              : `/app/materiais/${h.material_id}${h.page ? `?pagina=${h.page}` : ''}`,
       })),
     };
   });

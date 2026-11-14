@@ -8,7 +8,12 @@ import { requireStudent } from '@/lib/auth/session';
 
 export const metadata: Metadata = { title: 'Busca' };
 
-const KIND = { material: 'Material', pagina: 'Página', lembrete: 'Lembrete' } as const;
+const KIND = {
+  material: 'Material',
+  pagina: 'Página',
+  anotacao: 'Caderno',
+  lembrete: 'Lembrete',
+} as const;
 
 /** Trecho com as palavras encontradas destacadas (o serviço marca com « »). */
 function Snippet({ text }: { text: string }) {
@@ -28,7 +33,7 @@ function Snippet({ text }: { text: string }) {
   );
 }
 
-// Busca por palavra nos materiais e lembretes (SPEC v2, MAT-09; ADR 0014). Sem acento.
+// Busca por palavra nos materiais, no caderno e nos lembretes (SPEC v2, MAT-09; ADR 0014). Sem acento.
 export default async function SearchPage({
   searchParams,
 }: {
@@ -44,7 +49,7 @@ export default async function SearchPage({
       <h1 className="text-3xl md:text-4xl">Busca</h1>
       <form method="get" action="/app/busca" role="search" className="flex flex-wrap gap-2">
         <label htmlFor="q" className="sr-only">
-          Buscar nos materiais e lembretes
+          Buscar nos materiais, no caderno e nos lembretes
         </label>
         <input
           id="q"
