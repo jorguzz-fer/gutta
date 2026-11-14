@@ -202,6 +202,23 @@ export function useAnnotations(materialId: string, versionId: string) {
     [commit, get, schedule],
   );
 
+  /** Estado vindo do servidor (uma versão recuperada do histórico): entra sem nova gravação. */
+  const replace = useCallback(
+    (page: number, a: lessonStudy.AnnotationDto) => {
+      const t = timers.current.get(page);
+      if (t) clearTimeout(t);
+      timers.current.delete(page);
+      dirty.current.delete(page);
+      undo.current.set(page, []);
+      redo.current.set(page, []);
+      commit({
+        ...ref.current,
+        [page]: { layer: a.layer, revision: a.revision, hidden: a.hidden },
+      });
+    },
+    [commit],
+  );
+
   return {
     loaded,
     status,
@@ -209,6 +226,7 @@ export function useAnnotations(materialId: string, versionId: string) {
     get,
     setLayer,
     setHidden,
+    replace,
     undo: (page: number) => step(page, undo.current, redo.current),
     redo: (page: number) => step(page, redo.current, undo.current),
     canUndo: (page: number) => Boolean(undo.current.get(page)?.length),

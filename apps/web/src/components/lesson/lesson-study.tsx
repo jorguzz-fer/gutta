@@ -4,6 +4,7 @@ import {
   Circle,
   Eraser,
   EyeOff,
+  History,
   Hand,
   Highlighter,
   Maximize,
@@ -35,6 +36,7 @@ import { api } from '@/lib/client-api';
 import { uploadFile } from '@/lib/upload';
 import { cn } from '@/lib/cn';
 import { shapeId } from './geometry';
+import { HistoryDialog } from './history-dialog';
 import { LearningPanel } from './learning-panel';
 import { NotebookPane, type Draft, type Slide } from './notebook-pane';
 import { openPdf, type PDFDocumentProxy } from './pdf';
@@ -178,6 +180,7 @@ function Workspace({
   const [zoom, setZoom] = useState(1);
   const [highlight, setHighlight] = useState<Region | null>(null);
   const [imageStatus, setImageStatus] = useState('');
+  const [history, setHistory] = useState(false);
   const viewer = useRef<HTMLDivElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
   const ann = useAnnotations(material.id, material.versionId);
@@ -417,6 +420,18 @@ function Workspace({
           >
             <EyeOff className="size-5" aria-hidden />
           </button>
+          <button
+            type="button"
+            aria-label="Histórico das marcações deste slide"
+            title="Histórico das marcações deste slide"
+            onClick={() => {
+              flush();
+              setHistory(true);
+            }}
+            className="grid size-11 place-items-center rounded-[var(--radius)] hover:bg-surface-2"
+          >
+            <History className="size-5" aria-hidden />
+          </button>
           <span aria-live="polite" className="ml-auto px-2 text-sm text-muted">
             {imageStatus || SAVE_TEXT[ann.status]}
           </span>
@@ -572,6 +587,17 @@ function Workspace({
           />
         </div>
       </aside>
+      <HistoryDialog
+        materialId={material.id}
+        versionId={material.versionId}
+        page={page}
+        open={history}
+        onClose={() => setHistory(false)}
+        onRestored={(a) => {
+          ann.replace(a.page, a);
+          setHistory(false);
+        }}
+      />
     </div>
   );
 }

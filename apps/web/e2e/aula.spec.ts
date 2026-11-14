@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { eq, schema as s } from '@gutta/db';
+import { eq, schema as s, sql } from '@gutta/db';
 import { completeOnboarding, ownerDb, setFeatures, signUp, uniqueEmail } from './helpers';
 import { pagesPdf } from './pdf';
 
@@ -111,6 +111,21 @@ test.describe('acompanhar aula', () => {
     await expect(page.getByText('Salvo')).toBeVisible();
     // Continua no outro aparelho: depois de recarregar, o traço está lá.
     await page.reload();
+    await expect(page.getByRole('img', { name: /Slide 1 de 2/ }).locator('path')).toHaveCount(1);
+    // Outro aparelho gravou por cima enquanto esta tela estava aberta: vence a última gravação
+    // e a versão substituída fica no histórico, de onde volta.
+    await db
+      .update(s.slideAnnotations)
+      .set({ revision: sql`${s.slideAnnotations.revision} + 1` })
+      .where(eq(s.slideAnnotations.ownerId, user!.id));
+    await stroke(page, /Slide 1 de 2/, 0.6);
+    await expect.poll(layers, { timeout: 15_000 }).toEqual([[1, 2]]);
+    await page.getByRole('button', { name: 'Histórico das marcações deste slide' }).click();
+    const hdialog = page.getByRole('dialog', { name: 'Histórico do slide 1' });
+    await expect(hdialog.getByText(/Substituída por outro aparelho · 1 marcação/)).toBeVisible();
+    await hdialog.getByRole('button', { name: 'Recuperar' }).click();
+    await expect(hdialog).toBeHidden();
+    await expect.poll(layers, { timeout: 15_000 }).toEqual([[1, 1]]);
     await expect(page.getByRole('img', { name: /Slide 1 de 2/ }).locator('path')).toHaveCount(1);
 
     // Caderno no slide 2, com lista, negrito e fórmula.
