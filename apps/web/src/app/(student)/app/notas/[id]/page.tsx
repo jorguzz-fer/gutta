@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { GradesBoard } from '@/components/grades/grades-board';
-import { requireFeature } from '@/features/flags/service';
+import { featureEnabled, requireFeature } from '@/features/flags/service';
 import { getGrades } from '@/features/grades/service';
 import { ApiError } from '@/lib/api';
 import { requireStudent } from '@/lib/auth/session';
@@ -28,7 +28,7 @@ export default async function DisciplineGradesPage({
         <h1 className="text-3xl md:text-4xl">Notas: {grades.disciplineName}</h1>
         <p className="text-muted">Acompanhamento pessoal do semestre.</p>
       </div>
-      <GradesBoard initial={grades} />
+      <GradesBoard initial={grades} planning={await featureEnabled('equilibrio')} />
     </div>
   );
 }

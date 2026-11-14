@@ -7,6 +7,7 @@ import { Alert, Badge, Card, DemoBadge } from '@/components/ui/card';
 import { MySpace } from '@/components/space/my-space';
 import { loadDashboard } from '@/features/dashboard/data';
 import { flags } from '@/features/flags/service';
+import { weekSummary } from '@/features/planning/service';
 import { loadSpace } from '@/features/space/service';
 import { requireStudent } from '@/lib/auth/session';
 import { cn } from '@/lib/cn';
@@ -58,7 +59,7 @@ export default async function TodayPage({
   // Meu Espaço da v2 (SPEC v2, 5.5) substitui o painel do MVP quando a chave está ligada.
   const on = await flags();
   if (on.meu_espaco) {
-    const space = await loadSpace(user.id);
+    const [space, planning] = await Promise.all([loadSpace(user.id), weekSummary(user.id)]);
     return (
       <div className="grid gap-4">
         {sp['boas-vindas'] ? (
@@ -78,7 +79,9 @@ export default async function TodayPage({
             notas: on.notas,
             materiais: on.materiais,
             aula: on.aula,
+            equilibrio: on.equilibrio,
           }}
+          planning={planning}
         />
       </div>
     );

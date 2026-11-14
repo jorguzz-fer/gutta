@@ -2,6 +2,7 @@
 import { formatGrade, neededGrade } from '@gutta/core';
 import { useState } from 'react';
 import type { grades } from '@gutta/contracts';
+import { RequestReview } from '@/components/planning/request-review';
 import { Button } from '@/components/ui/button';
 import { Alert, Badge, Card } from '@/components/ui/card';
 import { Field, Input, Select } from '@/components/ui/field';
@@ -118,7 +119,14 @@ function Chart({ d }: { d: Dto }) {
   Notas da disciplina (SPEC v2, NOT; telas T22 e T23). A média considera só o que foi lançado.
   Nota lançada aqui é o seu acompanhamento, nunca o registro oficial (NOT-19).
 */
-export function GradesBoard({ initial }: { initial: Dto }) {
+export function GradesBoard({
+  initial,
+  planning = false,
+}: {
+  initial: Dto;
+  /** Equilíbrio ligado: nota abaixo da mínima oferece a revisão do conteúdo (NOT-15). */
+  planning?: boolean;
+}) {
   const [d, setD] = useState(initial);
   const [method, setMethod] = useState(initial.scheme.method);
   const [minGrade, setMinGrade] = useState(String(initial.scheme.minGrade).replace('.', ','));
@@ -309,6 +317,13 @@ export function GradesBoard({ initial }: { initial: Dto }) {
                         ) : null}
                       </div>
                     </div>
+                    {planning && a.grade !== null && a.grade < d.scheme.minGrade && !e ? (
+                      <RequestReview
+                        kind="nota"
+                        id={a.id}
+                        label={`Pedir revisão do conteúdo de ${a.name}`}
+                      />
+                    ) : null}
                     {e ? (
                       <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                         <Field

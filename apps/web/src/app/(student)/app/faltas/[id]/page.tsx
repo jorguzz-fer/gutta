@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { AttendanceBoard } from '@/components/attendance/attendance-board';
 import { getAttendance } from '@/features/attendance/service';
-import { requireFeature } from '@/features/flags/service';
+import { featureEnabled, requireFeature } from '@/features/flags/service';
 import { ApiError } from '@/lib/api';
 import { requireStudent } from '@/lib/auth/session';
 
@@ -32,7 +32,7 @@ export default async function DisciplineAttendancePage({
         <h1 className="text-3xl md:text-4xl">Faltas: {attendance.disciplineName}</h1>
         <p className="text-muted">Controle pessoal de frequência.</p>
       </div>
-      <AttendanceBoard initial={attendance} />
+      <AttendanceBoard initial={attendance} planning={await featureEnabled('equilibrio')} />
     </div>
   );
 }

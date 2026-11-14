@@ -46,7 +46,17 @@ export type SpaceLinks = {
   materiais: boolean;
   /** Acompanhar Aula ligado: o progresso (aulas concluídas) passa a ter sentido. */
   aula: boolean;
+  equilibrio: boolean;
 };
+
+/** Resumo da semana do Equilíbrio (EQU-10, EQU-16), quando ligado. */
+export type SpacePlanning = {
+  balance: { state: 'equilibrada' | 'intensa' | 'revisar'; message: string };
+  indicators: { availableMinutes: number; plannedMinutes: number; doneMinutes: number };
+  next: { id: string; title: string; date: string; startLocal: string; endLocal: string }[];
+  behind: number;
+  pendingTasks: number;
+} | null;
 
 /** Barra de progresso (6.4, D13): aulas concluídas no Acompanhar Aula sobre as ocorridas. */
 function Progress({ value, label, detail }: { value: number; label: string; detail: string }) {
@@ -75,7 +85,15 @@ function Progress({ value, label, detail }: { value: number; label: string; deta
   objetivo, visão do dia, disciplinas, rotina, plano da semana e próximos compromissos.
   Números só quando existem; cada cartão vazio diz o que falta e leva ao passo certo.
 */
-export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
+export function MySpace({
+  space,
+  links,
+  planning = null,
+}: {
+  space: Space;
+  links: SpaceLinks;
+  planning?: SpacePlanning;
+}) {
   const p = space.profile;
   const subtitle = [
     p.course ? `Estudante de ${p.course}` : null,
@@ -124,6 +142,11 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
             Rotina semanal
           </Link>
         ) : null}
+        {links.equilibrio ? (
+          <Link href="/app/equilibrio" className={buttonClass('secondary', 'md')}>
+            Equilíbrio
+          </Link>
+        ) : null}
         {links.agenda ? (
           <Link href="/app/agenda" className={buttonClass('secondary', 'md')}>
             Agenda
@@ -155,6 +178,25 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
           </Link>
         ) : null}
       </nav>
+
+      {planning ? (
+        <Alert tone={planning.balance.state === 'equilibrada' ? 'success' : 'warn'} role="status">
+          <p className="font-semibold">
+            Minha semana está equilibrada?{' '}
+            {planning.balance.state === 'equilibrada'
+              ? 'Sim'
+              : planning.balance.state === 'intensa'
+                ? 'Semana intensa'
+                : 'Planejamento a revisar'}
+          </p>
+          <p>{planning.balance.message}</p>
+          {planning.balance.state !== 'equilibrada' ? (
+            <Link href="/app/equilibrio" className="text-sm">
+              Abrir o Equilíbrio
+            </Link>
+          ) : null}
+        </Alert>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card aria-labelledby="dia" className="grid content-start gap-3">
@@ -315,10 +357,45 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
           <h2 id="plano" className="flex items-center gap-2 text-lg font-semibold">
             <CheckCircle2 className="size-5" aria-hidden /> Plano de estudos da semana
           </h2>
-          <p className="text-sm">
-            O plano de estudos distribui os conteúdos nos seus horários de estudo. Ele aparece aqui
-            quando você criar o primeiro.
-          </p>
+          {planning ? (
+            <>
+              <p className="text-sm">
+                {hours(planning.indicators.plannedMinutes)} planejadas e{' '}
+                {hours(planning.indicators.doneMinutes)} feitas, de{' '}
+                {hours(planning.indicators.availableMinutes)} disponíveis nos seus horários de
+                estudo.
+              </p>
+              {planning.next.length ? (
+                <ul className="grid gap-1 text-sm" aria-label="Próximas sessões de estudo">
+                  {planning.next.map((x) => (
+                    <li key={x.id} className="flex justify-between gap-2">
+                      <span>{x.title}</span>
+                      <span className="shrink-0 text-muted">
+                        {fmt(SHORT, x.date)} · {x.startLocal}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted">Nenhuma sessão confirmada por vir.</p>
+              )}
+              {planning.behind ? (
+                <p className="text-sm">
+                  {planning.behind === 1
+                    ? '1 sessão ficou para trás e espera a sua decisão.'
+                    : `${planning.behind} sessões ficaram para trás e esperam a sua decisão.`}
+                </p>
+              ) : null}
+              <Link href="/app/equilibrio" className={buttonClass('secondary', 'md')}>
+                {planning.pendingTasks ? 'Planejar a semana' : 'Abrir o Equilíbrio'}
+              </Link>
+            </>
+          ) : (
+            <p className="text-sm">
+              O plano de estudos distribui os conteúdos nos seus horários de estudo. Ele aparece
+              aqui quando você criar o primeiro.
+            </p>
+          )}
           {!r.hasBlocks && links.rotina ? (
             <p className="text-sm">
               Antes,{' '}

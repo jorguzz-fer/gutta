@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { attendance } from '@gutta/contracts';
+import { RequestReview } from '@/components/planning/request-review';
 import { Button } from '@/components/ui/button';
 import { Alert, Badge, Card } from '@/components/ui/card';
 import { Field, Input, Select } from '@/components/ui/field';
@@ -41,7 +42,14 @@ function shiftMonth(m: string, n: number) {
   calendário dos dias de aula e histórico. É um controle pessoal: a frequência oficial é a da
   instituição.
 */
-export function AttendanceBoard({ initial }: { initial: Dto }) {
+export function AttendanceBoard({
+  initial,
+  planning = false,
+}: {
+  initial: Dto;
+  /** Equilíbrio ligado: a falta oferece a revisão da aula perdida (FAL-08). */
+  planning?: boolean;
+}) {
   const [data, setData] = useState(initial);
   const [cfg, setCfg] = useState({
     total: String(initial.rule?.totalClassHours ?? ''),
@@ -358,6 +366,13 @@ export function AttendanceBoard({ initial }: { initial: Dto }) {
                         >
                           Remover
                         </Button>
+                        {planning ? (
+                          <RequestReview
+                            kind="falta"
+                            id={a.id}
+                            label="Pedir revisão da aula perdida"
+                          />
+                        ) : null}
                       </td>
                     </tr>
                   ))}

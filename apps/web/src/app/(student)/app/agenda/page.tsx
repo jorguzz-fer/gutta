@@ -299,6 +299,7 @@ export default async function AgendaPage({
           defaultDiscipline={scope?.id}
           dayHref={dayHref}
           lessonStudy={await featureEnabled('aula')}
+          planning={await featureEnabled('equilibrio')}
         />
       </section>
     </div>

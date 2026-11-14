@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { agenda, calendar } from '@gutta/contracts';
 import { Button, buttonClass } from '@/components/ui/button';
 import { Alert } from '@/components/ui/card';
+import { RequestReview } from '@/components/planning/request-review';
 import { Field, Input, Select, Textarea } from '@/components/ui/field';
 import { api, ClientApiError } from '@/lib/client-api';
 
@@ -79,12 +80,15 @@ export function EventEditor({
   disciplines,
   defaultDiscipline,
   lessonStudy = false,
+  planning = false,
   onClose,
 }: {
   target: EditorTarget;
   disciplines: Discipline[];
   defaultDiscipline?: string;
   lessonStudy?: boolean;
+  /** Equilíbrio ligado: a prova oferece o plano de revisão (CAL-10). */
+  planning?: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -192,9 +196,12 @@ export function EventEditor({
 
   if (
     target.mode === 'edit' &&
-    (target.item.source === 'routine' || target.item.source === 'reminder')
+    (target.item.source === 'routine' ||
+      target.item.source === 'reminder' ||
+      target.item.source === 'session')
   ) {
     const routine = target.item.source === 'routine';
+    const session = target.item.source === 'session';
     return (
       <dialog
         ref={ref}
@@ -207,11 +214,27 @@ export function EventEditor({
             {target.item.title}
           </h2>
           <p className="text-sm text-muted">
-            {routine ? 'Faz parte da sua rotina semanal.' : 'Lembrete (não ocupa horário).'}
+            {session
+              ? 'Sessão de estudo que você confirmou no Equilíbrio.'
+              : routine
+                ? 'Faz parte da sua rotina semanal.'
+                : 'Lembrete (não ocupa horário).'}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Link href={routine ? '/app/rotina' : '/app/lembretes'}>
-              {routine ? 'Editar na rotina' : 'Abrir em Meus lembretes'}
+            <Link
+              href={
+                session
+                  ? `/app/equilibrio?semana=${target.item.date}`
+                  : routine
+                    ? '/app/rotina'
+                    : '/app/lembretes'
+              }
+            >
+              {session
+                ? 'Abrir no Equilíbrio'
+                : routine
+                  ? 'Editar na rotina'
+                  : 'Abrir em Meus lembretes'}
             </Link>
             <Button type="button" variant="ghost" onClick={onClose}>
               Fechar
@@ -334,6 +357,9 @@ export function EventEditor({
             {isNew ? 'Novo evento' : 'Editar evento'}
           </h2>
           {draft.importedNote ? <Alert>{draft.importedNote}</Alert> : null}
+          {planning && draft.source === 'assessment' && draft.id && draft.kind === 'prova' ? (
+            <RequestReview kind="prova" id={draft.id} label="Pedir plano de revisão" />
+          ) : null}
           {lessonStudy && draft.source === 'lesson' && draft.id ? (
             <Link href={`/app/aulas/${draft.id}`} className={buttonClass('secondary')}>
               Acompanhar esta aula

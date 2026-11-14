@@ -144,8 +144,17 @@ async function findOwn(tx: Tx, userId: string, id: string, lock = false) {
 }
 
 /** Estado inicial conforme o arquivo e a autorização; enfileira a leitura quando der. */
-async function start(tx: Tx, userId: string, importId: string, file: FileRow) {
+async function start(tx: Tx, userId: string, importId: string, fileRow: FileRow) {
   const consent = await latestConsent(tx, userId, 'ai_materials');
+  // Lê o estado do arquivo com trava: o worker muda o arquivo para pronto e libera as leituras
+  // que esperam por ele na mesma transação. Sem a trava, as duas transações podiam se cruzar
+  // (cada uma vendo o estado antigo da outra) e a leitura ficaria esperando para sempre.
+  const [locked] = await tx
+    .select({ status: s.files.status })
+    .from(s.files)
+    .where(and(eq(s.files.id, fileRow.id), eq(s.files.ownerId, userId)))
+    .for('share');
+  const file = { ...fileRow, status: locked?.status ?? fileRow.status };
   let patch: Partial<ImportRow>;
   if (consent?.granted !== true) patch = { status: 'needs_consent', error: null };
   else if (file.status === 'ready' || file.status === 'failed' || file.status === 'quarantined')
