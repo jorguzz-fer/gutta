@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { addDays, localDayKey, weekStart, zonedTimeToUtc } from '@gutta/core';
-import { createDb, createPool, eq, schema as s } from '@gutta/db';
+import { and, createDb, createPool, eq, schema as s } from '@gutta/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { forget } from '@/lib/memo';
 import { getAgenda, getAgendaWeek } from '@/features/agenda/service';
@@ -150,7 +150,9 @@ describe('Meu Espaço', () => {
       mainGoalLabel: 'Reforçar disciplinas',
     });
     expect(space.disciplines).toHaveLength(1);
-    expect(space.disciplines[0]!.lessons).toEqual({ total: 0, past: 0 });
+    expect(space.disciplines[0]!.lessons).toEqual({ total: 0, past: 0, concluded: 0 });
+    expect(space.disciplines[0]!.progress).toBeNull();
+    expect(space.overallProgress).toBeNull();
     expect(space.routine.hasBlocks).toBe(false);
     expect(space.routine.sleepDailyMinutes).toBeNull();
     expect(space.todayItems).toEqual([]);
@@ -215,8 +217,21 @@ describe('Meu Espaço', () => {
       start: '14:00',
       end: '15:00',
     });
-    const space = await loadSpace(id);
-    expect(space.disciplines[0]!.lessons).toEqual({ total: 2, past: 1 });
+    let space = await loadSpace(id);
+    expect(space.disciplines[0]!.lessons).toEqual({ total: 2, past: 1, concluded: 0 });
+    expect(space.disciplines[0]!.progress).toBe(0);
+    // Progresso (6.4, D13): a aula que já aconteceu, concluída no Acompanhar Aula.
+    const [past] = await owner
+      .select()
+      .from(s.lessons)
+      .where(and(eq(s.lessons.ownerId, id), eq(s.lessons.title, 'Aula passada')));
+    await owner
+      .insert(s.lessonProgress)
+      .values({ ownerId: id, lessonId: past!.id, concludedAt: new Date() });
+    space = await loadSpace(id);
+    expect(space.disciplines[0]!.lessons).toEqual({ total: 2, past: 1, concluded: 1 });
+    expect(space.disciplines[0]!.progress).toBe(100);
+    expect(space.overallProgress).toBe(100);
     expect(space.upcoming.map((u) => u.title)).toEqual(['Laboratório', 'P1']);
     expect(space.todayItems.map((i) => i.title)).toContain('Estudo');
     expect(space.routine.hasBlocks).toBe(true);

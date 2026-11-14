@@ -39,8 +39,8 @@ const TYPE: Record<string, { label: string; tone: 'accent' | 'danger' | 'neutral
 
 /*
   Visão geral da disciplina (SPEC v2, DSC-01 a DSC-06; tela T11). Cada cartão leva ao módulo
-  dele. Sem cronograma ou sem configuração, o cartão diz o que falta; sem percentual de
-  progresso até a definição D13.
+  dele. Sem cronograma ou sem configuração, o cartão diz o que falta. O progresso segue a
+  seção 6.4 (D13) e só aparece com o Acompanhar Aula ligado.
 */
 export default async function DisciplineOverviewPage({
   params,
@@ -206,7 +206,9 @@ export default async function DisciplineOverviewPage({
                         ? 'Média mínima garantida'
                         : grades.needed.status === 'sem_restantes'
                           ? `${grades.summary.current >= grades.scheme.minGrade ? 'Acima' : 'Abaixo'} da mínima de ${formatGrade(grades.scheme.minGrade)}`
-                          : `Mínima de ${formatGrade(grades.scheme.minGrade)}`}
+                          : grades.atRisk
+                            ? `Em risco para a mínima de ${formatGrade(grades.scheme.minGrade)}`
+                            : `Mínima de ${formatGrade(grades.scheme.minGrade)}`}
                     </p>
                   </>
                 ) : (
@@ -316,6 +318,15 @@ export default async function DisciplineOverviewPage({
                     {o.summary.lessons} ({o.summary.pastLessons} já aconteceram)
                   </dd>
                 </div>
+                {o.flags.aula && o.summary.progress !== null ? (
+                  <div className="flex justify-between">
+                    <dt>Progresso</dt>
+                    <dd>
+                      {o.summary.progress}% ({o.summary.concludedLessons} de{' '}
+                      {o.summary.occurredLessons} aulas concluídas)
+                    </dd>
+                  </div>
+                ) : null}
                 <div className="flex justify-between">
                   <dt>Provas</dt>
                   <dd>{o.summary.exams}</dd>

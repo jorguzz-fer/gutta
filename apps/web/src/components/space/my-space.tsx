@@ -44,7 +44,31 @@ export type SpaceLinks = {
   faltas: boolean;
   notas: boolean;
   materiais: boolean;
+  /** Acompanhar Aula ligado: o progresso (aulas concluídas) passa a ter sentido. */
+  aula: boolean;
 };
+
+/** Barra de progresso (6.4, D13): aulas concluídas no Acompanhar Aula sobre as ocorridas. */
+function Progress({ value, label, detail }: { value: number; label: string; detail: string }) {
+  return (
+    <div className="grid gap-1">
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
+        aria-valuetext={`${value}%, ${detail}`}
+        className="h-2 overflow-hidden rounded-full bg-surface-2"
+      >
+        <div className="h-full bg-accent" style={{ width: `${value}%` }} />
+      </div>
+      <p>
+        {value}% · {detail}
+      </p>
+    </div>
+  );
+}
 
 /*
   Meu Espaço, versão inicial (SPEC v2, 5.5; tela T10). A ordem segue a tela: cabeçalho com
@@ -166,6 +190,11 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
               <BookOpen className="size-5" aria-hidden /> Minhas disciplinas (
               {space.disciplines.length})
             </h2>
+            {links.aula && space.overallProgress !== null ? (
+              <p className="text-sm">
+                Progresso geral: <strong>{space.overallProgress}%</strong>
+              </p>
+            ) : null}
             {links.disciplinas ? (
               <Link href="/app/minhas-disciplinas" className="text-sm">
                 Gerenciar ou adicionar disciplinas
@@ -214,6 +243,13 @@ export function MySpace({ space, links }: { space: Space; links: SpaceLinks }) {
                         ? `${d.lessons.past} de ${d.lessons.total} aulas do cronograma já aconteceram`
                         : 'Sem aulas no cronograma ainda'}
                     </p>
+                    {links.aula && d.progress !== null ? (
+                      <Progress
+                        value={d.progress}
+                        label={`Progresso em ${d.shortName || d.name}`}
+                        detail={`${d.lessons.concluded} de ${d.lessons.past} aulas concluídas`}
+                      />
+                    ) : null}
                   </li>
                 );
               })}

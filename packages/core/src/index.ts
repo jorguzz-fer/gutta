@@ -14,3 +14,4 @@ export * from './notify';
 export * from './attendance';
 export * from './grades';
 export * from './lesson';
+export * from './progress';

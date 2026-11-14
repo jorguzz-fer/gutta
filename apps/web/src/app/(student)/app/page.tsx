@@ -77,6 +77,7 @@ export default async function TodayPage({
             faltas: on.faltas,
             notas: on.notas,
             materiais: on.materiais,
+            aula: on.aula,
           }}
         />
       </div>

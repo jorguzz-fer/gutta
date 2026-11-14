@@ -26,7 +26,7 @@ function simFrom(d: Dto) {
   };
 }
 
-/** Situação sem a definição de "em risco" (pendente D13): só o que a SPEC já define. */
+/** Situação (NOT-16): acima, abaixo, garantida, em risco (SPEC v2, 6.4) ou alcançável. */
 function situation(d: Dto): { text: string; tone: 'success' | 'warn' | 'neutral' } {
   const min = formatGrade(d.scheme.minGrade);
   if (d.summary.current === null) return { text: 'Nenhuma nota lançada ainda.', tone: 'neutral' };
@@ -45,6 +45,11 @@ function situation(d: Dto): { text: string; tone: 'success' | 'warn' | 'neutral'
   if (d.needed.status === 'inalcancavel')
     return {
       text: `Com as avaliações restantes, a média de ${min} não é mais alcançável. Vale conferir as regras de recuperação da disciplina.`,
+      tone: 'warn',
+    };
+  if (d.atRisk)
+    return {
+      text: `Em risco: para chegar a ${min}, você precisa de ${formatGrade(d.needed.needed!)} em média nas avaliações restantes. Dá para usar o simulador abaixo para ver os cenários.`,
       tone: 'warn',
     };
   return {

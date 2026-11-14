@@ -102,7 +102,7 @@ Saída (SPEC v2, 12): critério de aceite de AUL; o PDF original permanece intac
 
 D13 e D15 decididas pelo Fernando: valem as propostas da SPEC v2, seção 6.4 (progresso, "em risco", semana intensa, jornada longa e ocupação por intensidade). Os parâmetros do Equilíbrio são ajustados depois do piloto.
 
-- [ ] 56. D13 nas telas que esperavam: progresso da disciplina e geral (ESP-04, DSC) e a situação "em risco" nas notas (NOT-16), em `packages/core` com teste.
+- [x] 56. D13 nas telas que esperavam: progresso da disciplina e geral (ESP-04, DSC) e a situação "em risco" nas notas (NOT-16), em `packages/core` com teste. Feito: `atRisk` em `packages/core/grades` e `disciplineProgress`/`overallProgress` em `packages/core/progress`, com teste; "em risco" na página da disciplina em Notas, na lista de Notas e no cartão da visão geral; progresso por disciplina e geral no Meu Espaço e na visão geral, só com o Acompanhar Aula ligado (sem ele, ninguém conclui aula e o percentual seria sempre zero). E2E de notas e da aula conferem os dois.
 
 ### Fase 4: Equilíbrio
 

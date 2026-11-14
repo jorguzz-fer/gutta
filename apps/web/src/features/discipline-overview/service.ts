@@ -1,6 +1,6 @@
 import 'server-only';
-import { addDays, localDayKey, zonedTimeToUtc } from '@gutta/core';
-import { and, asc, count, eq, isNull, schema as s, withUser } from '@gutta/db';
+import { addDays, disciplineProgress, localDayKey, zonedTimeToUtc } from '@gutta/core';
+import { and, asc, count, eq, inArray, isNotNull, isNull, schema as s, withUser } from '@gutta/db';
 import { notFound } from '@/lib/api';
 import { db } from '@/lib/db';
 import { currentDisciplines } from '@/features/academics/service';
@@ -101,7 +101,27 @@ export async function disciplineOverview(userId: string, disciplineId: string) {
       where: eq(s.attendanceRules.disciplineId, disciplineId),
     });
     const totalLessons = allLessons.filter((x) => x.l.kind !== 'outro');
+    const past = totalLessons.filter((x) => x.l.startsAt < now && x.l.kind === 'aula');
     const pastLessons = totalLessons.filter((x) => x.l.startsAt < now).length;
+    // Progresso (6.4, D13): aulas já ocorridas que o aluno concluiu no Acompanhar Aula.
+    const concluded = past.length
+      ? (
+          await tx
+            .select({ id: s.lessonProgress.lessonId })
+            .from(s.lessonProgress)
+            .where(
+              and(
+                eq(s.lessonProgress.ownerId, userId),
+                inArray(
+                  s.lessonProgress.lessonId,
+                  past.map((x) => x.l.id),
+                ),
+                isNotNull(s.lessonProgress.concludedAt),
+              ),
+            )
+        ).length
+      : 0;
+    const lessonCount = totalLessons.filter((x) => x.l.kind === 'aula').length;
     return {
       discipline,
       today,
@@ -122,6 +142,13 @@ export async function disciplineOverview(userId: string, disciplineId: string) {
         totalClassHours: rule ? Number(rule.totalClassHours) : null,
         lessons: totalLessons.length,
         pastLessons,
+        progress: disciplineProgress({
+          lessons: lessonCount,
+          occurred: past.length,
+          concluded,
+        }),
+        concludedLessons: concluded,
+        occurredLessons: past.length,
         exams: assessments.filter((a) => a.kind === 'prova').length,
         activities: assessments.filter((a) => a.kind !== 'prova').length,
       },

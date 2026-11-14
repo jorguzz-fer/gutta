@@ -85,6 +85,22 @@ export function neededGrade(input: {
   return { status: 'alcancavel', needed };
 }
 
+/**
+ * "Em risco" (NOT-16; SPEC v2, 6.4, D13): a média desejada ainda é alcançável, mas a nota
+ * necessária nas avaliações restantes é maior que a média das já lançadas ou maior que 80% da
+ * nota máxima.
+ */
+export function atRisk(input: {
+  needed: NeededGrade;
+  currentAverage: number | null;
+  maxGrade?: number;
+}): boolean {
+  if (input.needed.status !== 'alcancavel') return false;
+  const max = input.maxGrade ?? SCALE;
+  const needed = input.needed.needed;
+  return (input.currentAverage !== null && needed > input.currentAverage) || needed > 0.8 * max;
+}
+
 /** Média acumulada depois de cada avaliação lançada, em ordem (NOT-14). */
 export function cumulativeAverages(method: GradingMethod, items: GradeItem[]): number[] {
   const out: number[] = [];

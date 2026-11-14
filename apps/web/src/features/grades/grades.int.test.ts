@@ -79,6 +79,8 @@ describe('notas', () => {
       remainingShare: 4,
     });
     expect(grades.needed).toEqual({ status: 'alcancavel', needed: 7.75 });
+    // Precisa de 7,75 com média 6,5: em risco (6.4, D13).
+    expect(grades.atRisk).toBe(true);
     expect(grades.assessments.map((a) => a.name)).toEqual(['P1', 'P2', 'P3']);
     expect(grades.cumulative).toEqual([6, 6.5]);
 

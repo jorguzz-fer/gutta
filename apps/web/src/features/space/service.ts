@@ -1,5 +1,11 @@
 import 'server-only';
-import { addDays, localDayKey, zonedTimeToUtc } from '@gutta/core';
+import {
+  addDays,
+  disciplineProgress,
+  localDayKey,
+  overallProgress,
+  zonedTimeToUtc,
+} from '@gutta/core';
 import type { agenda, disciplines as discContract, routine } from '@gutta/contracts';
 import { and, count, eq, isNull, schema as s, sql, withUser } from '@gutta/db';
 import { db } from '@/lib/db';
@@ -14,11 +20,15 @@ import { MAIN_GOALS } from '@/features/signup/steps';
 // que falta; nunca mostra número inventado.
 
 export type SpaceDiscipline = discContract.DisciplineDto & {
-  lessons: { total: number; past: number };
+  lessons: { total: number; past: number; concluded: number };
+  /** Progresso da seção 6.4 (D13); null sem cronograma ou sem aula ocorrida. */
+  progress: number | null;
 };
 
 export type Space = {
   greetingName: string;
+  /** Progresso geral (6.4, D13): média ponderada pelo número de aulas. */
+  overallProgress: number | null;
   profile: {
     course: string | null;
     semester: number | null;
@@ -65,14 +75,17 @@ export async function loadSpace(userId: string): Promise<Space> {
       .leftJoin(s.institutions, eq(s.institutions.id, s.studentProfiles.institutionId))
       .where(eq(s.studentProfiles.userId, userId));
 
-    // Aulas do cronograma por disciplina: quantas há e quantas já aconteceram (base do
-    // progresso da seção 6.4, que depende do Acompanhar Aula para virar percentual).
+    // Aulas do cronograma por disciplina: quantas há, quantas já aconteceram e quantas destas o
+    // aluno concluiu no Acompanhar Aula (progresso da seção 6.4, D13).
     const now = new Date();
     const stats = await tx
       .select({
         disciplineId: s.lessons.disciplineId,
         total: count(),
         past: sql<number>`count(*) filter (where ${s.lessons.startsAt} < ${now})::int`,
+        concluded: sql<number>`count(*) filter (where ${s.lessons.startsAt} < ${now} and exists (
+          select 1 from lesson_progress p
+          where p.lesson_id = lessons.id and p.owner_id = ${userId} and p.concluded_at is not null))::int`,
       })
       .from(s.lessons)
       .where(
@@ -129,8 +142,24 @@ export async function loadSpace(userId: string): Promise<Space> {
       todayItems: todayOcc.map((o) => toItemDto(o, tz)),
       disciplines: disciplines.map((d) => {
         const st = stats.find((x) => x.disciplineId === d.id);
-        return { ...d, lessons: { total: st?.total ?? 0, past: st?.past ?? 0 } };
+        const lessons = {
+          total: st?.total ?? 0,
+          past: st?.past ?? 0,
+          concluded: st?.concluded ?? 0,
+        };
+        return {
+          ...d,
+          lessons,
+          progress: disciplineProgress({
+            lessons: lessons.total,
+            occurred: lessons.past,
+            concluded: lessons.concluded,
+          }),
+        };
       }),
+      overallProgress: overallProgress(
+        stats.map((x) => ({ lessons: x.total, occurred: x.past, concluded: x.concluded })),
+      ),
       routine: { hasBlocks, summary: r.summary, goal: r.goal, sleepDailyMinutes },
       upcoming: upcoming.map((o) => toItemDto(o, tz)),
       tasks: (await todayReminders(tx, userId, tz, today)).map((r) => ({

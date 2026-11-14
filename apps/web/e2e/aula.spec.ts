@@ -188,6 +188,11 @@ test.describe('acompanhar aula', () => {
     const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex');
     expect(sha(original)).toBe(sha(readFileSync(AULA)));
 
+    // Progresso (6.4, D13): a única aula que já aconteceu foi concluída.
+    await page.goto('/app');
+    await expect(page.getByText('Progresso geral:')).toContainText('100%');
+    await expect(page.getByText('1 de 1 aulas concluídas')).toBeVisible();
+
     // Meu caderno da disciplina, com busca sem acento.
     await page.goto(`/app/minhas-disciplinas/${disc!.id}/caderno`);
     await expect(page.getByRole('heading', { name: 'Caderno da disciplina' })).toBeVisible();

@@ -1628,6 +1628,9 @@
                           ],
                           "additionalProperties": false
                         },
+                        "atRisk": {
+                          "type": "boolean"
+                        },
                         "cumulative": {
                           "type": "array",
                           "items": {
@@ -1642,6 +1645,7 @@
                         "assessments",
                         "summary",
                         "needed",
+                        "atRisk",
                         "cumulative"
                       ],
                       "additionalProperties": false
@@ -6562,6 +6566,9 @@
                           ],
                           "additionalProperties": false
                         },
+                        "atRisk": {
+                          "type": "boolean"
+                        },
                         "cumulative": {
                           "type": "array",
                           "items": {
@@ -6576,6 +6583,7 @@
                         "assessments",
                         "summary",
                         "needed",
+                        "atRisk",
                         "cumulative"
                       ],
                       "additionalProperties": false
@@ -6839,6 +6847,9 @@
                           ],
                           "additionalProperties": false
                         },
+                        "atRisk": {
+                          "type": "boolean"
+                        },
                         "cumulative": {
                           "type": "array",
                           "items": {
@@ -6853,6 +6864,7 @@
                         "assessments",
                         "summary",
                         "needed",
+                        "atRisk",
                         "cumulative"
                       ],
                       "additionalProperties": false

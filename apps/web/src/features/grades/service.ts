@@ -4,6 +4,7 @@ import {
   gradeSummary,
   localDayKey,
   neededGrade,
+  atRisk,
   type GradeItem,
 } from '@gutta/core';
 import type { grades as contract } from '@gutta/contracts';
@@ -75,6 +76,7 @@ async function load(tx: Tx, userId: string, disciplineId: string): Promise<Dto> 
     })),
     summary,
     needed,
+    atRisk: atRisk({ needed, currentAverage: summary.current }),
     cumulative: cumulativeAverages(method, items),
   };
 }

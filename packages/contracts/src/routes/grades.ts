@@ -38,6 +38,8 @@ export const GradesDto = z.object({
     status: z.enum(['garantida', 'alcancavel', 'inalcancavel', 'sem_restantes']),
     needed: z.number().nullable(),
   }),
+  /** "Em risco" (NOT-16; SPEC v2, 6.4, D13). */
+  atRisk: z.boolean(),
   cumulative: z.array(z.number()),
 });
 export type GradesDto = z.infer<typeof GradesDto>;

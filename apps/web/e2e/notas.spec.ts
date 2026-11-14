@@ -37,7 +37,10 @@ test.describe('notas', () => {
     await expect(stats.getByText('6,5', { exact: true })).toBeVisible();
     await expect(stats.getByText('2 de 3')).toBeVisible();
     await expect(
-      page.getByText('Para chegar a 7,0, você precisa de 7,75 em média nas avaliações restantes.'),
+      // Precisa de 7,75 com média 6,5: em risco (SPEC v2, 6.4, D13).
+      page.getByText(
+        'Em risco: para chegar a 7,0, você precisa de 7,75 em média nas avaliações restantes.',
+      ),
     ).toBeVisible();
     await expect(page.getByText('Pendente', { exact: true })).toBeVisible();
     expect(await axe(page)).toEqual([]);
