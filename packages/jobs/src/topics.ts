@@ -13,6 +13,8 @@ export const topics = {
   'files.process': z.object({ fileId: z.uuid(), userId: id, requestId: id.optional() }),
   // Ler o cronograma de uma disciplina com IA e deixar pronto para o aluno conferir (DIS-05).
   'ai.extract_schedule': z.object({ importId: z.uuid(), userId: id }),
+  // Criação com IA a partir dos materiais do aluno (AJU-01; ADR 0020).
+  'ai.create': z.object({ jobId: z.uuid(), userId: id }),
   // Conta excluída: apagar do bucket tudo o que estava sob u/{userId}/ (LGPD, ADR 0009).
   'maintenance.erase_user_objects': z.object({ userId: id }),
 } as const;
