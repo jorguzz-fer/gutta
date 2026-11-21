@@ -38,6 +38,25 @@ const schema = z.object({
   // Plano das peças da produção de aulas (ADR 0021): aula inteira, com imagens dos slides.
   AI_PRODUCTION_MODEL: z.string().default('claude-opus-5-5'),
   AI_PRODUCTION_EFFORT: z.enum(['low', 'medium', 'high']).default('high'),
+  // Peças HTML da produção de aulas (Fase 2) e o Chromium do teste de render.
+  AI_PIECE_MODEL: z.string().default('claude-opus-5-5'),
+  AI_PIECE_EFFORT: z.enum(['low', 'medium', 'high']).default('high'),
+  PIECE_CHROMIUM_PATH: z.string().optional(),
+  // Vídeos da produção de aulas (Fase 3). Higgsfield para imagem e clipe, ElevenLabs para a
+  // narração. Sem chave, a tarefa pausa com o aviso no admin. "fake" gera tudo com o ffmpeg,
+  // sem rede, e não vale em produção.
+  MEDIA_PROVIDER: z.enum(['higgsfield', 'fake']).default('higgsfield'),
+  HIGGSFIELD_API_KEY_ID: z.string().optional(),
+  HIGGSFIELD_API_KEY_SECRET: z.string().optional(),
+  HIGGSFIELD_IMAGE_ENDPOINT: z.string().optional(),
+  HIGGSFIELD_VIDEO_ENDPOINT: z.string().optional(),
+  ELEVENLABS_API_KEY: z.string().optional(),
+  ELEVENLABS_MODEL: z.string().default('eleven_multilingual_v2'),
+  // Voz padrão quando a disciplina não tem voz escolhida no admin.
+  ELEVENLABS_VOICE_ID: z.string().optional(),
+  // Cota diária de créditos da Higgsfield (o admin pode mudar sem deploy).
+  PRODUCTION_DAILY_CREDITS: z.coerce.number().int().positive().default(300),
+  PRODUCTION_MEDIA_POLL_MS: z.coerce.number().int().min(200).default(20_000),
   // Vetores da busca por conceito (ADR 0014): Voyage AI. Sem chave, a busca por palavra segue.
   VOYAGE_API_KEY: z.string().optional(),
   EMBEDDING_MODEL: z.string().default('voyage-4'),
@@ -62,6 +81,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   if (parsed.data.NODE_ENV === 'production' && parsed.data.AI_PROVIDER === 'fake') {
     throw new Error('Configuração inválida do worker: AI_PROVIDER=fake não vale em produção');
+  }
+  if (parsed.data.NODE_ENV === 'production' && parsed.data.MEDIA_PROVIDER === 'fake') {
+    throw new Error('Configuração inválida do worker: MEDIA_PROVIDER=fake não vale em produção');
   }
   return parsed.data;
 }

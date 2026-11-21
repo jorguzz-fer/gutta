@@ -11,11 +11,13 @@ const { app, owner, appPool, ownerPool } = connect();
 let admin: string;
 let editor: string;
 let aluno: string;
+let revisor: string;
 let batchId: string;
 
 beforeAll(async () => {
   admin = await makeUser(owner, ['admin']);
-  editor = await makeUser(owner, ['editor', 'reviewer']);
+  editor = await makeUser(owner, ['editor']);
+  revisor = await makeUser(owner, ['reviewer']);
   aluno = await makeUser(owner);
   const topic = (await owner.query.topics.findFirst())!;
   const [file] = await owner
@@ -72,14 +74,15 @@ describe('produção de aulas: acesso', () => {
     expect(tasks[0]!.status).toBe('proposed');
   });
 
-  it('editor, revisor e aluno não veem nada nem conseguem gravar', async () => {
+  it('editor e aluno não veem nada nem conseguem gravar', async () => {
     for (const user of [editor, aluno]) {
       const rows = await withUser(app, user, async (tx) => ({
         batches: await tx.select().from(s.productionBatches),
         slides: await tx.select().from(s.productionSlides),
         tasks: await tx.select().from(s.productionTasks),
+        assets: await tx.select().from(s.productionAssets),
       }));
-      expect(rows).toEqual({ batches: [], slides: [], tasks: [] });
+      expect(rows).toEqual({ batches: [], slides: [], tasks: [], assets: [] });
       await expect(
         withUser(app, user, (tx) =>
           tx.insert(s.productionSlides).values({ batchId, number: 2, kind: 'content' }),
@@ -94,5 +97,57 @@ describe('produção de aulas: acesso', () => {
       );
       expect(updated).toEqual([]);
     }
+  });
+
+  it('revisor (Fase 4) lê a produção para revisar, mas não cria slides nem versões', async () => {
+    const rows = await withUser(app, revisor, async (tx) => ({
+      batches: await tx.select().from(s.productionBatches),
+      tasks: await tx.select().from(s.productionTasks),
+    }));
+    expect(rows.batches.some((b) => b.id === batchId)).toBe(true);
+    expect(rows.tasks.length).toBeGreaterThan(0);
+    await expect(
+      withUser(app, revisor, (tx) =>
+        tx.insert(s.productionSlides).values({ batchId, number: 3, kind: 'content' }),
+      ),
+    ).rejects.toThrow();
+    const task = rows.tasks.find((t) => t.batchId === batchId)!;
+    await expect(
+      withUser(app, revisor, (tx) =>
+        tx.insert(s.productionAssets).values({
+          batchId,
+          taskId: task.id,
+          kind: 'html',
+          version: 99,
+          provider: 'fake',
+        }),
+      ),
+    ).rejects.toThrow();
+    // A decisão é assinada pelo próprio revisor e não muda depois.
+    await expect(
+      withUser(app, revisor, (tx) =>
+        tx.insert(s.productionReviews).values({
+          batchId,
+          taskId: task.id,
+          version: 1,
+          reviewerId: admin,
+          decision: 'approved',
+        }),
+      ),
+    ).rejects.toThrow();
+    const [r] = await withUser(app, revisor, (tx) =>
+      tx
+        .insert(s.productionReviews)
+        .values({ batchId, taskId: task.id, version: 1, reviewerId: revisor, decision: 'changes' })
+        .returning(),
+    );
+    await expect(
+      withUser(app, revisor, (tx) =>
+        tx
+          .update(s.productionReviews)
+          .set({ decision: 'approved' })
+          .where(eq(s.productionReviews.id, r!.id)),
+      ),
+    ).rejects.toThrow();
   });
 });

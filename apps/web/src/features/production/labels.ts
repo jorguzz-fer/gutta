@@ -11,6 +11,8 @@ export const BATCH_STATUS: Record<
   planning: { text: 'Planejando as peças', tone: 'accent', busy: true },
   ready: { text: 'Plano pronto', tone: 'success', busy: false },
   failed: { text: 'Falhou', tone: 'danger', busy: false },
+  generating: { text: 'Gerando as peças', tone: 'accent', busy: true },
+  generated: { text: 'Peças geradas', tone: 'success', busy: false },
 };
 
 export const SLIDE_KIND: Record<production.SlideDto['kind'], string> = {

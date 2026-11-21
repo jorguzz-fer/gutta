@@ -91,6 +91,8 @@ export const moduleInput = z.object({
     .union([
       z.literal(''),
       z.url('Endereço da aula inválido.').startsWith('https://', 'Use https.'),
+      // Aula da produção de aulas, servida pelo próprio app (ADR 0021).
+      z.string().regex(/^\/api\/v1\/production\/lessons\/[0-9a-f-]{36}$/),
     ])
     .transform((v) => (v === '' ? null : v))
     .nullable()

@@ -3,3 +3,4 @@ pnpm-lock.yaml
 docs/spec/
 packages/db/migrations/meta/
 docs/producao/referencias/
+packages/core/src/piece-fonts.ts

@@ -3,9 +3,15 @@ import Anthropic from '@anthropic-ai/sdk';
 import {
   AnthropicCreator,
   AnthropicLessonPlanner,
+  AnthropicPieceWriter,
   AnthropicScheduleExtractor,
+  AnthropicStoryboardWriter,
+  ElevenLabsNarrator,
   FakeCreator,
+  FakeStoryboardWriter,
+  HiggsfieldProvider,
   FakeLessonPlanner,
+  FakePieceWriter,
   FakeScheduleExtractor,
   FakeEmbedder,
   VoyageEmbedder,
@@ -23,6 +29,8 @@ import { LogMailer, ResendMailer } from './notify/mail';
 import { startNotifier } from './notify/dispatch';
 import { checkSpend } from './notify/spend';
 import { startWorkers } from './workers';
+import { PlaywrightRenderer } from './pieces/render';
+import { FakeMediaProvider, FakeNarrator } from './media/fake';
 
 // Processo worker (ADR 0013): publica o outbox na fila e executa os trabalhos.
 async function main() {
@@ -69,6 +77,43 @@ async function main() {
       : cfg.AI_PROVIDER === 'fake'
         ? new FakeLessonPlanner()
         : null;
+  const pieceWriter =
+    cfg.AI_PROVIDER === 'anthropic' && cfg.ANTHROPIC_API_KEY
+      ? new AnthropicPieceWriter(
+          new Anthropic({ apiKey: cfg.ANTHROPIC_API_KEY }),
+          cfg.AI_PIECE_MODEL,
+          cfg.AI_PIECE_EFFORT,
+        )
+      : cfg.AI_PROVIDER === 'fake'
+        ? new FakePieceWriter()
+        : null;
+  const renderer = new PlaywrightRenderer(cfg.PIECE_CHROMIUM_PATH);
+  const storyboardWriter =
+    cfg.AI_PROVIDER === 'anthropic' && cfg.ANTHROPIC_API_KEY
+      ? new AnthropicStoryboardWriter(
+          new Anthropic({ apiKey: cfg.ANTHROPIC_API_KEY }),
+          cfg.AI_PIECE_MODEL,
+          cfg.AI_PIECE_EFFORT,
+        )
+      : cfg.AI_PROVIDER === 'fake'
+        ? new FakeStoryboardWriter()
+        : null;
+  const fakeMedia = cfg.MEDIA_PROVIDER === 'fake';
+  const media = fakeMedia
+    ? new FakeMediaProvider()
+    : cfg.HIGGSFIELD_API_KEY_ID && cfg.HIGGSFIELD_API_KEY_SECRET
+      ? new HiggsfieldProvider(cfg.HIGGSFIELD_API_KEY_ID, cfg.HIGGSFIELD_API_KEY_SECRET, {
+          imageEndpoint: cfg.HIGGSFIELD_IMAGE_ENDPOINT,
+          videoEndpoint: cfg.HIGGSFIELD_VIDEO_ENDPOINT,
+        })
+      : null;
+  const narrator = fakeMedia
+    ? new FakeNarrator()
+    : cfg.ELEVENLABS_API_KEY
+      ? new ElevenLabsNarrator(cfg.ELEVENLABS_API_KEY, cfg.ELEVENLABS_MODEL)
+      : null;
+  if (!media) logger.warn('worker.no_media', { reason: 'chaves da Higgsfield ausentes' });
+  if (!narrator) logger.warn('worker.no_narration', { reason: 'ELEVENLABS_API_KEY ausente' });
   const handlers = createHandlers({
     storage,
     scanner,
@@ -76,6 +121,14 @@ async function main() {
     creator,
     embedder,
     planner,
+    pieceWriter,
+    renderer,
+    storyboardWriter,
+    media,
+    narrator,
+    defaultVoice: cfg.ELEVENLABS_VOICE_ID ?? (fakeMedia ? 'voz-de-teste' : null),
+    dailyCredits: cfg.PRODUCTION_DAILY_CREDITS,
+    mediaPollMs: cfg.PRODUCTION_MEDIA_POLL_MS,
   });
   const pool = createPool(cfg.DATABASE_URL, cfg.DB_POOL_MAX);
   const db = createDb(pool);
@@ -168,6 +221,7 @@ async function main() {
     await notifier.stop();
     // close() espera os trabalhos em andamento terminarem.
     await Promise.all(workers.map((w) => w.close()));
+    await renderer.close().catch(() => {});
     await closeQueues(queues);
     await Promise.all([queueConn.quit(), workerConn.quit()]);
     await pool.end();

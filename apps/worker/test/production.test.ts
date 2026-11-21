@@ -2,13 +2,21 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { FakeLessonPlanner, type LessonPlanner, type PlanInput, type PlanResult } from '@gutta/ai';
+import {
+  FakeLessonPlanner,
+  FakePieceWriter,
+  type LessonPlanner,
+  type PlanInput,
+  type PlanResult,
+} from '@gutta/ai';
 import { and, asc, eq, schema as s, sql } from '@gutta/db';
 import { keys, MemoryStorage } from '@gutta/storage';
 import { connect, makeUser } from '../../../packages/db/test/helpers';
 import { decodeXml, pageToSlide, readPptx, xmlText } from '../src/files/presentation';
 import { NoScanner } from '../src/files/scanner';
 import { filesProcess } from '../src/handlers/files';
+import { PIECE_MESSAGES, productionGeneratePiece } from '../src/handlers/pieces';
+import { PlaywrightRenderer } from '../src/pieces/render';
 import { PRODUCTION_MESSAGES, productionExtract, productionPlan } from '../src/handlers/production';
 import type { JobContext } from '../src/handlers/types';
 import { logger } from '../src/logger';
@@ -242,5 +250,103 @@ describe('lote de produção', () => {
     await productionPlan(deps).run({ batchId, userId: admin }, ctx());
     expect(await slideRows(batchId)).toHaveLength(7);
     expect(await taskRows(batchId)).toHaveLength(2);
+  });
+});
+
+describe('geração das peças (Fase 2)', () => {
+  const renderer = new PlaywrightRenderer(globalThis.process.env.PIECE_CHROMIUM_PATH);
+  afterAll(() => renderer.close());
+
+  /** Lote planejado com as tarefas aprovadas já liberadas para gerar. */
+  async function released() {
+    const sc = await runAll(PPTX, MIME.pptx, new FakeLessonPlanner());
+    await owner
+      .update(s.productionTasks)
+      .set({ status: 'generating' })
+      .where(eq(s.productionTasks.batchId, sc.batchId));
+    await owner
+      .update(s.productionBatches)
+      .set({ status: 'generating' })
+      .where(eq(s.productionBatches.id, sc.batchId));
+    return { ...sc, tasks: await taskRows(sc.batchId) };
+  }
+  const assetsOf = (taskId: string) =>
+    owner
+      .select()
+      .from(s.productionAssets)
+      .where(eq(s.productionAssets.taskId, taskId))
+      .orderBy(asc(s.productionAssets.version), asc(s.productionAssets.kind));
+
+  it('escreve, confere e testa nos dois temas; o lote termina quando todas terminam', async () => {
+    const { admin, batchId, tasks } = await released();
+    const writer = new FakePieceWriter();
+    const gen = productionGeneratePiece({ storage: store, writer, renderer });
+    await gen.run({ taskId: tasks[0]!.id, userId: admin }, ctx());
+    let t = (await taskRows(batchId))[0]!;
+    expect(t.status).toBe('generated');
+    expect(t.currentVersion).toBe(1);
+    expect((await batchRow(batchId)).status).toBe('generating');
+
+    const assets = await assetsOf(t.id);
+    expect(assets.map((a) => `${a.kind}:${a.version}`).sort()).toEqual(
+      ['html:1', 'screenshot:1', 'screenshot:1', 'screenshot:1'].sort(),
+    );
+    const html = assets.find((a) => a.kind === 'html')!;
+    expect(html.meta).toMatchObject({ ok: true, attempt: 1, problems: [] });
+    const blocks = JSON.parse((await store.get(html.storageKey!)).toString());
+    expect(blocks.title).toBe(t.title.replace(/[<>]/g, ''));
+    // O escritor recebeu o plano, o pedido e a imagem do slide-alvo.
+    expect(writer.calls[0]!.slides.map((x) => [x.number, Boolean(x.image)])).toEqual([[2, true]]);
+
+    await gen.run({ taskId: tasks[1]!.id, userId: admin }, ctx());
+    t = (await taskRows(batchId))[1]!;
+    expect(t.status).toBe('generated');
+    expect((await batchRow(batchId)).status).toBe('generated');
+    const usage = await owner
+      .select()
+      .from(s.aiUsage)
+      .where(and(eq(s.aiUsage.ownerId, admin), eq(s.aiUsage.feature, 'producao_peca')));
+    expect(usage).toHaveLength(2);
+  }, 120_000);
+
+  it('peça com erro no render volta para a IA com os problemas e a correção passa', async () => {
+    const { admin, batchId, tasks } = await released();
+    const writer = new FakePieceWriter(1);
+    await productionGeneratePiece({ storage: store, writer, renderer }).run(
+      { taskId: tasks[0]!.id, userId: admin },
+      ctx(),
+    );
+    const t = (await taskRows(batchId))[0]!;
+    expect(t.status).toBe('generated');
+    expect(t.currentVersion).toBe(2);
+    expect(writer.calls).toHaveLength(2);
+    expect(writer.calls[1]!.fix!.problems.join(' ')).toMatch(/Erro de script \(tema claro\)/);
+    const html = (await assetsOf(t.id)).filter((a) => a.kind === 'html');
+    expect(html.map((a) => (a.meta as { ok: boolean }).ok)).toEqual([false, true]);
+  }, 120_000);
+
+  it('sem corrigir depois das tentativas, a tarefa falha com os problemas', async () => {
+    const { admin, batchId, tasks } = await released();
+    await productionGeneratePiece({
+      storage: store,
+      writer: new FakePieceWriter(5),
+      renderer,
+      maxAttempts: 2,
+    }).run({ taskId: tasks[0]!.id, userId: admin }, ctx());
+    const t = (await taskRows(batchId))[0]!;
+    expect(t.status).toBe('failed');
+    expect(t.currentVersion).toBe(2);
+    expect(t.lastError).toMatch(/Erro de script/);
+  }, 120_000);
+
+  it('sem a chave do Claude, a tarefa falha com aviso claro', async () => {
+    const { admin, batchId, tasks } = await released();
+    await productionGeneratePiece({ storage: store, writer: null, renderer }).run(
+      { taskId: tasks[0]!.id, userId: admin },
+      ctx(),
+    );
+    const t = (await taskRows(batchId))[0]!;
+    expect(t.status).toBe('failed');
+    expect(t.lastError).toBe(PIECE_MESSAGES.noWriter);
   });
 });

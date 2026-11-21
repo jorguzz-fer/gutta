@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import { slidesLabel } from '@gutta/core';
 import { AdminHeader } from '@/components/admin/ui';
 import { AutoRefresh } from '@/components/production/auto-refresh';
+import { SendToReviewButton } from '@/components/production/review-actions';
 import { TaskBoard } from '@/components/production/task-board';
+import Link from 'next/link';
 import { Alert, Badge, Card } from '@/components/ui/card';
 import { BATCH_STATUS, SLIDE_KIND, usd } from '@/features/production/labels';
 import { getBatch } from '@/features/production/service';
@@ -25,6 +27,8 @@ export default async function BatchPage({ params }: { params: Promise<{ id: stri
   const { batch, slides, tasks } = data;
   const st = BATCH_STATUS[batch.status];
   const instructions = slides.filter((x) => x.kind === 'instruction').length;
+  const toReview = tasks.filter((t) => t.status === 'generated' && !t.inReview).length;
+  const inReview = tasks.filter((t) => t.inReview).length;
 
   return (
     <div className="grid gap-6">
@@ -40,7 +44,9 @@ export default async function BatchPage({ params }: { params: Promise<{ id: stri
           <AutoRefresh />
           {batch.status === 'planning'
             ? 'A IA está planejando as peças a partir dos slides. Uma aula inteira leva alguns minutos.'
-            : 'O arquivo está sendo verificado e convertido. Esta tela se atualiza sozinha.'}
+            : batch.status === 'generating'
+              ? 'As peças estão sendo escritas e testadas, uma de cada vez. Cada peça leva alguns minutos; esta tela se atualiza sozinha. Os vídeos esperam a sua aprovação do roteiro e das imagens, na tela de cada um.'
+              : 'O arquivo está sendo verificado e convertido. Esta tela se atualiza sozinha.'}
         </Alert>
       ) : null}
       {batch.status === 'failed' ? (
@@ -56,7 +62,7 @@ export default async function BatchPage({ params }: { params: Promise<{ id: stri
         </Alert>
       ) : null}
 
-      {batch.status === 'ready' ? (
+      {batch.status === 'ready' || batch.status === 'generating' || batch.status === 'generated' ? (
         <>
           <p className="text-sm text-muted">
             {batch.mode === 'content'
@@ -66,14 +72,36 @@ export default async function BatchPage({ params }: { params: Promise<{ id: stri
           </p>
           {tasks.length ? (
             <TaskBoard
+              key={tasks
+                .map((t) => `${t.id}:${t.status}:${t.currentVersion}:${t.mediaStage}`)
+                .join(',')}
+              batchId={batch.id}
               tasks={tasks}
               slides={slides}
               estimatedCredits={batch.estimatedCredits}
-              editable
+              editable={batch.status !== 'generating'}
             />
           ) : (
             <Alert>Nenhuma tarefa neste lote.</Alert>
           )}
+          {toReview || inReview ? (
+            <Card as="section" aria-labelledby="revisao" className="grid gap-3">
+              <h2 id="revisao" className="text-xl">
+                Revisão médica
+              </h2>
+              <p className="text-sm text-muted">
+                Cada peça pronta vira um módulo e as questões do plano vão junto, as duas com o selo
+                de demonstração. O revisor aprova ou pede ajuste; só a peça aprovada é publicada.
+                {inReview
+                  ? ` ${inReview} ${inReview === 1 ? 'peça já está' : 'peças já estão'} na revisão.`
+                  : ''}
+              </p>
+              <SendToReviewButton batchId={batch.id} count={toReview} />
+              <p>
+                <Link href="/admin/revisao">Abrir a fila de revisão</Link>
+              </p>
+            </Card>
+          ) : null}
         </>
       ) : null}
 

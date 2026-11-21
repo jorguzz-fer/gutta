@@ -277,6 +277,8 @@ export class AnthropicLessonPlanner implements LessonPlanner {
   }
 }
 
+const FAKE_QUESTION_KINDS = ['caso_clinico', 'raciocinio', 'conceito'] as const;
+
 /** Plano de teste, sem rede: tipo pelo que o pedido indica, título pelo começo do texto. */
 export class FakeLessonPlanner implements LessonPlanner {
   async plan(input: PlanInput): Promise<PlanResult> {
@@ -306,12 +308,27 @@ export class FakeLessonPlanner implements LessonPlanner {
               reason: `Proposta de teste para o slide ${s.number}.`,
               plan: base('stepper', short(s.text)),
             }))
-        : input.tasks.map((t) => ({
-            ref: t.position,
-            targetSlides: t.targetSlides,
-            reason: '',
-            plan: base(t.hint ?? 'animation', short(t.instruction)),
-          }));
+        : input.tasks.map((t) => {
+            const plan = base(t.hint ?? 'animation', short(t.instruction));
+            // Pedido com prioridade do professor vira tema central: 3 questões de teste.
+            if (t.priority)
+              Object.assign(plan, {
+                centralTheme: true,
+                questions: FAKE_QUESTION_KINDS.map((kind, i) => ({
+                  kind,
+                  stem: `Questão de teste ${i + 1} sobre ${short(t.instruction).toLowerCase()}.`,
+                  options: ['A', 'B', 'C', 'D'].map((x, j) => ({
+                    text: `Alternativa ${x}`,
+                    correct: j === i,
+                    why: j === i ? 'Certa no teste.' : 'Errada no teste.',
+                  })),
+                  explanation: 'Explicação de teste.',
+                  scenario: null,
+                })),
+                reviewNotes: ['Conferir os valores de referência (teste).'],
+              });
+            return { ref: t.position, targetSlides: t.targetSlides, reason: '', plan };
+          });
     return {
       tasks,
       warnings: [],

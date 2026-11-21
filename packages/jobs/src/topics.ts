@@ -21,6 +21,13 @@ export const topics = {
   // Produção de aulas (ADR 0021): separar os slides do arquivo do professor e planejar as peças.
   'production.extract': z.object({ batchId: z.uuid(), userId: id }),
   'production.plan': z.object({ batchId: z.uuid(), userId: id }),
+  // Escrever, conferir e testar a peça HTML de uma tarefa aprovada (Fase 2).
+  'production.generate_piece': z.object({ taskId: z.uuid(), userId: id }),
+  // Vídeos (Fase 3): escrever o roteiro e, depois de aprovado, avançar a mídia uma etapa por
+  // vez (imagens, clipes, narração, montagem). O trabalho de mídia se reagenda para consultar o
+  // provedor e para retomar no dia seguinte quando a cota do dia acaba.
+  'production.write_storyboard': z.object({ taskId: z.uuid(), userId: id }),
+  'production.generate_media': z.object({ taskId: z.uuid(), userId: id }),
   // Conta excluída: apagar do bucket tudo o que estava sob u/{userId}/ (LGPD, ADR 0009).
   'maintenance.erase_user_objects': z.object({ userId: id }),
 } as const;

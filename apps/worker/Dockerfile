@@ -2,7 +2,8 @@
 #   docker build -f apps/worker/Dockerfile -t gutta-worker .
 # Mesmo código do app, outro processo. Traz o LibreOffice (converter Office para PDF), o
 # Poppler (texto e miniatura por página) e o unzip (ler o PPTX da produção de aulas, ADR 0021).
-# O antivírus é o serviço clamav do compose (ADR 0012).
+# O Chromium roda o teste de render das peças (Fase 2). O antivírus é o serviço clamav do
+# compose (ADR 0012).
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
@@ -29,14 +30,17 @@ FROM deps AS build
 COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/worker apps/worker
-RUN pnpm --filter @gutta/worker build
+RUN pnpm --filter @gutta/worker build \
+    # O playwright-core não funciona empacotado pelo esbuild: vai ao lado do worker.mjs.
+    && mkdir -p /out/node_modules && cp -rL apps/worker/node_modules/playwright-core /out/node_modules/
 
 FROM node:22-alpine AS runner
 ENV NODE_ENV=production WORKER_HEALTH_PORT=3001 HOME=/tmp
 WORKDIR /app
-RUN apk add --no-cache libreoffice poppler-utils unzip font-dejavu font-noto \
+RUN apk add --no-cache libreoffice poppler-utils unzip chromium ffmpeg font-dejavu font-noto \
     && addgroup -S -g 1001 gutta && adduser -S -u 1001 -G gutta gutta
 COPY --from=build --chown=gutta:gutta /repo/apps/worker/dist/worker.mjs ./worker.mjs
+COPY --from=build --chown=gutta:gutta /out/node_modules ./node_modules
 USER gutta
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

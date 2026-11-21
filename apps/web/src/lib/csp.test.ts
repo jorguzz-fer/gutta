@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCsp } from './csp';
+import { buildCsp, buildPieceCsp } from './csp';
 
 describe('CSP', () => {
   it('inclui só origens https válidas no frame-src', () => {
@@ -28,5 +28,30 @@ describe('CSP', () => {
       "connect-src 'self' http://localhost:9000;",
     );
     expect(buildCsp({ storageEndpoint: 'não é url' })).toContain("connect-src 'self';");
+  });
+});
+
+describe('prévia das peças', () => {
+  it('isola a peça: sandbox sem mesma origem, sem rede, emoldurada só pelo app', () => {
+    const csp = buildPieceCsp({ storageEndpoint: 'https://bucket.r2.dev' });
+    expect(csp).toContain('sandbox allow-scripts');
+    expect(csp).not.toContain('allow-same-origin');
+    expect(csp).toContain("default-src 'none'");
+    expect(csp).not.toContain('connect-src');
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp).toContain('media-src data: blob: https://bucket.r2.dev');
+  });
+
+  it('vídeo da peça: aceita o bucket e o próprio app, http só em ambiente local', () => {
+    expect(
+      buildPieceCsp({
+        storageEndpoint: 'https://bucket.r2.dev',
+        appUrl: 'https://app.cognuss.com.br',
+      }),
+    ).toContain('media-src data: blob: https://bucket.r2.dev https://app.cognuss.com.br;');
+    expect(buildPieceCsp({ appUrl: 'http://localhost:3100' })).toContain(
+      'media-src data: blob: http://localhost:3100;',
+    );
+    expect(buildPieceCsp({ appUrl: 'http://exemplo.com' })).toContain('media-src data: blob:;');
   });
 });

@@ -16,3 +16,4 @@ loadtest/resultados/*.json
 next-env.d.ts
 packages/db/dist/
 e2e/.outbox.jsonl
+dump.rdb

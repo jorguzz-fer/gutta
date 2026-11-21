@@ -70,7 +70,9 @@ jobs:
       - name: Ferramentas de arquivo do worker (Poppler e LibreOffice)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer-nogui libreoffice-calc-nogui libreoffice-impress-nogui unzip fonts-dejavu-core
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-writer-nogui libreoffice-calc-nogui libreoffice-impress-nogui unzip ffmpeg fonts-dejavu-core
+      - name: Chromium para o teste de render das peças (produção de aulas)
+        run: pnpm --filter @gutta/web exec playwright install --with-deps chromium
       - run: pnpm --filter @gutta/db test
       - run: pnpm --filter @gutta/jobs test
       - run: pnpm --filter @gutta/storage test
@@ -106,7 +108,7 @@ jobs:
       - name: Ferramentas de arquivo para o worker (PDF; apresentações da produção de aulas)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-impress-nogui unzip fonts-dejavu-core
+          sudo apt-get install -y -qq --no-install-recommends poppler-utils libreoffice-impress-nogui unzip ffmpeg fonts-dejavu-core
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:setup
       - name: Segredo de autenticação só deste job
@@ -147,7 +149,7 @@ jobs:
           cache-from: type=gha,scope=worker
           cache-to: type=gha,mode=max,scope=worker
       - name: Ferramentas de arquivo na imagem do worker
-        run: docker run --rm --entrypoint sh gutta-worker:ci -c "soffice --version && pdftotext -v && pdftoppm -v && unzip -v | head -1"
+        run: docker run --rm --entrypoint sh gutta-worker:ci -c "soffice --version && pdftotext -v && pdftoppm -v && unzip -v | head -1 && (chromium-browser --version || chromium --version)"
       - name: Imagem do Postgres (com pgvector)
         uses: docker/build-push-action@v6
         with:

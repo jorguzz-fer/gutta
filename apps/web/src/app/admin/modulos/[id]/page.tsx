@@ -122,7 +122,9 @@ export default async function ModuleAdminPage({
             optional
             hint="A origem precisa estar em LESSON_ORIGINS para abrir dentro do app."
           >
-            {(p) => <Input {...p} name="lessonUrl" type="url" defaultValue={m.lessonUrl ?? ''} />}
+            {(p) => (
+              <Input {...p} name="lessonUrl" inputMode="url" defaultValue={m.lessonUrl ?? ''} />
+            )}
           </Field>
           <Field label="Tempo estimado (min)" optional>
             {(p) => (

@@ -4,3 +4,6 @@ export * from './schedule-score';
 export * from './creations';
 export * from './embeddings';
 export * from './production';
+export * from './pieces';
+export * from './media';
+export * from './storyboard';

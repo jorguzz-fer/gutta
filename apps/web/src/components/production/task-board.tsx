@@ -1,7 +1,16 @@
 'use client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { production } from '@gutta/contracts';
-import { PIECE_TYPE_LABEL, PIECE_TYPES, slidesLabel, type PieceType } from '@gutta/core';
+import {
+  MEDIA_STAGE_LABEL,
+  PIECE_TYPE_LABEL,
+  PIECE_TYPES,
+  isMediaStage,
+  slidesLabel,
+  type PieceType,
+} from '@gutta/core';
 import { Button } from '@/components/ui/button';
 import { Alert, Badge, Card } from '@/components/ui/card';
 import { Field, Input, Select } from '@/components/ui/field';
@@ -12,14 +21,24 @@ type Slide = production.SlideDto;
 
 const STATUS_LABEL: Record<
   Task['status'],
-  { text: string; tone: 'neutral' | 'success' | 'danger' }
+  { text: string; tone: 'neutral' | 'success' | 'danger' | 'accent' | 'warn' }
 > = {
   proposed: { text: 'A decidir', tone: 'neutral' },
   approved: { text: 'Aprovada', tone: 'success' },
   discarded: { text: 'Descartada', tone: 'danger' },
+  generating: { text: 'Gerando a peça', tone: 'accent' },
+  generated: { text: 'Peça pronta', tone: 'success' },
+  failed: { text: 'Falhou', tone: 'danger' },
 };
 
-type Plan = {
+/** Ainda é decisão do admin (antes de ir para a geração). */
+const decidable = (t: Task) =>
+  t.status === 'proposed' || t.status === 'approved' || t.status === 'discarded';
+
+/** Vai para a geração ao liberar: peça HTML direto; o vídeo começa pelo roteiro. */
+const releasable = (t: Task) => t.status === 'approved' && t.pieceType !== null;
+
+export type Plan = {
   lead?: string;
   interaction?: string;
   scenarios?: { id: string; label: string }[];
@@ -51,7 +70,7 @@ function SlideThumb({ slide, number }: { slide: Slide | undefined; number: numbe
   );
 }
 
-function PlanSummary({ plan }: { plan: Plan }) {
+export function PlanSummary({ plan }: { plan: Plan }) {
   return (
     <dl className="grid gap-2 text-sm">
       {plan.lead ? (
@@ -124,17 +143,24 @@ function TaskCard({
   task,
   slides,
   editable,
+  batchId,
   onChange,
 }: {
   task: Task;
   slides: Map<number, Slide>;
   editable: boolean;
+  batchId: string;
   onChange: (task: Task, credits: number) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const status = STATUS_LABEL[task.status];
+  // Vídeo em produção: a etapa da mídia diz o que espera (roteiro ou imagens para aprovar).
+  const stage =
+    task.status === 'generating' && task.mediaStage && isMediaStage(task.mediaStage)
+      ? task.mediaStage
+      : null;
   const titleId = `tarefa-${task.id}`;
 
   async function patch(body: Record<string, unknown>) {
@@ -189,7 +215,9 @@ function TaskCard({
           <Badge tone="neutral">
             {task.pieceType ? PIECE_TYPE_LABEL[task.pieceType] : 'Tipo a definir'}
           </Badge>
-          <Badge tone={status.tone}>{status.text}</Badge>
+          <Badge tone={stage === 'paused' ? 'danger' : status.tone}>
+            {stage ? MEDIA_STAGE_LABEL[stage] : status.text}
+          </Badge>
         </div>
       </div>
 
@@ -226,6 +254,26 @@ function TaskCard({
           {task.credits ? (
             <p className="text-sm text-muted">Mídia estimada: {task.credits} créditos.</p>
           ) : null}
+          {task.status === 'approved' && task.pieceType === 'video' ? (
+            <p className="text-sm text-muted">
+              O vídeo começa pelo roteiro; imagens e clipes só depois das suas aprovações.
+            </p>
+          ) : null}
+          {task.status === 'failed' && task.lastError ? (
+            <p className="text-sm whitespace-pre-line text-danger">{task.lastError}</p>
+          ) : null}
+          {task.currentVersion || !decidable(task) ? (
+            <p>
+              <Link
+                href={`/admin/producao/${batchId}/tarefas/${task.id}`}
+                className="font-semibold"
+              >
+                {task.status === 'generating' && !task.currentVersion
+                  ? 'Acompanhar a geração'
+                  : 'Abrir a peça'}
+              </Link>
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -255,7 +303,7 @@ function TaskCard({
             </Button>
           </div>
         </form>
-      ) : editable ? (
+      ) : editable && decidable(task) ? (
         <div className="flex flex-wrap gap-2">
           {task.status !== 'approved' ? (
             <Button
@@ -304,18 +352,49 @@ function TaskCard({
 
 /** Etapa 4: o admin aprova, edita ou descarta cada tarefa e vê o custo estimado mudar. */
 export function TaskBoard({
+  batchId,
   tasks: initial,
   slides,
   estimatedCredits: initialCredits,
   editable,
 }: {
+  batchId: string;
   tasks: Task[];
   slides: Slide[];
   estimatedCredits: number;
   editable: boolean;
 }) {
+  const router = useRouter();
   const [tasks, setTasks] = useState(initial);
   const [credits, setCredits] = useState(initialCredits);
+  const [releasing, setReleasing] = useState(false);
+  const [releaseMsg, setReleaseMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const toRelease = tasks.filter(releasable).length;
+
+  async function release() {
+    setReleasing(true);
+    setReleaseMsg(null);
+    try {
+      const r = await api<{ released: number }>(`/production/batches/${batchId}/generate`, {
+        method: 'POST',
+      });
+      setReleaseMsg({
+        ok: true,
+        text:
+          r.released === 1
+            ? '1 peça foi para a geração.'
+            : `${r.released} peças foram para a geração.`,
+      });
+      router.refresh();
+    } catch (err) {
+      setReleaseMsg({
+        ok: false,
+        text: err instanceof ClientApiError ? err.message : 'Não deu para liberar agora.',
+      });
+    } finally {
+      setReleasing(false);
+    }
+  }
   const bySlide = new Map(slides.map((x) => [x.number, x]));
   const count = (st: Task['status']) => tasks.filter((t) => t.status === st).length;
 
@@ -350,11 +429,25 @@ export function TaskBoard({
           100 créditos; peças só em HTML não usam mídia gerada).
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" disabled>
-            Liberar geração
+          <Button
+            type="button"
+            disabled={!editable || releasing || toRelease === 0}
+            onClick={release}
+          >
+            {releasing ? 'Liberando…' : 'Liberar geração'}
           </Button>
-          <span className="text-sm text-muted">A geração das peças entra na Fase 2 do módulo.</span>
+          <span className="text-sm text-muted">
+            {toRelease === 0
+              ? 'Aprove as tarefas que devem virar peça.'
+              : toRelease === 1
+                ? '1 peça aprovada vai para a geração.'
+                : `${toRelease} peças aprovadas vão para a geração.`}{' '}
+            A IA escreve cada peça, que passa pelo linter e pelo teste nos temas claro e escuro.
+          </span>
         </div>
+        {releaseMsg ? (
+          <Alert tone={releaseMsg.ok ? 'success' : 'danger'}>{releaseMsg.text}</Alert>
+        ) : null}
       </Card>
       <ol className="grid gap-4" aria-label="Tarefas do lote">
         {tasks.map((t) => (
@@ -363,6 +456,7 @@ export function TaskBoard({
               task={t}
               slides={bySlide}
               editable={editable}
+              batchId={batchId}
               onChange={(task, c) => {
                 setTasks((all) => all.map((x) => (x.id === task.id ? task : x)));
                 setCredits(c);

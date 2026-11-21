@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AdminHeader, tableClass } from '@/components/admin/ui';
 import { NewBatchForm } from '@/components/production/new-batch-form';
+import { buttonClass } from '@/components/ui/button';
 import { Badge, Card } from '@/components/ui/card';
 import { BATCH_STATUS } from '@/features/production/labels';
 import { listBatches, productionOptions } from '@/features/production/service';
@@ -24,6 +25,11 @@ export default async function ProductionPage() {
       <AdminHeader
         title="Produção de aulas"
         lead="A aula do professor vira peças interativas e questões. Envie o arquivo: o sistema separa os slides, acha os pedidos do professor e a IA planeja cada peça. Você aprova o plano antes de qualquer gasto com mídia."
+        action={
+          <Link href="/admin/producao/vozes" className={buttonClass('secondary')}>
+            Vozes e cota de mídia
+          </Link>
+        }
       />
       <Card as="section" aria-labelledby="lotes" className="grid gap-3">
         <h2 id="lotes" className="text-xl">

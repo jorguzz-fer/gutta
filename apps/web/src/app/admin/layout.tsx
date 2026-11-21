@@ -9,6 +9,7 @@ import {
   LayoutGrid,
   LockKeyhole,
   ShieldCheck,
+  Stethoscope,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -66,6 +67,14 @@ const adminItems: NavItem[] = [
   },
   { href: '/admin/metricas', label: 'Métricas', icon: <BarChart3 className={icon} aria-hidden /> },
 ];
+// Revisão das aulas da produção (Fase 4): revisor e admin.
+const reviewItems: NavItem[] = [
+  {
+    href: '/admin/revisao',
+    label: 'Revisão de aulas',
+    icon: <Stethoscope className={icon} aria-hidden />,
+  },
+];
 const tailItems: NavItem[] = [
   {
     href: '/seguranca/dois-fatores',
@@ -92,7 +101,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
         <SideNav
-          items={[...items, ...(user.roles.includes('admin') ? adminItems : []), ...tailItems]}
+          items={[
+            ...items,
+            ...(user.roles.some((r) => r === 'reviewer' || r === 'admin') ? reviewItems : []),
+            ...(user.roles.includes('admin') ? adminItems : []),
+            ...tailItems,
+          ]}
         />
         <div className="hidden md:block">
           <SignOutButton />

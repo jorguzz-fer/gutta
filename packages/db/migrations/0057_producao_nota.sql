@@ -1,0 +1,1 @@
+ALTER TABLE "production_tasks" ADD COLUMN "pending_note" text;

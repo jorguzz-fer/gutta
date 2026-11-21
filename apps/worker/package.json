@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
-    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/worker.mjs --external:pg-native --external:@node-rs/argon2 --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/worker.mjs --external:pg-native --external:@node-rs/argon2 --external:playwright-core --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -20,7 +20,8 @@
     "bullmq": "5.81.5",
     "ioredis": "5.11.1",
     "pg": "^8.23.1",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "playwright-core": "1.63.0"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",

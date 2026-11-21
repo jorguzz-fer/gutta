@@ -88,6 +88,8 @@ export async function getModule(userId: string, disciplineSlug: string, moduleSl
 /** A aula só entra em iframe se a origem estiver na lista permitida (CSP frame-src). */
 export function embeddableLesson(url: string | null): { url: string; embed: boolean } | null {
   if (!url) return null;
+  // Aula da produção de aulas (ADR 0021): servida pelo próprio app, com a política isolada.
+  if (/^\/api\/v1\/production\/lessons\/[0-9a-f-]{36}$/.test(url)) return { url, embed: true };
   try {
     const u = new URL(url);
     if (u.protocol !== 'https:') return null;

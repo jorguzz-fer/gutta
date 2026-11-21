@@ -10,3 +10,4 @@ e3f9171b4f2bda88e67dd8c2f0ccfbe4d1499a2d:apps/web/vitest.int.config.ts:generic-a
 # de um item do mapa da esteroidogênese ("key:'21-hidroxilase…'"), não é segredo.
 978cb6ed7dfd561a561a6166b00616bd4ac370f0:docs/producao/referencias/aula-1/pecas/esteroides.html:generic-api-key:170
 978cb6ed7dfd561a561a6166b00616bd4ac370f0:docs/producao/referencias/aula-1/fontes/src/esteroides.html:generic-api-key:56
+f40b803616239ea4051f631bf4fe14542de7da38:packages/ai/src/piece-examples.ts:generic-api-key:12
